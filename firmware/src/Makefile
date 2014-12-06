@@ -134,8 +134,8 @@ install: $(BUILD_PATH)/$(BOARD).bin
 	$(UPLOAD_$(INSTALL_TARGET))
 
 release: $(BUILD_PATH)/$(BOARD).bin
-	@echo "Copying to spidey.bin"
-	cp $(BUILD_PATH)/$(BOARD).bin ../spidey.bin
+	@echo "Copying to metabot.bin"
+	cp $(BUILD_PATH)/$(BOARD).bin ../metabot.bin
 
 # Force a rebuild if the target changed
 PREV_BUILD_TYPE = $(shell cat $(BUILD_PATH)/build-type 2>/dev/null)
