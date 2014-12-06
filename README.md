@@ -1,6 +1,6 @@
 # Open-source DIY parametric robot
 
-![Metabot](docs/imgs/spidey.jpg)
+![Metabot](docs/imgs/metabot.jpg)
 
 ## [Demo video »](https://www.youtube.com/watch?v=7McQQ-uikZw)
 
