@@ -84,23 +84,9 @@ You can do exactly the same as before to put the legs on:
 
 ![One leg](imgs/one-leg.jpg)
 
-## 7) Put the fixation for OpenCM
+## 7) Put the electronics on your robot
 
-If you're using the body fixations for the OpenCM, you can now put the fixations on it:
-
-![Body fixations](imgs/opencm-fixations.jpg)
-
-Then, you can bind your OpenCM to your robot using long rivets:
-
-![Fixed OpenCM](imgs/opencm-fixed.jpg)
-
-## 8) Put the OpenCM++ and plug the electronics!
-
-You can then put the OpenCM++ on the robot:
-
-![OpenCM++ on the robot](imgs/opencmpp-robot.jpg)
-
-and plug the servos wires on the hub, and the XBee (optional)
+**This part of the documentation will updated soon**
 
 ## Ready!
 
