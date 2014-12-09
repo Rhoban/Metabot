@@ -71,7 +71,7 @@ http://www.robotis-shop-en.com/?act=shop_en.goods_view&GS=1590
 
 ### Screws & nuts
 
-To bind the Us and the batteries on the body, you'll also need M3x6 screws & nuts (about 30 qty).
+To bind the Us and the batteries on the body, you'll also need M3x8 screws & nuts (about 30 qty).
 
 ## Electronic
 
