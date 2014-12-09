@@ -88,6 +88,18 @@ TERMINAL_PARAMETER_FLOAT(Ax, "Ax", 0.0);
 TERMINAL_PARAMETER_FLOAT(Ay, "Ay", 0.0);
 TERMINAL_PARAMETER_FLOAT(Az, "Az", 0.0);
 
+TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
+{
+    if (backLegs == 0) backLegs = 1;
+    else if (backLegs == 1) backLegs = 0;
+}
+
+TERMINAL_COMMAND(toggleCrab, "Toggle crab mode")
+{
+    if (crab == 0) crab = 30;
+    else if (crab == 30) crab = 0;
+}
+
 // Gait selector
 #define GAIT_WALK       0
 #define GAIT_TROT       1
@@ -150,7 +162,7 @@ float l3[4];
  */
 void setup()
 {
-    RC.begin(115200);
+    RC.begin(921600);
 
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
