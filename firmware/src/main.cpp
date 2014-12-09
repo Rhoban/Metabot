@@ -191,13 +191,37 @@ void setup()
  */
 void tick()
 {
-    // Setting up functions
-    setup_functions();
+    // Computing average voltage
+    static int averageVoltage = 75;
+    static int idToRead = 0;
+    static int blink;
+
+    idToRead++;
+    if (idToRead >= 12) idToRead = 0;
+    bool success;
+    int voltage = dxl_read_byte(idToRead+1, DXL_VOLTAGE, &success);
+    if (success) {
+        if (voltage < averageVoltage) averageVoltage--;
+        if (voltage > averageVoltage) averageVoltage++;
+    }
+
+    if (averageVoltage < 64) {
+        dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
+        blink++;
+        if (blink > 10) {
+            blink = 0;
+        }
+        dxl_write_byte(DXL_BROADCAST, DXL_LED, blink<5);
+        return;
+    }
 
     if (!move || !started) {
         t = 0.0;
         return;
     }
+
+    // Setting up functions
+    setup_functions();
 
     // Incrementing and normalizing t
     t += freq*0.02;
