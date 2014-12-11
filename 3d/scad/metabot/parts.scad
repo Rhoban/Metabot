@@ -1,6 +1,7 @@
 include <config.scad>;
 use <../util/screws.scad>;
 use <../parts/body.scad>;
+use <../parts/body4.scad>;
 use <../parts/u.scad>;
 use <../parts/side.scad>;
 use <../parts/leg.scad>;
@@ -32,6 +33,11 @@ module metabot_body(print=false, top=false) {
 		if (top && BodyScrews) {
 			metabot_body_screws();
 		}
+}
+
+module metabot_body4(print=false, top=false) {
+    metabot_colorize()
+    body4(BodySize, Legs, Thickness, print=print, fixation=top);
 }
 
 module metabot_side(print=false) {

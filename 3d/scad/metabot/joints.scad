@@ -16,7 +16,6 @@ module metabot_side_to_side(alpha=0) {
 }
 
 module metabot_arm_leg() {
-    color([1.0,1.0,0.0])
     color(PartsColor) {
         arm_leg(LegSizeA, LegSizeB, LegSizeC, LegSizeBottom,
                 LegSizeTop, (MotorsPerLeg == 2 ? "side" : "arm"), L3Angle, Thickness, print=print);

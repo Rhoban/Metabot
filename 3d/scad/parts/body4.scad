@@ -3,13 +3,14 @@ use <../util/rounded.scad>;
 
 $fn=25;
 
-module body4(size=23, legs=4, thickness=2.2, fixation=true) {
+module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
     margin = 8;
-    height = 5;
+    height = 6;
+    R= (print && fixation)? [90,0,0] : [0,0,0];
+    rotate(R)
     difference() {
 	union() {
-	    translate([0,0,thickness/2])
-	    cube([size+margin, size+margin, thickness], center=true);
+	    rounded(size+margin, size+margin, thickness, 10, center=true);
 	    if (fixation) {
 		translate([0,0,(thickness*2+height)/2])
 		cube([size+margin+2*thickness, size+margin, thickness*2+height], center=true);
@@ -38,4 +39,4 @@ module body4(size=23, legs=4, thickness=2.2, fixation=true) {
     }
 }
 
-body4();
+body4(fixation=false);

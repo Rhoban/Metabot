@@ -40,18 +40,14 @@ module metabotLeg(a, b, c) {
 }
 
 module metabot(angles = [0,0,0]) {
-    metabot_body();
+    metabot_body4();
     translate([0,0,MotorDepth+Thickness]) {
-        metabot_body(top=true);
-	rotate([0,0,45])
-	translate([0,0,2*Thickness]) {
-		metabot_batfix();
-	}
+        metabot_body4(top=true);
     }
 
     for (leg=[1:Legs]) {
         rotate([0,0,leg*360/Legs]) {
-            translate([0,BodySize-5,Thickness]) {
+            translate([0,BodySize/2,Thickness]) {
                 metabotLeg(angles[0], angles[1], angles[2]);
             }
         }
