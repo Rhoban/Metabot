@@ -8,21 +8,6 @@ To build your own Metabot, you'll need the following parts
 
 You need all the 3D printed parts that are in the `3d` directory, you'll need to print:
 
-
-### U (x8)
-
-![U](../3d/imgs/u.png) 
-
-
-### Leg (x4)
-
-![Leg](../3d/imgs/leg.png) 
-
-
-### Side (x8)
-
-![Side](../3d/imgs/side.png) 
-
 ### Body Top (x1)
 
 This is the top of the body, with holes to put the batteries:
@@ -32,6 +17,18 @@ This is the top of the body, with holes to put the batteries:
 ### Body Bottom (x1)
 
 ![Body with fixtions](../3d/imgs/body_bottom.png) 
+
+### Side (x8)
+
+![Side](../3d/imgs/side.png) 
+
+### U (x8)
+
+![U](../3d/imgs/u.png) 
+
+### Leg (x4)
+
+![Leg](../3d/imgs/leg.png) 
 
 ## Motors
 
