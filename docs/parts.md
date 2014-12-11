@@ -18,13 +18,13 @@ This is the top of the body, with holes to put the batteries:
 
 ![Body with fixtions](../3d/imgs/body_bottom.png) 
 
-### Side (x8)
-
-![Side](../3d/imgs/side.png) 
-
 ### U (x8)
 
 ![U](../3d/imgs/u.png) 
+
+### Side (x8)
+
+![Side](../3d/imgs/side.png) 
 
 ### Leg (x4)
 
