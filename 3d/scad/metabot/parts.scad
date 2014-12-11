@@ -5,7 +5,6 @@ use <../parts/body4.scad>;
 use <../parts/u.scad>;
 use <../parts/side.scad>;
 use <../parts/leg.scad>;
-use <../parts/batfix.scad>;
 
 module metabot_colorize() {
     color(PartsColor)
@@ -43,10 +42,4 @@ module metabot_body4(print=false, top=false) {
 module metabot_side(print=false) {
     metabot_colorize()
         side(SideSize, SideHolesToBorder, Thickness, print=print);
-}
-
-module metabot_batfix(print=false) {
-	metabot_colorize()
-    	batfix(print=print)
-        	metabot_body_screws();
 }
