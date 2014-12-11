@@ -24,7 +24,7 @@ static void colorize()
 {
     if (started) {
         for (int i=0; i<6; i++) {
-            dxl_write_byte(mapping[i], DXL_LED, 4|1);
+            dxl_write_byte(mapping[i], DXL_LED, 4|2|1);
         }
         for (int i=6; i<12; i++) {
             dxl_write_byte(mapping[i], DXL_LED, 0);
@@ -70,8 +70,8 @@ TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
 TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 80.0);
-TERMINAL_PARAMETER_FLOAT(h, "Robot height", -70.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 90.0);
+TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
 TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
@@ -163,6 +163,7 @@ float l3[4];
 void setup()
 {
     RC.begin(921600);
+    dxl_pidp(64);
 
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
@@ -205,7 +206,7 @@ void tick()
         if (voltage > averageVoltage) averageVoltage++;
     }
 
-    if (averageVoltage < 64) {
+    if (averageVoltage < 60) {
         dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
         blink++;
         if (blink > 10) {
