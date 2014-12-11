@@ -5,7 +5,7 @@ $fn=25;
 
 module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
     margin = 8;
-    height = 6;
+    height = 10;
     R= (print && fixation)? [90,0,0] : [0,0,0];
     rotate(R)
     difference() {
@@ -17,9 +17,9 @@ module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
 		translate([0,0,thickness+height+thickness/2])
 		difference() {
 			cube([68,size+margin,thickness], center=true);
-			translate([30,3,-thickness/2])
+			translate([30,6,-thickness/2])
 			olloHole();
-			translate([-30,-3,-thickness/2])
+			translate([-30,-6,-thickness/2])
 			olloHole();
 			
 		}
@@ -39,4 +39,4 @@ module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
     }
 }
 
-body4(fixation=false);
+body4(fixation=true);

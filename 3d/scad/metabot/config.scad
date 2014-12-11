@@ -2,7 +2,7 @@
 Legs = 4;
 
 // Size of the body
-BodySize = 28;
+BodySize = 23;
 
 // Number of motors per leg (2 or 3)
 MotorsPerLeg = 3;
