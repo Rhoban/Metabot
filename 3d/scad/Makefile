@@ -1,5 +1,5 @@
 # STLs to build
-PARTS := u side body_bottom body_top batfix leg
+PARTS := u side body_bottom body_top leg
 
 # Output directory
 BUILD_DIR := build
