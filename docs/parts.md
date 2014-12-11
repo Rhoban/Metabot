@@ -25,19 +25,13 @@ You need all the 3D printed parts that are in the `3d` directory, you'll need to
 
 ### Body Top (x1)
 
-This is the top of the body, with holes to put the battery fixing:
+This is the top of the body, with holes to put the batteries:
 
 ![Body](../3d/imgs/body_top.png) 
 
 ### Body Bottom (x1)
 
 ![Body with fixtions](../3d/imgs/body_bottom.png) 
-
-### Batfix (x1)
-
-This part can be used to put the battery on the robot:
-
-![Body to OpenCM](../3d/imgs/batfix.png) 
 
 ## Motors
 
