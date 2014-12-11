@@ -42,6 +42,7 @@ module metabotLeg(a, b, c) {
 module metabot(angles = [0,0,0]) {
     metabot_body4();
     translate([0,0,MotorDepth+Thickness]) {
+	color([1.0,1.0,0.0])
         metabot_body4(top=true);
     }
 
