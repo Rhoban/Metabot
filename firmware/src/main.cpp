@@ -88,6 +88,11 @@ TERMINAL_PARAMETER_FLOAT(Ax, "Ax", 0.0);
 TERMINAL_PARAMETER_FLOAT(Ay, "Ay", 0.0);
 TERMINAL_PARAMETER_FLOAT(Az, "Az", 0.0);
 
+TERMINAL_COMMAND(version, "Getting firmware version")
+{
+    terminal_io()->println("Metabot v1.0");
+}
+
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
 {
     if (backLegs == 0) backLegs = 1;
