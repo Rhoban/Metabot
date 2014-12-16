@@ -158,6 +158,8 @@ TERMINAL_PARAMETER_FLOAT(kkk, "", 0.0);
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 TERMINAL_PARAMETER_FLOAT(smoothBack, "Smooth Back", -1.0);
 
+TERMINAL_PARAMETER_INT(voltage, "Average voltage (dV)", 75);
+
 float l1[4];
 float l2[4];
 float l3[4];
@@ -198,20 +200,19 @@ void setup()
 void tick()
 {
     // Computing average voltage
-    static int averageVoltage = 75;
     static int idToRead = 0;
     static int blink;
 
     idToRead++;
     if (idToRead >= 12) idToRead = 0;
     bool success;
-    int voltage = dxl_read_byte(idToRead+1, DXL_VOLTAGE, &success);
+    int voltageOnce = dxl_read_byte(idToRead+1, DXL_VOLTAGE, &success);
     if (success) {
-        if (voltage < averageVoltage) averageVoltage--;
-        if (voltage > averageVoltage) averageVoltage++;
+        if (voltageOnce < voltage) voltage--;
+        if (voltageOnce > voltage) voltage++;
     }
 
-    if (averageVoltage < 60) {
+    if (voltage < 60) {
         dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
         blink++;
         if (blink > 10) {
