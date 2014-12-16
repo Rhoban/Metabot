@@ -90,7 +90,7 @@ TERMINAL_PARAMETER_FLOAT(Az, "Az", 0.0);
 
 TERMINAL_COMMAND(version, "Getting firmware version")
 {
-    terminal_io()->println("Metabot v1.0");
+    terminal_io()->println(METABOT_VERSION);
 }
 
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")

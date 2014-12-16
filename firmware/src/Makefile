@@ -2,6 +2,8 @@
 
 .DEFAULT_GOAL := sketch
 
+VERSION="1.0"
+
 ## Local configuration
 LIB_MAPLE_HOME = ./RobotsWar/LibMaple
 LIB_ROBOT_HOME = ./RobotsWar/LibRobotCampus
@@ -66,7 +68,8 @@ TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/Wir
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
-		   -DBOOTLOADER_$(BOOTLOADER)
+		   -DBOOTLOADER_$(BOOTLOADER) \
+		   -DMETABOT_VERSION="\"$(VERSION)\""
 GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)
 GLOBAL_ASFLAGS  := -x assembler-with-cpp $(TARGET_FLAGS)
 LDFLAGS  = $(TARGET_LDFLAGS) $(TOOLCHAIN_LDFLAGS) -mcpu=cortex-m3 -mthumb \
@@ -135,6 +138,7 @@ install: $(BUILD_PATH)/$(BOARD).bin
 
 release: $(BUILD_PATH)/$(BOARD).bin
 	@echo "Copying to metabot.bin"
+	@echo $(VERSION) > ../metabot.version
 	cp $(BUILD_PATH)/$(BOARD).bin ../metabot.bin
 
 # Force a rebuild if the target changed
