@@ -2,9 +2,9 @@
 
 ![Metabot](docs/imgs/metabot.jpg)
 
-## [Demo video »](http://metabot.cc/en/demonstration)
+## [Demo video »](http://metabot.cc/demonstration)
 
-## [Make your own (Documentation) »](http://metabot.cc/en/build-your-robot)
+## [Make your own (Documentation) »](http://metabot.cc/make-a-robot)
 
 ## License
 
