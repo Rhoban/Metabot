@@ -28,13 +28,13 @@ module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
 				cylinder(d=4.3,h=100,center=true);
 				translate([0,0,-3])
 				rotate([0,0,-90])
-				bolt_trace(width=100, length=6.8, thickness=3);
+				bolt_trace(width=100, length=6, thickness=2.8);
 			}
 			translate([-30,-6,-thickness/2]) {
 				cylinder(d=4.3,h=100,center=true);
 				translate([0,0,-3])
 				rotate([0,0,90])
-				bolt_trace(width=100, length=6.8, thickness=3);
+				bolt_trace(width=100, length=6, thickness=2.8);
 			}
 			
 		}
