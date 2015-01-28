@@ -6,7 +6,7 @@ $fn=25;
 
 module body4(size=23, legs=4, thickness=2.2, fixation=true, print=false) {
     margin = 8;
-    height = 10;
+    height = 11;
     R= (print && fixation)? [90,0,0] : [0,0,0];
     rotate(R)
     difference() {
