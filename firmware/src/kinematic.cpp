@@ -1,5 +1,4 @@
 #include <math.h>
-#include <terminal.h>
 #include "kinematic.h"
 
 /**

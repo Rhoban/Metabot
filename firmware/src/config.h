@@ -1,4 +1,6 @@
+#ifdef HAS_DXL
 #include <dxl.h>
+#endif
 
 /**
  * This is the dimension of the legs, in mm
@@ -47,10 +49,11 @@ static int initialOrientation = 0;
  */
 static int signs[] = {
     1,          // Signs of the body motors
-    1,          // Sign of the middle-leg motors
+    -1,          // Sign of the middle-leg motors
     1           // Sign of the end-legs motors
 };
 
+#ifdef HAS_DXL
 /**
  * This is the servos configuration, you can change the zero 
  * or the min/max limits here
@@ -89,3 +92,4 @@ static void config_init()
     dxl_set_zero    (servos_order[11], 0);
     dxl_set_min_max (servos_order[11], -145, 145);
 }
+#endif

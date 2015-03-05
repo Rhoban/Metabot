@@ -6,7 +6,7 @@ option (JS "JavaScript mode" ON)
 # Directories
 set (BASE "${CMAKE_SOURCE_DIR}/..")
 set (RC_BASE "${BASE}/RobotsWar/LibRobotCampus/")
-set (RHOCK_BASE "${BASE}/Rhock/src")
+set (RHOCK_BASE "${BASE}/rhock")
 
 # Includes
 include_directories (${RHOCK_BASE} ${RC_BASE})
@@ -15,11 +15,12 @@ include_directories (${RHOCK_BASE} ${RC_BASE})
 set (SOURCES
     ${BASE}/kinematic.cpp
     ${BASE}/locomotion.cpp
+    ${BASE}/rhock-functions.cpp
     ${RC_BASE}/function.cpp
     )
 
 # Building rhock
-add_subdirectory ("${RHOCK_BASE}" rhocklib)
+add_subdirectory ("${RHOCK_BASE}" rhock)
 
 # Compilation options
 set(CMAKE_C_COMPILER emcc)
@@ -28,12 +29,13 @@ set(CMAKE_AR emar)
 set(CMAKE_RANLIB emranlib)
 set(CMAKE_C_FLAGS -g)
 set(CMAKE_CXX_FLAGS -g)
-set (CMAKE_C_FLAGS " -std=c99 -Wall -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
-set (CMAKE_CXX_FLAGS "--bind -std=c++11 -Wall -Wno-reorder -pedantic -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
+set (CMAKE_C_FLAGS "--minify 0 -std=c99 -Wall -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
+set (CMAKE_CXX_FLAGS "--minify 0 --bind -std=c++11 -Wall -Wno-reorder -pedantic -U__STRICT_ANSI__ -Wno-warn-absolute-paths -s DISABLE_EXCEPTION_CATCHING=0")
+
+add_definitions (-DRHOCK_NATIVE_SYMBOLS)
 
 # Produce the module
-add_executable (module.js ${SRC_METABOT} ${SOURCES})
-target_link_libraries (module.js rhocklib.js)
+add_executable (module.js ${SRC_METABOT} ${RHOCK_JS} ${SOURCES})
 
 add_custom_target (module.min.js 
     COMMAND uglifyjs module.js > module.min.js
