@@ -10,10 +10,11 @@
 #include <rc.h>
 #include <rhock/vm.h>
 #include <rhock/stream.h>
+#include "rhock-store.h"
 #include "config.h"
 #include "locomotion.h"
 
-bool rhock_mode = false;
+volatile bool rhock_mode = false;
 
 TERMINAL_COMMAND(rhock, "Go to Rhock mode")
 {
@@ -24,7 +25,7 @@ TERMINAL_COMMAND(rhock, "Go to Rhock mode")
 void rhock_stream_send(uint8_t c)
 {
     if (rhock_mode) {
-        terminal_io()->write(c);
+        terminal_io()->write(&c, 1);
     }
 }
 
@@ -112,6 +113,9 @@ void setup()
 
     // Initializing rhock
     rhock_vm_init();
+
+    // Loading objects from flash
+    rhock_store_init();
 }
 
 /**
@@ -180,4 +184,6 @@ void loop()
             rhock_stream_recv(terminal_io()->io->read());
         }
     }
+
+    rhock_vm_tick();
 }

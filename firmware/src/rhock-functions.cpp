@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <rhock/stream.h>
 #include <rhock/clock.h>
 #include <rhock/event.h>
 #include "rhock-functions.h"
@@ -36,10 +37,25 @@ RHOCK_NATIVE(robot_control)
     return RHOCK_NATIVE_CONTINUE;
 }
 
-void rhock_on_reset()
+RHOCK_NATIVE(board_led)
+{
+#ifndef __EMSCRIPTEN__
+    digitalWrite(BOARD_LED_PIN, !RHOCK_POPI());
+#endif
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+void rhock_on_all_stopped()
 {
     controlling = NULL;
     locomotion_stop();
+}
+
+void rhock_on_reset()
+{
+    rhock_stream_begin(6);
+    rhock_stream_end();
 }
 
 void rhock_on_pause(struct rhock_context *context)

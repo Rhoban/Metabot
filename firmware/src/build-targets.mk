@@ -1,7 +1,7 @@
 # Project targets
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
-SRC_FILES = main.cpp kinematic.cpp locomotion.cpp rhock-functions.cpp
+SRC_FILES = main.cpp kinematic.cpp locomotion.cpp rhock-functions.cpp rhock-store.cpp rhock-commands.cpp
 
 # Uncomment to disable robot campus commands
 CFLAGS += -DHAS_DXL -DHAS_TERMINAL -DDISABLE_SERVOS_COMMANDS
