@@ -49,7 +49,7 @@ static int initialOrientation = 0;
  */
 static int signs[] = {
     1,          // Signs of the body motors
-    -1,          // Sign of the middle-leg motors
+    1,          // Sign of the middle-leg motors
     1           // Sign of the end-legs motors
 };
 

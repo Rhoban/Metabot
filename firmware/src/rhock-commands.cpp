@@ -84,7 +84,7 @@ TERMINAL_COMMAND(kill, "Kills a program")
             if (i == pid) {
                 struct rhock_obj *obj = rhock_get_obj(addr);
                 rhock_memory_addr progAddr = rhock_vm_get_program(obj->id);
-                if (addr != RHOCK_NULL) {
+                if (progAddr != RHOCK_NULL) {
                     rhock_program_unload(progAddr);
                     terminal_io()->print("Unloading ");
                     terminal_io()->print(obj->name);
@@ -93,7 +93,7 @@ TERMINAL_COMMAND(kill, "Kills a program")
                     terminal_io()->println("Process not running.");
                 }
                 return;
-            }
+            } 
             addr = rhock_chain_next(addr);
         }
         terminal_io()->print("Unknown pid: ");
