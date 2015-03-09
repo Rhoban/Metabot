@@ -192,6 +192,7 @@ void loop()
                 rhock_exit_pos++;
                 if (rhock_exit_pos >= rhock_exit_len) {
                     enable_terminal();
+                    terminal_reset();
                     rhock_mode = false;
                 }
             } else {
