@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <rhock/stream.h>
-#include <rhock/clock.h>
 #include <rhock/event.h>
 #include "rhock-functions.h"
 #include "locomotion.h"
@@ -79,10 +78,3 @@ void rhock_on_stop(struct rhock_context *context)
         controlling = NULL;
     }
 }
-
-#ifndef __EMSCRIPTEN__
-uint32_t rhock_gettime()
-{
-    return millis();
-}
-#endif

@@ -15,12 +15,14 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #endif
+#if defined(RHOCK)
+#include <rhock/event.h>
 #include <rhock/stream.h>
+#endif
 #include "config.h"
 #include "function.h"
 #include "locomotion.h"
 #include "kinematic.h"
-#include <rhock/event.h>
 
 float l1[4];
 float l2[4];
@@ -260,6 +262,7 @@ float locomotion_get_turn()
     return turn;
 }
 
+#if defined(RHOCK)
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
@@ -269,6 +272,7 @@ void rhock_on_monitor()
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
     rhock_stream_end();
 }
+#endif
 
 #ifdef __EMSCRIPTEN__
 using namespace emscripten;

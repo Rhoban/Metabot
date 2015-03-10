@@ -1,13 +1,15 @@
 # Try "make help" first
+#
+VERSION="1.0"
 
 .DEFAULT_GOAL := sketch
 
-VERSION="1.0"
-
 ## Local configuration
 LIB_MAPLE_HOME = ./RobotsWar/LibMaple
-LIB_ROBOT_HOME = ./RobotsWar/LibRobotCampus
-PATH := $(PATH):$(CURDIR)/RobotsWar/BinutilsArm/bin
+LIB_RHOBAN_HOME = ./RobotsWar/LibRhoban
+LIB_RHOCK_HOME = ./RobotsWar/LibRhock
+ENABLE_RHOCK := no
+RHOCK = ./RobotsWar/Rhock
 
 ##
 ## Useful paths, constants, etc.
@@ -62,8 +64,7 @@ include $(MAKEDIR)/build-templates.mk
 #     #include "wirish.h"
 # It slows compilation noticeably; remove after 1 release.
 TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
-                   -I$(WIRISH_PATH)/include/wirish \
-                   -I$(LIB_ROBOT_HOME)/
+                   -I$(WIRISH_PATH)/include/wirish
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
                    -ffunction-sections -fdata-sections \
@@ -98,8 +99,12 @@ ifneq ($(USER_MODULES),)
 LIBMAPLE_MODULES += $(USER_MODULES)
 endif
 
-# Robot Campus Lib
-LIBMAPLE_MODULES += $(LIB_ROBOT_HOME)
+# Rhoban lib
+LIBMAPLE_MODULES += $(LIB_RHOBAN_HOME)
+
+ifeq ($(ENABLE_RHOCK),yes)
+LIBMAPLE_MODULES += $(LIB_RHOCK_HOME)
+endif
 
 # Call each module's rules.mk:
 $(foreach m,$(LIBMAPLE_MODULES),$(eval $(call LIBMAPLE_MODULE_template,$(m))))
@@ -117,6 +122,7 @@ include build-targets.mk
 # USB ID for DFU upload -- FIXME: do something smarter with this
 BOARD_USB_VENDOR_ID  := 1eaf
 BOARD_USB_PRODUCT_ID := 0003
+
 ifeq ($(BOOTLOADER),maple)
 UPLOAD_ram   := $(SUPPORT_PATH)/scripts/reset.py && \
                 sleep 1                  && \
@@ -151,7 +157,7 @@ endif
 sketch: build-check MSG_INFO $(BUILD_PATH)/$(BOARD).bin
 
 clean:
-	rm -rf build LibMaple LibRobotCampus
+	rm -rf build LibMaple LibRhoban LibRhock Rhock
 
 mrproper: clean
 	rm -rf doxygen

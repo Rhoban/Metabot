@@ -8,9 +8,6 @@
 #include <function.h>
 #include <commands.h>
 #include <rc.h>
-#include <rhock/vm.h>
-#include <rhock/stream.h>
-#include "rhock-store.h"
 #include "config.h"
 #include "locomotion.h"
 
@@ -95,12 +92,6 @@ void setup()
     for (int i=0; i<4; i++) {
         l1[i] = l2[i] = l3[i] = 0;
     }
-
-    // Initializing rhock
-    rhock_vm_init();
-
-    // Loading objects from flash
-    rhock_store_init();
 }
 
 /**
@@ -163,45 +154,6 @@ void tick()
     dxl_set_position(mapping[11], l3[3]);
 }
 
-const char rhock_exit[] = "!rhock\r";
-const int rhock_exit_len = 7;
-int rhock_exit_pos = 0;
-
-volatile bool rhock_mode = false;
-
-TERMINAL_COMMAND(rhock, "Go to Rhock mode")
-{
-    disable_terminal();
-    rhock_mode = true;
-    rhock_exit_pos = 0;
-}
-
-void rhock_stream_send(uint8_t c)
-{
-    if (rhock_mode) {
-        terminal_io()->write(&c, 1);
-    }
-}
-
 void loop()
 {
-    if (rhock_mode) {
-        while (terminal_io()->io->available()) {
-            char c = terminal_io()->io->read();
-            if (rhock_exit[rhock_exit_pos] == c) {
-                rhock_exit_pos++;
-                if (rhock_exit_pos >= rhock_exit_len) {
-                    enable_terminal();
-                    terminal_reset();
-                    rhock_mode = false;
-                }
-            } else {
-                rhock_exit_pos = 0;
-            }
-
-            rhock_stream_recv(c);
-        }
-    }
-
-    rhock_vm_tick();
 }

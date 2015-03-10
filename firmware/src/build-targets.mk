@@ -1,34 +1,15 @@
 # Project targets
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
-SRC_FILES = main.cpp kinematic.cpp locomotion.cpp rhock-functions.cpp rhock-store.cpp rhock-commands.cpp
+SRC_FILES = main.cpp kinematic.cpp locomotion.cpp
+
+ifeq ($(RHOCK_ENABLE),yes)
+SRC_FILES += rhock-functions.cpp
+endif
 
 # Uncomment to disable robot campus commands
 CFLAGS += -DHAS_DXL -DHAS_TERMINAL -DDISABLE_SERVOS_COMMANDS
 # CFLAGS += -DDXL_VERSION_1
-
-RHOCK = rhock/rhock
-CFLAGS += -I$(shell pwd)/rhock
-
-debug:
-	echo $(CFLAGS)
-
-BUILDDIRS += $(BUILD_PATH)/rhock/rhock
-
-SRC_FILES += $(RHOCK)/chain.c \
-		$(RHOCK)/context.c \
-		$(RHOCK)/crc16.c \
-		$(RHOCK)/event.c \
-		$(RHOCK)/memory.c \
-		$(RHOCK)/native.c \
-		$(RHOCK)/natives.c \
-		$(RHOCK)/obj.c \
-		$(RHOCK)/opcode.c \
-		$(RHOCK)/program.c \
-		$(RHOCK)/std.c \
-		$(RHOCK)/store.c \
-		$(RHOCK)/stream.c \
-		$(RHOCK)/vm.c
 
 OBJ_FILES_CPP = $(SRC_FILES:.cpp=.o)
 OBJ_FILES = $(addprefix $(BUILD_PATH)/,$(OBJ_FILES_CPP:.c=.o))
