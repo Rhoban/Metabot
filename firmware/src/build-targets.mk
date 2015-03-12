@@ -3,7 +3,7 @@
 # Ex : main.cpp test.cpp ...
 SRC_FILES = main.cpp kinematic.cpp locomotion.cpp
 
-ifeq ($(RHOCK_ENABLE),yes)
+ifeq ($(ENABLE_RHOCK),yes)
 SRC_FILES += rhock-functions.cpp
 endif
 
