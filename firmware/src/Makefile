@@ -8,8 +8,7 @@ VERSION="1.0"
 LIB_MAPLE_HOME = ./RobotsWar/LibMaple
 LIB_RHOBAN_HOME = ./RobotsWar/LibRhoban
 LIB_RHOCK_HOME = ./RobotsWar/LibRhock
-ENABLE_RHOCK := no
-RHOCK = ./RobotsWar/Rhock
+ENABLE_RHOCK := yes
 
 ##
 ## Useful paths, constants, etc.
