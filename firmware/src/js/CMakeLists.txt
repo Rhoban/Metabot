@@ -5,18 +5,18 @@ option (JS "JavaScript mode" ON)
 
 # Directories
 set (BASE "${CMAKE_SOURCE_DIR}/..")
-set (RC_BASE "${BASE}/RobotsWar/LibRobotCampus/")
-set (RHOCK_BASE "${BASE}/rhock")
+set (RH_BASE "${BASE}/RobotsWar/LibRhoban/")
+set (RHOCK_BASE "${BASE}/RobotsWar/Rhock/src")
 
 # Includes
-include_directories (${RHOCK_BASE} ${RC_BASE})
+include_directories (${RHOCK_BASE} ${RH_BASE})
 
 # Sources
 set (SOURCES
     ${BASE}/kinematic.cpp
     ${BASE}/locomotion.cpp
     ${BASE}/rhock-functions.cpp
-    ${RC_BASE}/function.cpp
+    ${RH_BASE}/function.cpp
     )
 
 # Building rhock
@@ -32,7 +32,7 @@ set(CMAKE_CXX_FLAGS -g)
 set (CMAKE_C_FLAGS "--minify 0 -std=c99 -Wall -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
 set (CMAKE_CXX_FLAGS "--minify 0 --bind -std=c++11 -Wall -Wno-reorder -pedantic -U__STRICT_ANSI__ -Wno-warn-absolute-paths -s DISABLE_EXCEPTION_CATCHING=0")
 
-add_definitions (-DRHOCK_NATIVE_SYMBOLS)
+add_definitions (-DRHOCK_NATIVE_SYMBOLS -DRHOCK)
 
 # Produce the module
 add_executable (module.js ${SRC_METABOT} ${RHOCK_JS} ${SOURCES})
