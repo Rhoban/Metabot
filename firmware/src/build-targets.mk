@@ -1,10 +1,10 @@
 # Project targets
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
-SRC_FILES = main.cpp kinematic.cpp locomotion.cpp
+SRC_FILES = main.cpp kinematic.cpp locomotion.cpp leds.cpp
 
 ifeq ($(ENABLE_RHOCK),yes)
-SRC_FILES += rhock-functions.cpp
+SRC_FILES += rhock-functions.cpp rhock-stream.cpp
 endif
 
 # Uncomment to disable robot campus commands

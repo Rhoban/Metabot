@@ -23,6 +23,7 @@
 #include "function.h"
 #include "locomotion.h"
 #include "kinematic.h"
+#include "leds.h"
 
 float l1[4];
 float l2[4];
@@ -143,6 +144,9 @@ void setup_functions()
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 TERMINAL_PARAMETER_FLOAT(smoothBack, "Smooth Back", -1.0);
 
+// Extra values
+float extra_h = 0;
+
 void locomotion_init()
 {
     back = (initialOrientation != 0);
@@ -208,7 +212,7 @@ void locomotion_tick(float t)
         // This is the x,y,z order in the referencial of the leg
         x = r + vx;
         y = vy;
-        z = h + rise.getMod(legPhase)*alt*enableRise;
+        z = h - extra_h + rise.getMod(legPhase)*alt*enableRise;
         if (i < 2) z += frontH;
     
         // Computing inverse kinematics
@@ -230,6 +234,16 @@ void locomotion_tick(float t)
             Az = z;
         }
     }
+}
+
+void locomotion_reset()
+{
+    extra_h = 0;
+}
+
+void locomotion_set_h(float h_)
+{
+    extra_h = h_;
 }
 
 void locomotion_set_dx(float dx_)
@@ -270,6 +284,7 @@ void rhock_on_monitor()
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dx));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
+    led_stream_state();
     rhock_stream_end();
 }
 #endif

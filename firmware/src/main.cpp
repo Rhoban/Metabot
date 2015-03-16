@@ -10,6 +10,7 @@
 #include <rc.h>
 #include "config.h"
 #include "locomotion.h"
+#include "leds.h"
 
 // This is the servo mappings
 ui8 mapping[12];
@@ -32,10 +33,10 @@ static void colorize()
 {
     if (started) {
         for (int i=0; i<6; i++) {
-            dxl_write_byte(mapping[i], DXL_LED, 4|2|1);
+            led_set(mapping[i], LED_R|LED_G|LED_B);
         }
         for (int i=6; i<12; i++) {
-            dxl_write_byte(mapping[i], DXL_LED, 0);
+            led_set(mapping[i], 0);
         }
     }
 }
@@ -70,7 +71,6 @@ TERMINAL_PARAMETER_INT(voltage, "Average voltage (dV)", 75);
  */
 void setup()
 {
-    RC.begin(921600);
     dxl_pidp(64);
 
     locomotion_init();
@@ -131,7 +131,6 @@ void tick()
     t += freq*0.02;
     if (t > 1.0) {
         t -= 1.0;
-        colorize();
     }
     if (t < 0.0) t += 1.0;
 

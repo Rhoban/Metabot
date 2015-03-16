@@ -6,6 +6,7 @@
 #ifndef __EMSCRIPTEN__
 #include <wirish/wirish.h>
 #endif
+#include "leds.h"
 
 struct rhock_context *controlling = NULL;
 float save_dx, save_dy, save_turn;
@@ -45,10 +46,33 @@ RHOCK_NATIVE(board_led)
     return RHOCK_NATIVE_CONTINUE;
 }
 
+RHOCK_NATIVE(robot_h)
+{
+    locomotion_set_h(RHOCK_POPF());
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_led)
+{
+    int led = RHOCK_POPF();
+    int value = RHOCK_POPF();
+    led_set(led, value);
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_leds)
+{
+    int value = RHOCK_POPF();
+    led_set_all(value);
+    return RHOCK_NATIVE_CONTINUE;
+}
+
 void rhock_on_all_stopped()
 {
     controlling = NULL;
     locomotion_stop();
+    locomotion_reset();
 }
 
 void rhock_on_reset()

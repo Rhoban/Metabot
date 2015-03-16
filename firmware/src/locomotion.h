@@ -9,6 +9,9 @@ extern float l3[4];
 void locomotion_init();
 void locomotion_tick(float t);
 
+void locomotion_reset();
+void locomotion_set_h(float h);
+
 void locomotion_set_dx(float dx);
 void locomotion_set_dy(float dy);
 void locomotion_set_turn(float turn);
