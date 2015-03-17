@@ -43,9 +43,6 @@ void setup()
     delay(500);
     dxl_init();
 
-    // Initializing mapping
-    remap(0);
-
     // Initializing config (see config.h)
     config_init();
 

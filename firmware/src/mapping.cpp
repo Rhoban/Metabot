@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "config.h"
 #include "mapping.h"
 #include "leds.h"

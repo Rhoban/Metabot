@@ -23,6 +23,7 @@
 #include "function.h"
 #include "locomotion.h"
 #include "kinematic.h"
+#include "mapping.h"
 #include "leds.h"
 
 float ex[4], ey[4], ez[4];
@@ -146,6 +147,7 @@ float extra_h = 0;
 
 void locomotion_init()
 {
+    remap(0);
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
     for (int i=0; i<4; i++) {

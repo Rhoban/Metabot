@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "leds.h"
 #ifdef RHOCK
 #include <rhock/stream.h>
@@ -6,7 +7,7 @@
 #include <dxl.h>
 #endif
 
-char leds[12];
+static char leds[12];
 static bool leds_custom_flag;
 
 static int led_value_to_dxl(int val)
@@ -33,9 +34,9 @@ void led_set(int index, int value, bool custom)
     if (custom) {
         leds_custom_flag = true;
     }
-    leds[index] = value;
+    leds[index-1] = value;
 #ifndef __EMSCRIPTEN__
-    dxl_write_byte(1+index, DXL_LED, led_value_to_dxl(value));
+    dxl_write_byte(index, DXL_LED, led_value_to_dxl(value));
 #endif
 }
 

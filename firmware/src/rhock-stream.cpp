@@ -23,16 +23,17 @@ char rhock_on_packet(uint8_t type)
 #endif
                     // Colorizing the front of the robot
                     colorize();
+                    return 1;
                     break;
                 case 1: // Stop
                     // Marking leds as non custom
-                    leds_decustom();
 #ifndef __EMSCRIPTEN__
                     // Stopping the actual motors
                     stop();
 #endif
                     // Turning all leds red
                     led_set_all(LED_R);
+                    return 1;
                     break;
             }
         }

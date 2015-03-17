@@ -7,6 +7,7 @@
 #include <wirish/wirish.h>
 #endif
 #include "leds.h"
+#include "mapping.h"
 
 struct rhock_context *controlling = NULL;
 float save_dx, save_dy, save_turn;
@@ -70,6 +71,8 @@ RHOCK_NATIVE(robot_leds)
 
 void rhock_on_all_stopped()
 {
+    // Decustom the leds
+    leds_decustom();
     // Stopping the locomotion
     controlling = NULL;
     locomotion_stop();
@@ -78,6 +81,9 @@ void rhock_on_all_stopped()
 
 void rhock_on_reset()
 {
+    // Resetting the mapping and the color
+    remap(0);
+    colorize();
     // Send a packet to tell the host reseted
     rhock_stream_begin(RHOCK_STREAM_RESET);
     rhock_stream_end();
