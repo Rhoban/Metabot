@@ -15,7 +15,7 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #endif
-#if defined(RHOCK)
+#ifdef RHOCK
 #include <rhock/event.h>
 #include <rhock/stream.h>
 #endif
@@ -273,7 +273,7 @@ float locomotion_get_turn()
     return turn;
 }
 
-#if defined(RHOCK)
+#ifdef RHOCK
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);

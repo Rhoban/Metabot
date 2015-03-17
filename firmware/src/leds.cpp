@@ -1,5 +1,5 @@
 #include "leds.h"
-#if defined(RHOCK)
+#ifdef RHOCK
 #include <rhock/stream.h>
 #endif
 #ifndef __EMSCRIPTEN__
@@ -54,7 +54,7 @@ void led_set_all(int value, bool custom)
 
 void led_stream_state()
 {
-#if defined(RHOCK)
+#ifdef RHOCK
     for (int i=0; i<sizeof(leds);) {
         uint8_t v = 0;
         v += leds[i++]<<4;
