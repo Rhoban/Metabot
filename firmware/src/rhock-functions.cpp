@@ -22,9 +22,58 @@ void locomotion_stop()
 
 void locomotion_resume()
 {
+    // Resume the locomotion
     locomotion_set_dx(save_dx);
     locomotion_set_dy(save_dy);
     locomotion_set_turn(save_turn);
+}
+
+/**
+ * Called when all rhock processes are stopped
+ */
+void rhock_on_all_stopped()
+{
+    // Decustom the leds
+    leds_decustom();
+    // Stopping the locomotion
+    controlling = NULL;
+    locomotion_stop();
+    locomotion_reset();
+}
+
+/**
+ * called when rhock process starts
+ */
+void rhock_on_reset()
+{
+    // Resetting the mapping and the color
+    remap(0);
+    colorize();
+}
+
+/**
+ * Handling thread pause, stop and start
+ */
+void rhock_on_pause(struct rhock_context *context)
+{
+    if (context == controlling) {
+        locomotion_stop();
+    }
+}
+
+void rhock_on_stop(struct rhock_context *context)
+{
+    if (context == controlling) {
+        locomotion_stop();
+        controlling = NULL;
+    }
+}
+
+void rhock_on_start(struct rhock_context *context)
+{
+    if (context == controlling) {
+        locomotion_resume();
+    }
 }
 
 RHOCK_NATIVE(robot_control)
@@ -67,46 +116,4 @@ RHOCK_NATIVE(robot_leds)
     int value = RHOCK_POPF();
     led_set_all(value, true);
     return RHOCK_NATIVE_CONTINUE;
-}
-
-void rhock_on_all_stopped()
-{
-    // Decustom the leds
-    leds_decustom();
-    // Stopping the locomotion
-    controlling = NULL;
-    locomotion_stop();
-    locomotion_reset();
-}
-
-void rhock_on_reset()
-{
-    // Resetting the mapping and the color
-    remap(0);
-    colorize();
-    // Send a packet to tell the host reseted
-    rhock_stream_begin(RHOCK_STREAM_RESET);
-    rhock_stream_end();
-}
-
-void rhock_on_pause(struct rhock_context *context)
-{
-    if (context == controlling) {
-        locomotion_stop();
-    }
-}
-
-void rhock_on_start(struct rhock_context *context)
-{
-    if (context == controlling) {
-        locomotion_resume();
-    }
-}
-
-void rhock_on_stop(struct rhock_context *context)
-{
-    if (context == controlling) {
-        locomotion_stop();
-        controlling = NULL;
-    }
 }

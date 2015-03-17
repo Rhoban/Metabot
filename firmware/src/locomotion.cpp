@@ -26,10 +26,10 @@
 #include "mapping.h"
 #include "leds.h"
 
+// Angles for the legs motor
+float l1[4], l2[4], l3[4];
+// Extra x, y and z for each leg
 float ex[4], ey[4], ez[4];
-float l1[4];
-float l2[4];
-float l3[4];
 
 float locomotion_get_motor(int idx)
 {
@@ -147,14 +147,19 @@ float extra_h = 0;
 
 void locomotion_init()
 {
+    // Setting the mapping to 0
     remap(0);
+
+    // initializing the locomotion variables to default
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
+
     for (int i=0; i<4; i++) {
         ex[i] = 0;
         ey[i] = 0;
         ez[i] = 0;
     }
+
     extra_h = 0;
 }
 
