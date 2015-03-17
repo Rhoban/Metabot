@@ -57,19 +57,20 @@ RHOCK_NATIVE(robot_led)
 {
     int led = RHOCK_POPF();
     int value = RHOCK_POPF();
-    led_set(led, value);
+    led_set(led, value, true);
     return RHOCK_NATIVE_CONTINUE;
 }
 
 RHOCK_NATIVE(robot_leds)
 {
     int value = RHOCK_POPF();
-    led_set_all(value);
+    led_set_all(value, true);
     return RHOCK_NATIVE_CONTINUE;
 }
 
 void rhock_on_all_stopped()
 {
+    // Stopping the locomotion
     controlling = NULL;
     locomotion_stop();
     locomotion_reset();
@@ -77,7 +78,8 @@ void rhock_on_all_stopped()
 
 void rhock_on_reset()
 {
-    rhock_stream_begin(6);
+    // Send a packet to tell the host reseted
+    rhock_stream_begin(RHOCK_STREAM_RESET);
     rhock_stream_end();
 }
 

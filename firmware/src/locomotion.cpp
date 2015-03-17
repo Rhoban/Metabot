@@ -25,6 +25,7 @@
 #include "kinematic.h"
 #include "leds.h"
 
+float ex[4], ey[4], ez[4];
 float l1[4];
 float l2[4];
 float l3[4];
@@ -73,10 +74,6 @@ TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
 
 // Front delta h
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
-
-TERMINAL_PARAMETER_FLOAT(Ax, "Ax", 0.0);
-TERMINAL_PARAMETER_FLOAT(Ay, "Ay", 0.0);
-TERMINAL_PARAMETER_FLOAT(Az, "Az", 0.0);
 
 #ifdef HAS_TERMINAL
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
@@ -151,6 +148,12 @@ void locomotion_init()
 {
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
+    for (int i=0; i<4; i++) {
+        ex[i] = 0;
+        ey[i] = 0;
+        ez[i] = 0;
+    }
+    extra_h = 0;
 }
 
 float last_t = 0;
@@ -210,9 +213,9 @@ void locomotion_tick(float t)
         float enableRise = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5) ? 1 : 0;
 
         // This is the x,y,z order in the referencial of the leg
-        x = r + vx;
-        y = vy;
-        z = h - extra_h + rise.getMod(legPhase)*alt*enableRise;
+        x = ex[i] + r + vx;
+        y = ey[i] + vy;
+        z = ez[i] + h - extra_h + rise.getMod(legPhase)*alt*enableRise;
         if (i < 2) z += frontH;
     
         // Computing inverse kinematics
@@ -227,18 +230,12 @@ void locomotion_tick(float t)
             l2[i] = signs[1]*smoothBack*(b);
             l3[i] = signs[2]*smoothBack*(c - 180*smoothBackLegs);
         }
-
-        if (i == 0) {
-            Ax = x;
-            Ay = y;
-            Az = z;
-        }
     }
 }
 
 void locomotion_reset()
 {
-    extra_h = 0;
+    locomotion_init();
 }
 
 void locomotion_set_h(float h_)

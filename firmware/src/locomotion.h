@@ -16,6 +16,8 @@ void locomotion_set_dx(float dx);
 void locomotion_set_dy(float dy);
 void locomotion_set_turn(float turn);
 
+void locomotion_extra_z(int index, float z);
+
 float locomotion_get_dx();
 float locomotion_get_dy();
 float locomotion_get_turn();

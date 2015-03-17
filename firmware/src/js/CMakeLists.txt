@@ -16,6 +16,7 @@ set (SOURCES
     ${BASE}/kinematic.cpp
     ${BASE}/locomotion.cpp
     ${BASE}/leds.cpp
+    ${BASE}/mapping.cpp
     ${BASE}/rhock-functions.cpp
     ${BASE}/rhock-stream.cpp
     ${RH_BASE}/function.cpp

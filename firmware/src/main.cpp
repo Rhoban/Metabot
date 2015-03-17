@@ -11,9 +11,7 @@
 #include "config.h"
 #include "locomotion.h"
 #include "leds.h"
-
-// This is the servo mappings
-ui8 mapping[12];
+#include "mapping.h"
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -24,40 +22,6 @@ TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
 TERMINAL_COMMAND(version, "Getting firmware version")
 {
     terminal_io()->println(METABOT_VERSION);
-}
-
-/**
- * Colorizes the two front legs
- */
-static void colorize()
-{
-    if (started) {
-        for (int i=0; i<6; i++) {
-            led_set(mapping[i], LED_R|LED_G|LED_B);
-        }
-        for (int i=6; i<12; i++) {
-            led_set(mapping[i], 0);
-        }
-    }
-}
-
-/**
- * Changes the mapping of the leg, the input is the direction
- * (between 0 and 3)
- */
-static void remap(int direction)
-{
-    for (int i=0; i<12; i++) {
-        mapping[i] = servos_order[(i+3*direction)%12];
-    }
-
-    colorize();
-}
-
-TERMINAL_COMMAND(remap,
-        "Changes the mapping")
-{
-    remap(atoi(argv[0]));
 }
 
 // Enabling/disabling move
@@ -131,6 +95,7 @@ void tick()
     t += freq*0.02;
     if (t > 1.0) {
         t -= 1.0;
+        colorize();
     }
     if (t < 0.0) t += 1.0;
 

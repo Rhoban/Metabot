@@ -7,6 +7,7 @@
 #endif
 
 char leds[12];
+static bool leds_custom_flag;
 
 static int led_value_to_dxl(int val)
 {
@@ -17,16 +18,32 @@ static int led_value_to_dxl(int val)
     return dxlv;
 }
 
-void led_set(int index, int value)
+char leds_are_custom()
 {
+    return leds_custom_flag;
+}
+
+void leds_decustom()
+{
+    leds_custom_flag = false;
+}
+
+void led_set(int index, int value, bool custom)
+{
+    if (custom) {
+        leds_custom_flag = true;
+    }
     leds[index] = value;
 #ifndef __EMSCRIPTEN__
     dxl_write_byte(1+index, DXL_LED, led_value_to_dxl(value));
 #endif
 }
 
-void led_set_all(int value)
+void led_set_all(int value, bool custom)
 {
+    if (custom) {
+        leds_custom_flag = true;
+    }
     for (int i=0; i<sizeof(leds); i++) {
         leds[i] = value;
     }
