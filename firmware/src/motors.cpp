@@ -3,12 +3,13 @@
 #endif
 #include "leds.h"
 #include "mapping.h"
+#include "motors.h"
 
 static bool is_enabled = false;
 
 void motors_colorize()
 {
-    if (is_enabled) {
+    if (motors_enabled()) {
         // Colorizing the front of the robot
         colorize();
     } else {
