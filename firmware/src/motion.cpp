@@ -37,13 +37,13 @@ float motion_get_motor(int idx)
     int c = (idx%3);
     switch (c) {
         case 0:
-            return DEG2RAD(l1[idx/3]);
+            return (l1[idx/3]);
             break;
         case 1:
-            return DEG2RAD(l2[idx/3]);
+            return (l2[idx/3]);
             break;
         case 2:
-            return DEG2RAD(l3[idx/3]);
+            return (l3[idx/3]);
             break;
     }
 
@@ -171,7 +171,6 @@ void motion_tick(float t)
     if (!motors_enabled()) {
         return;
     }
-
     last_t = t;
 
     // Setting up functions
@@ -289,11 +288,18 @@ float motion_get_turn()
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
+    // Motion parameters
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(last_t));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dx));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
+    // Angles
+    for (int i=0; i<12; i++) {
+        rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+    }
+    // Leds
     led_stream_state();
+    // Is enabled?
     rhock_stream_append(motors_enabled());
     rhock_stream_end();
 }
