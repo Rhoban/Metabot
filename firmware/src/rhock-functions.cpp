@@ -2,30 +2,31 @@
 #include <rhock/stream.h>
 #include <rhock/event.h>
 #include "rhock-functions.h"
-#include "locomotion.h"
+#include "motion.h"
 #ifndef __EMSCRIPTEN__
 #include <wirish/wirish.h>
 #endif
+#include "motors.h"
 #include "leds.h"
 #include "mapping.h"
 
 struct rhock_context *controlling = NULL;
 float save_dx, save_dy, save_turn;
 
-void locomotion_stop()
+void motion_stop()
 {
     // When reseting the VM, stopping the robot
-    locomotion_set_dx(0);
-    locomotion_set_dy(0);
-    locomotion_set_turn(0);
+    motion_set_dx(0);
+    motion_set_dy(0);
+    motion_set_turn(0);
 }
 
-void locomotion_resume()
+void motion_resume()
 {
-    // Resume the locomotion
-    locomotion_set_dx(save_dx);
-    locomotion_set_dy(save_dy);
-    locomotion_set_turn(save_turn);
+    // Resume the motion
+    motion_set_dx(save_dx);
+    motion_set_dy(save_dy);
+    motion_set_turn(save_turn);
 }
 
 /**
@@ -35,10 +36,10 @@ void rhock_on_all_stopped()
 {
     // Decustom the leds
     leds_decustom();
-    // Stopping the locomotion
+    // Stopping the motion
     controlling = NULL;
-    locomotion_stop();
-    locomotion_reset();
+    motion_stop();
+    motion_reset();
 }
 
 /**
@@ -47,8 +48,7 @@ void rhock_on_all_stopped()
 void rhock_on_reset()
 {
     // Resetting the mapping and the color
-    remap(0);
-    colorize();
+    motors_colorize();
 }
 
 /**
@@ -57,14 +57,14 @@ void rhock_on_reset()
 void rhock_on_pause(struct rhock_context *context)
 {
     if (context == controlling) {
-        locomotion_stop();
+        motion_stop();
     }
 }
 
 void rhock_on_stop(struct rhock_context *context)
 {
     if (context == controlling) {
-        locomotion_stop();
+        motion_stop();
         controlling = NULL;
     }
 }
@@ -72,7 +72,7 @@ void rhock_on_stop(struct rhock_context *context)
 void rhock_on_start(struct rhock_context *context)
 {
     if (context == controlling) {
-        locomotion_resume();
+        motion_resume();
     }
 }
 
@@ -82,7 +82,7 @@ RHOCK_NATIVE(robot_control)
     save_dx = RHOCK_POPF();
     save_dy = RHOCK_POPF();
     save_turn = RHOCK_POPF();
-    locomotion_resume();
+    motion_resume();
 
     return RHOCK_NATIVE_CONTINUE;
 }
@@ -98,7 +98,7 @@ RHOCK_NATIVE(board_led)
 
 RHOCK_NATIVE(robot_h)
 {
-    locomotion_set_h(RHOCK_POPF());
+    motion_set_h(RHOCK_POPF());
 
     return RHOCK_NATIVE_CONTINUE;
 }

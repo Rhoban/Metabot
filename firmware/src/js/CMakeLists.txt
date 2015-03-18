@@ -14,8 +14,9 @@ include_directories (${RHOCK_BASE} ${RH_BASE})
 # Sources
 set (SOURCES
     ${BASE}/kinematic.cpp
-    ${BASE}/locomotion.cpp
+    ${BASE}/motion.cpp
     ${BASE}/leds.cpp
+    ${BASE}/motors.cpp
     ${BASE}/mapping.cpp
     ${BASE}/rhock-functions.cpp
     ${BASE}/rhock-stream.cpp

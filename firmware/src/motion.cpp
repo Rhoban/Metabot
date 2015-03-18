@@ -21,17 +21,18 @@
 #endif
 #include "config.h"
 #include "function.h"
-#include "locomotion.h"
+#include "motion.h"
 #include "kinematic.h"
 #include "mapping.h"
 #include "leds.h"
+#include "motors.h"
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
 // Extra x, y and z for each leg
 float ex[4], ey[4], ez[4];
 
-float locomotion_get_motor(int idx)
+float motion_get_motor(int idx)
 {
     int c = (idx%3);
     switch (c) {
@@ -145,12 +146,12 @@ TERMINAL_PARAMETER_FLOAT(smoothBack, "Smooth Back", -1.0);
 // Extra values
 float extra_h = 0;
 
-void locomotion_init()
+void motion_init()
 {
     // Setting the mapping to 0
     remap(0);
 
-    // initializing the locomotion variables to default
+    // initializing the motion variables to default
     back = (initialOrientation != 0);
     if (back) smoothBack = 1;
 
@@ -165,8 +166,12 @@ void locomotion_init()
 
 float last_t = 0;
     
-void locomotion_tick(float t)
+void motion_tick(float t)
 {
+    if (!motors_enabled()) {
+        return;
+    }
+
     last_t = t;
 
     // Setting up functions
@@ -240,42 +245,42 @@ void locomotion_tick(float t)
     }
 }
 
-void locomotion_reset()
+void motion_reset()
 {
-    locomotion_init();
+    motion_init();
 }
 
-void locomotion_set_h(float h_)
+void motion_set_h(float h_)
 {
     extra_h = h_;
 }
 
-void locomotion_set_dx(float dx_)
+void motion_set_dx(float dx_)
 {
     dx = dx_;
 }
 
-void locomotion_set_dy(float dy_)
+void motion_set_dy(float dy_)
 {
     dy = dy_;
 }
 
-void locomotion_set_turn(float turn_)
+void motion_set_turn(float turn_)
 {
     turn = turn_;
 }
 
-float locomotion_get_dx()
+float motion_get_dx()
 {
     return dx;
 }
 
-float locomotion_get_dy()
+float motion_get_dy()
 {
     return dy;
 }
 
-float locomotion_get_turn()
+float motion_get_turn()
 {
     return turn;
 }
@@ -289,6 +294,7 @@ void rhock_on_monitor()
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
     led_stream_state();
+    rhock_stream_append(motors_enabled());
     rhock_stream_end();
 }
 #endif
@@ -296,15 +302,15 @@ void rhock_on_monitor()
 #ifdef __EMSCRIPTEN__
 using namespace emscripten;
 
-EMSCRIPTEN_BINDINGS(locomotion) {
-    function("locomotion_get_dx", &locomotion_get_dx);
-    function("locomotion_get_dy", &locomotion_get_dy);
-    function("locomotion_get_turn", &locomotion_get_turn);
-    function("locomotion_set_dx", &locomotion_set_dx);
-    function("locomotion_set_dy", &locomotion_set_dy);
-    function("locomotion_set_turn", &locomotion_set_turn);
-    function("locomotion_init", &locomotion_init);
-    function("locomotion_tick", &locomotion_tick);
-    function("locomotion_get_motor", &locomotion_get_motor);
+EMSCRIPTEN_BINDINGS(motion) {
+    function("motion_get_dx", &motion_get_dx);
+    function("motion_get_dy", &motion_get_dy);
+    function("motion_get_turn", &motion_get_turn);
+    function("motion_set_dx", &motion_set_dx);
+    function("motion_set_dy", &motion_set_dy);
+    function("motion_set_turn", &motion_set_turn);
+    function("motion_init", &motion_init);
+    function("motion_tick", &motion_tick);
+    function("motion_get_motor", &motion_get_motor);
 }
 #endif

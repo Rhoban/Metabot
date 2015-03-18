@@ -9,7 +9,7 @@
 #include <commands.h>
 #include <rc.h>
 #include "config.h"
-#include "locomotion.h"
+#include "motion.h"
 #include "leds.h"
 #include "mapping.h"
 
@@ -37,7 +37,7 @@ void setup()
 {
     dxl_pidp(64);
 
-    locomotion_init();
+    motion_init();
 
     // Initializing the DXL bus
     delay(500);
@@ -96,7 +96,7 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-    locomotion_tick(t);
+    motion_tick(t);
    
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);
