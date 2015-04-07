@@ -3,6 +3,7 @@
 // Leds
 RHOCK_NATIVE_DECLARE(robot_led, 30);
 RHOCK_NATIVE_DECLARE(robot_leds, 31);
+RHOCK_NATIVE_DECLARE(robot_leg_leds, 32);
 
 // Moves
 RHOCK_NATIVE_DECLARE(robot_control, 40);

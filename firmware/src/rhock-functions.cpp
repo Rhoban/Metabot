@@ -168,3 +168,14 @@ RHOCK_NATIVE(robot_leds)
     led_set_all(value, true);
     return RHOCK_NATIVE_CONTINUE;
 }
+
+RHOCK_NATIVE(robot_leg_leds)
+{
+    int value = RHOCK_POPF();
+    int leg = RHOCK_POPF();
+    leg = ((leg-1)&3);
+    for (int k=0; k<3; k++) {
+        led_set(mapping[3*leg+k], value, true);
+    }
+    return RHOCK_NATIVE_CONTINUE;
+}
