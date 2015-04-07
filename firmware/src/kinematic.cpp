@@ -1,4 +1,5 @@
 #include <math.h>
+#include <terminal.h>
 #include "kinematic.h"
 
 /**
@@ -48,5 +49,27 @@ bool computeIK(float x, float y, float z,
         return true;
     } else {
         return false;
+    }
+}
+
+void legFrame(float X, float Y, float *x, float *y, int leg, float l0)
+{
+    switch (leg) {
+        case 0:
+            *x = cos(0*M_PI/2-M_PI/4)*X - sin(0*M_PI/2-M_PI/4)*Y - l0;
+            *y = sin(0*M_PI/2-M_PI/4)*X + cos(0*M_PI/2-M_PI/4)*Y;
+        break;
+        case 1:
+            *x = cos(1*M_PI/2-M_PI/4)*X - sin(1*M_PI/2-M_PI/4)*Y - l0;
+            *y = sin(1*M_PI/2-M_PI/4)*X + cos(1*M_PI/2-M_PI/4)*Y;
+        break;
+        case 2:
+            *x = cos(2*M_PI/2-M_PI/4)*X - sin(2*M_PI/2-M_PI/4)*Y - l0;
+            *y = sin(2*M_PI/2-M_PI/4)*X + cos(2*M_PI/2-M_PI/4)*Y;
+        break;
+        case 3:
+            *x = cos(3*M_PI/2-M_PI/4)*X - sin(3*M_PI/2-M_PI/4)*Y - l0;
+            *y = sin(3*M_PI/2-M_PI/4)*X + cos(3*M_PI/2-M_PI/4)*Y;
+        break;
     }
 }

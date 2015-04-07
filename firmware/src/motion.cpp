@@ -59,14 +59,11 @@ TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
 // Legs bacakward mode
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
-// Body backward mode
-TERMINAL_PARAMETER_BOOL(back, "Mode back", false);
-
 // Amplitude & altitude of the robot
 TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 90.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 125.0);
 TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
@@ -110,7 +107,7 @@ void setup_functions()
 {
     rise.clear();
     step.clear();
-    
+
     if (gait == GAIT_WALK) {
         // Rising the legs
         rise.addPoint(0.0, 0.0);
@@ -129,22 +126,23 @@ void setup_functions()
 
     if (gait == GAIT_TROT) {
         // Rising the legs
-        rise.addPoint(0.0, 0.0);
-        rise.addPoint(0.1, 1.0);
-        rise.addPoint(0.4, 1.0);
-        rise.addPoint(0.5, 0.0);
-        rise.addPoint(1.0, 0.0);
+        rise.addPoint(0.0, 1.0);
+        rise.addPoint(0.3, 1.0);
+        rise.addPoint(0.4, 0.0);
+        rise.addPoint(0.9, 0.0);
+        rise.addPoint(1.0, 1.0);
 
         // Taking the leg forward
         step.addPoint(0.0, -0.5);
         step.addPoint(0.1, -0.5);
-        step.addPoint(0.4, 0.5);
+        step.addPoint(0.3, 0.5);
+        step.addPoint(0.5, 0.5);
+        step.addPoint(0.85, -0.5);
         step.addPoint(1.0, -0.5);
     }
 }
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
-TERMINAL_PARAMETER_FLOAT(smoothBack, "Smooth Back", -1.0);
 
 // Extra values
 float extra_h = 0;
@@ -153,10 +151,6 @@ void motion_init()
 {
     // Setting the mapping to 0
     remap(0);
-
-    // initializing the motion variables to default
-    back = (initialOrientation != 0);
-    if (back) smoothBack = 1;
 
     for (int i=0; i<4; i++) {
         ex[i] = 0;
@@ -169,7 +163,7 @@ void motion_init()
 }
 
 float last_t = 0;
-    
+
 void motion_tick(float t)
 {
     if (!motors_enabled()) {
@@ -187,20 +181,17 @@ void motion_tick(float t)
     if (!backLegs && smoothBackLegs > 0) {
         smoothBackLegs -= 0.02;
     }
-    if (back && smoothBack < 1) {
-        smoothBack += 0.04;
-    }
-    if (!back && smoothBack > -1) {
-        smoothBack -= 0.04;
-    }
-        
+
+    float turnRad = DEG2RAD(turn);
+    float crabRad;
+
     for (int i=0; i<4; i++) {
         // Defining in which group of opposite legs this leg is
         bool group = ((i&1)==1);
 
         // This defines the phase of the gait
         float legPhase;
-       
+
         if (gait == GAIT_WALK) {
             float phases[] = {0.0, 0.5, 0.75, 0.25};
             legPhase = t + phases[i];
@@ -212,38 +203,57 @@ void motion_tick(float t)
         float x, y, z, a, b, c;
 
         // Computing the order in the referencial of the body
-        float xOrder = step.getMod(legPhase)*dx;
-        float yOrder = step.getMod(legPhase)*dy;
+        float stepping = step.getMod(legPhase);
+        // Set X and Y to the moving vector
+        float X = stepping*dx;
+        float Y = stepping*dy;
 
-        // Computing the order in the referencial of the leg
-        float bodyAngle = -(i*M_PI/2.0 - (M_PI/4.0))*smoothBack;
-        if (group) {
-            bodyAngle -= DEG2RAD(crab*(-smoothBack));
-        } else {
-            bodyAngle += DEG2RAD(crab*(-smoothBack));
+        // Add the radius to the leg, in the right direction
+        switch (i) {
+            case 0:
+                X += cos(M_PI/4)*r;
+                Y += cos(M_PI/4)*r;
+                break;
+            case 1:
+                X += cos(M_PI/4)*r;
+                Y -= cos(M_PI/4)*r;
+                break;
+            case 2:
+                X -= cos(M_PI/4)*r;
+                Y -= cos(M_PI/4)*r;
+                break;
+            case 3:
+                X -= cos(M_PI/4)*r;
+                Y += cos(M_PI/4)*r;
+                break;
         }
-        float vx = xOrder*cos(bodyAngle)-yOrder*sin(bodyAngle);
-        float vy = xOrder*sin(bodyAngle)+yOrder*cos(bodyAngle);
+
+        // Rotate around the center of the robot
+        if (group) {
+            crabRad = -DEG2RAD(crab);
+        } else {
+            crabRad = DEG2RAD(crab);
+        }
+        float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
+        float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
+
+        // Move to the leg frame
+        float vx, vy;
+        legFrame(xOrder, yOrder, &vx, &vy, i, L0);
 
         float enableRise = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5) ? 1 : 0;
 
         // This is the x,y,z order in the referencial of the leg
-        x = ex[i] + r + vx;
+        x = ex[i] + vx;
         y = ey[i] + vy;
         z = ez[i] + h - extra_h + rise.getMod(legPhase)*alt*enableRise;
         if (i < 2) z += frontH;
-    
+
         // Computing inverse kinematics
         if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            if (group) {
-                a += crab*(-smoothBack);
-            } else {
-                a -= crab*(-smoothBack);
-            }
-
-            l1[i] = signs[0]*smoothBack*(a + step.getMod(legPhase)*turn);
-            l2[i] = signs[1]*smoothBack*(b);
-            l3[i] = signs[2]*smoothBack*(c - 180*smoothBackLegs);
+            l1[i] = -signs[0]*a;
+            l2[i] = -signs[1]*b;
+            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
         }
     }
 }

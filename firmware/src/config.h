@@ -5,9 +5,9 @@
 /**
  * This is the dimension of the legs, in mm
  */
-#define L0      35
-#define L1      32
-#define L2      60
+#define L0      37
+#define L1      40
+#define L2      62
 #define L3_1    85
 #define L3_2    35
 
@@ -34,12 +34,6 @@ static int servos_order[] = {
     // Fourth leg
     10, 11, 12
 };
-
-/**
- * Chooses the initial orientation of the spider, set this to 1 if
- * you want it to be initialized in the opposite orientation
- */
-static int initialOrientation = 0;
 
 /**
  * You can also change the signs of the servos if you mount

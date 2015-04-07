@@ -39,4 +39,11 @@ bool computeIK(float x, float y, float z,
         float *a, float *b, float *c,
         float l1, float l2, float l3);
 
+/**
+ * Obtain the x/y position of a point in the frame of the leg from
+ * x/y positions in the frame of the body
+ */
+void legFrame(float X, float Y, 
+        float *x, float *y, int leg, float l0);
+
 #endif
