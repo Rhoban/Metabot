@@ -19,6 +19,10 @@ void motion_stop()
     motion_set_dx(0);
     motion_set_dy(0);
     motion_set_turn(0);
+    save_dx = 0;
+    save_dy = 0;
+    save_turn = 0;
+    controlling = NULL;
 }
 
 void motion_resume()
@@ -79,9 +83,49 @@ void rhock_on_start(struct rhock_context *context)
 RHOCK_NATIVE(robot_control)
 {
     controlling = context;
-    save_dx = RHOCK_POPF();
-    save_dy = RHOCK_POPF();
     save_turn = RHOCK_POPF();
+    save_dy = RHOCK_POPF();
+    save_dx = RHOCK_POPF();
+    motion_resume();
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_stop_moving)
+{
+    motion_stop();
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_dx)
+{
+    controlling = context;
+    save_turn = 0;
+    save_dy = 0;
+    save_dx = RHOCK_POPF();
+    motion_resume();
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_dy)
+{
+    controlling = context;
+    save_turn = 0;
+    save_dy = RHOCK_POPF();
+    save_dx = 0;
+    motion_resume();
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_turn)
+{
+    controlling = context;
+    save_turn = RHOCK_POPF();
+    save_dy = 0;
+    save_dx = 0;
     motion_resume();
 
     return RHOCK_NATIVE_CONTINUE;
@@ -96,6 +140,13 @@ RHOCK_NATIVE(board_led)
     return RHOCK_NATIVE_CONTINUE;
 }
 
+RHOCK_NATIVE(robot_f)
+{
+    motion_set_f(RHOCK_POPF());
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
 RHOCK_NATIVE(robot_h)
 {
     motion_set_h(RHOCK_POPF());
@@ -105,8 +156,8 @@ RHOCK_NATIVE(robot_h)
 
 RHOCK_NATIVE(robot_led)
 {
-    int led = RHOCK_POPF();
     int value = RHOCK_POPF();
+    int led = RHOCK_POPF();
     led_set(led, value, true);
     return RHOCK_NATIVE_CONTINUE;
 }

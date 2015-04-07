@@ -12,6 +12,7 @@ void motion_tick(float t);
 void motion_reset();
 
 // Sets parameters
+void motion_set_f(float f);
 void motion_set_h(float h);
 void motion_set_dx(float dx);
 void motion_set_dy(float dy);
@@ -21,6 +22,7 @@ void motion_set_turn(float turn);
 void motion_extra_z(int index, float z);
 
 // Get values
+float motion_get_f();
 float motion_get_dx();
 float motion_get_dy();
 float motion_get_turn();

@@ -16,9 +16,6 @@
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
 
-// Speed factor
-TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
-
 TERMINAL_COMMAND(version, "Getting firmware version")
 {
     terminal_io()->println(METABOT_VERSION);
@@ -89,7 +86,7 @@ void tick()
     }
 
     // Incrementing and normalizing t
-    t += freq*0.02;
+    t += motion_get_f()*0.02;
     if (t > 1.0) {
         t -= 1.0;
         colorize();

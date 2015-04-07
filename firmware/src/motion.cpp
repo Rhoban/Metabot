@@ -53,6 +53,9 @@ float motion_get_motor(int idx)
 // Amplitude multiplier
 #define AMPLITUDE 30
 
+// Speed factor
+TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
+
 // Legs bacakward mode
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
@@ -162,6 +165,7 @@ void motion_init()
     }
 
     extra_h = 0;
+    freq = 2.0;
 }
 
 float last_t = 0;
@@ -249,6 +253,16 @@ void motion_reset()
     motion_init();
 }
 
+void motion_set_f(float f_)
+{
+    freq = f_;
+}
+
+float motion_get_f()
+{
+    return freq;
+}
+
 void motion_set_h(float h_)
 {
     extra_h = h_;
@@ -293,6 +307,7 @@ void rhock_on_monitor()
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dx));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
     rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
+    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(freq));
     // Angles
     for (int i=0; i<12; i++) {
         rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
