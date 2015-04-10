@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <rhock/stream.h>
 #include <rhock/event.h>
@@ -11,26 +12,26 @@
 #include "mapping.h"
 
 struct rhock_context *controlling = NULL;
-float save_dx, save_dy, save_turn;
+float save_x_speed, save_y_speed, save_turn_speed;
 
 void motion_stop()
 {
     // When reseting the VM, stopping the robot
-    motion_set_dx(0);
-    motion_set_dy(0);
-    motion_set_turn(0);
-    save_dx = 0;
-    save_dy = 0;
-    save_turn = 0;
+    motion_set_x_speed(0);
+    motion_set_y_speed(0);
+    motion_set_turn_speed(0);
+    save_x_speed = 0;
+    save_y_speed = 0;
+    save_turn_speed = 0;
     controlling = NULL;
 }
 
 void motion_resume()
 {
     // Resume the motion
-    motion_set_dx(save_dx);
-    motion_set_dy(save_dy);
-    motion_set_turn(save_turn);
+    motion_set_x_speed(save_x_speed);
+    motion_set_y_speed(save_y_speed);
+    motion_set_turn_speed(save_turn_speed);
 }
 
 /**
@@ -80,53 +81,79 @@ void rhock_on_start(struct rhock_context *context)
     }
 }
 
-RHOCK_NATIVE(robot_control)
+RHOCK_NATIVE(robot_led)
+{
+    int value = RHOCK_POPF();
+    int led = RHOCK_POPF();
+    led_set(led, value, true);
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_leds)
+{
+    int value = RHOCK_POPF();
+    led_set_all(value, true);
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_leg_leds)
+{
+    int value = RHOCK_POPF();
+    int leg = RHOCK_POPF();
+    leg = ((leg-1)&3);
+    for (int k=0; k<3; k++) {
+        led_set(mapping[3*leg+k], value, true);
+    }
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+static void motion_control(float x_speed, float y_speed, float turn_speed,
+        struct rhock_context *context)
 {
     controlling = context;
-    save_turn = RHOCK_POPF();
-    save_dy = RHOCK_POPF();
-    save_dx = RHOCK_POPF();
+    save_x_speed = x_speed;
+    save_y_speed = y_speed;
+    save_turn_speed = turn_speed;
     motion_resume();
+}
+
+RHOCK_NATIVE(robot_control)
+{
+    float turn_speed = RHOCK_POPF();
+    float y_speed = RHOCK_POPF();
+    float x_speed = RHOCK_POPF();
+    motion_control(x_speed, y_speed, turn_speed, context);
 
     return RHOCK_NATIVE_CONTINUE;
 }
 
-RHOCK_NATIVE(robot_stop_moving)
+RHOCK_NATIVE(robot_stop)
 {
     motion_stop();
 
     return RHOCK_NATIVE_CONTINUE;
 }
 
-RHOCK_NATIVE(robot_dx)
+RHOCK_NATIVE(robot_x_speed)
 {
-    controlling = context;
-    save_turn = 0;
-    save_dy = 0;
-    save_dx = RHOCK_POPF();
-    motion_resume();
+    float x_speed = RHOCK_POPF();
+    motion_control(x_speed, 0, 0, context);
 
     return RHOCK_NATIVE_CONTINUE;
 }
 
-RHOCK_NATIVE(robot_dy)
+RHOCK_NATIVE(robot_y_speed)
 {
-    controlling = context;
-    save_turn = 0;
-    save_dy = RHOCK_POPF();
-    save_dx = 0;
-    motion_resume();
+    float y_speed = RHOCK_POPF();
+    motion_control(0, y_speed, 0, context);
 
     return RHOCK_NATIVE_CONTINUE;
 }
 
-RHOCK_NATIVE(robot_turn)
+RHOCK_NATIVE(robot_turn_speed)
 {
-    controlling = context;
-    save_turn = RHOCK_POPF();
-    save_dy = 0;
-    save_dx = 0;
-    motion_resume();
+    float turn_speed = RHOCK_POPF();
+    motion_control(0, 0, turn_speed, context);
 
     return RHOCK_NATIVE_CONTINUE;
 }
@@ -154,28 +181,65 @@ RHOCK_NATIVE(robot_h)
     return RHOCK_NATIVE_CONTINUE;
 }
 
-RHOCK_NATIVE(robot_led)
+RHOCK_NATIVE(robot_turn)
 {
-    int value = RHOCK_POPF();
-    int led = RHOCK_POPF();
-    led_set(led, value, true);
-    return RHOCK_NATIVE_CONTINUE;
-}
-
-RHOCK_NATIVE(robot_leds)
-{
-    int value = RHOCK_POPF();
-    led_set_all(value, true);
-    return RHOCK_NATIVE_CONTINUE;
-}
-
-RHOCK_NATIVE(robot_leg_leds)
-{
-    int value = RHOCK_POPF();
-    int leg = RHOCK_POPF();
-    leg = ((leg-1)&3);
-    for (int k=0; k<3; k++) {
-        led_set(mapping[3*leg+k], value, true);
+    ON_ENTER() {
+        float turn_speed = RHOCK_POPF();
+        float deg = RHOCK_POPF();
+        if (deg < 0 && turn_speed > 0) {
+            turn_speed = -turn_speed;
+        }
+        float time = fabs(deg/turn_speed);
+        RHOCK_PUSHF(time*1000);
+        
+        motion_control(0, 0, turn_speed, context);
+        return RHOCK_NATIVE_WAIT;
     }
-    return RHOCK_NATIVE_CONTINUE;
+    ON_ELAPSED() {
+        RHOCK_SMASH(1);
+        motion_stop();
+        return RHOCK_NATIVE_CONTINUE;
+    }
+}
+
+RHOCK_NATIVE(robot_move_x)
+{
+    ON_ENTER() {
+        float speed = RHOCK_POPF();
+        float dist = RHOCK_POPF();
+        if (dist < 0 && speed > 0) {
+            speed = -speed;
+        }
+        float time = fabs(dist/speed);
+        RHOCK_PUSHF(time*1000);
+        
+        motion_control(speed, 0, 0, context);
+        return RHOCK_NATIVE_WAIT;
+    }
+    ON_ELAPSED() {
+        RHOCK_SMASH(1);
+        motion_stop();
+        return RHOCK_NATIVE_CONTINUE;
+    }
+}
+
+RHOCK_NATIVE(robot_move_y)
+{
+    ON_ENTER() {
+        float speed = RHOCK_POPF();
+        float dist = RHOCK_POPF();
+        if (dist < 0 && speed > 0) {
+            speed = -speed;
+        }
+        float time = fabs(dist/speed);
+        RHOCK_PUSHF(time*1000);
+        
+        motion_control(0, speed, 0, context);
+        return RHOCK_NATIVE_WAIT;
+    }
+    ON_ELAPSED() {
+        RHOCK_SMASH(1);
+        motion_stop();
+        return RHOCK_NATIVE_CONTINUE;
+    }
 }
