@@ -23,6 +23,7 @@ TERMINAL_COMMAND(version, "Getting firmware version")
 
 TERMINAL_COMMAND(started, "Is the robot started?")
 {
+    terminal_io()->print("started=");
     terminal_io()->println(started);
 }
 
