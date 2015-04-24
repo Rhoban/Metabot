@@ -6,6 +6,9 @@
 #include <terminal.h>
 #endif
 
+// Current mapping
+static uint8_t currentMapping = 0;
+
 // This is the servo mappings
 uint8_t mapping[12];
 
@@ -40,6 +43,12 @@ void remap(int direction)
 TERMINAL_COMMAND(remap,
         "Changes the mapping")
 {
-    remap(atoi(argv[0]));
+    if (argc == 0) {
+        terminal_io()->print("remap=");
+        terminal_io()->println(currentMapping);
+    } else {
+        currentMapping = atoi(argv[0]);
+        remap(currentMapping);
+    }
 }
 #endif
