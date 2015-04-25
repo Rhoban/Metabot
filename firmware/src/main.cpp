@@ -21,6 +21,12 @@ TERMINAL_COMMAND(version, "Getting firmware version")
     terminal_io()->println(METABOT_VERSION);
 }
 
+TERMINAL_COMMAND(started, "Is the robot started?")
+{
+    terminal_io()->print("started=");
+    terminal_io()->println(started);
+}
+
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
