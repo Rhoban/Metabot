@@ -14,9 +14,9 @@ void motion_reset();
 // Sets parameters
 void motion_set_f(float f);
 void motion_set_h(float h);
-void motion_set_dx(float dx);
-void motion_set_dy(float dy);
-void motion_set_turn(float turn);
+void motion_set_x_speed(float x_speed);
+void motion_set_y_speed(float y_speed);
+void motion_set_turn_speed(float turn_speed);
 
 // Add extra values
 void motion_extra_z(int index, float z);

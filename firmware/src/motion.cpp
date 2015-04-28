@@ -139,6 +139,20 @@ void setup_functions()
         step.addPoint(0.5, 0.5);
         step.addPoint(0.85, -0.5);
         step.addPoint(1.0, -0.5);
+/*
+         // Rising the legs
+         rise.addPoint(0.0, 0.0);
+         rise.addPoint(0.1, 1.0);
+         rise.addPoint(0.4, 1.0);
+         rise.addPoint(0.5, 0.0);
+         rise.addPoint(1.0, 0.0);
+ 
+         // Taking the leg forward
+         step.addPoint(0.0, -0.5);
+         step.addPoint(0.1, -0.5);
+         step.addPoint(0.5, 0.5);
+         step.addPoint(1.0, -0.5);
+*/
     }
 }
 
@@ -230,9 +244,9 @@ void motion_tick(float t)
 
         // Rotate around the center of the robot
         if (group) {
-            crabRad = -DEG2RAD(crab);
-        } else {
             crabRad = DEG2RAD(crab);
+        } else {
+            crabRad = -DEG2RAD(crab);
         }
         float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
         float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
@@ -278,19 +292,19 @@ void motion_set_h(float h_)
     extra_h = h_;
 }
 
-void motion_set_dx(float dx_)
+void motion_set_x_speed(float x_speed)
 {
-    dx = dx_;
+    dx = x_speed/(2.0*freq);
 }
 
-void motion_set_dy(float dy_)
+void motion_set_y_speed(float y_speed)
 {
-    dy = dy_;
+    dy = y_speed/(2.0*freq);
 }
 
-void motion_set_turn(float turn_)
+void motion_set_turn_speed(float turn_speed)
 {
-    turn = turn_;
+    turn = turn_speed/(2.0*freq);
 }
 
 float motion_get_dx()
@@ -337,9 +351,6 @@ EMSCRIPTEN_BINDINGS(motion) {
     function("motion_get_dx", &motion_get_dx);
     function("motion_get_dy", &motion_get_dy);
     function("motion_get_turn", &motion_get_turn);
-    function("motion_set_dx", &motion_set_dx);
-    function("motion_set_dy", &motion_set_dy);
-    function("motion_set_turn", &motion_set_turn);
     function("motion_init", &motion_init);
     function("motion_tick", &motion_tick);
     function("motion_get_motor", &motion_get_motor);
