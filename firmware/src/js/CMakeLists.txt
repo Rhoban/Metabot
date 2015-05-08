@@ -33,8 +33,8 @@ set(CMAKE_AR emar)
 set(CMAKE_RANLIB emranlib)
 set(CMAKE_C_FLAGS -g)
 set(CMAKE_CXX_FLAGS -g)
-set (CMAKE_C_FLAGS "--minify 0 -std=c99 -Wall -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
-set (CMAKE_CXX_FLAGS "--minify 0 --bind -std=c++11 -Wall -Wno-reorder -pedantic -U__STRICT_ANSI__ -Wno-warn-absolute-paths -s DISABLE_EXCEPTION_CATCHING=0")
+set (CMAKE_C_FLAGS "--minify 0 -Os -std=c99 -Wall -U__STRICT_ANSI__ -Wno-warn-absolute-paths")
+set (CMAKE_CXX_FLAGS "--minify 0 -Os --bind -Wall -Wno-reorder -pedantic -U__STRICT_ANSI__ -Wno-warn-absolute-paths -s DISABLE_EXCEPTION_CATCHING=0")
 
 add_definitions (-DRHOCK_NATIVE_SYMBOLS -DRHOCK)
 
