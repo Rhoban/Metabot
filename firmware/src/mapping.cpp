@@ -48,6 +48,7 @@ TERMINAL_COMMAND(remap,
         terminal_io()->print("remap=");
         terminal_io()->println(currentMapping);
     } else {
+        currentMapping = atoi(argv[0]);
         remap(currentMapping);
     }
 }
