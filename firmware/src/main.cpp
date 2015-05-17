@@ -38,8 +38,6 @@ TERMINAL_PARAMETER_INT(voltage, "Average voltage (dV)", 75);
  */
 void setup()
 {
-    dxl_pidp(64);
-
     motion_init();
 
     // Initializing the DXL bus
