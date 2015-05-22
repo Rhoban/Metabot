@@ -30,7 +30,7 @@
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
 // Extra x, y and z for each leg
-float ex[4], ey[4], ez[4];
+static float ex[4], ey[4], ez[4];
 
 float motion_get_motor(int idx)
 {
@@ -161,6 +161,7 @@ TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
 // Extra values
 float extra_h = 0;
+float extra_r = 0;
 
 void motion_init()
 {
@@ -174,6 +175,7 @@ void motion_init()
     }
 
     extra_h = 0;
+    extra_r = 0;
     freq = 2.0;
 }
 
@@ -224,22 +226,23 @@ void motion_tick(float t)
         float Y = stepping*dy;
 
         // Add the radius to the leg, in the right direction
+        float nr = (r+extra_r);
         switch (i) {
             case 0:
-                X += cos(M_PI/4)*r;
-                Y += cos(M_PI/4)*r;
+                X += cos(M_PI/4)*nr;
+                Y += cos(M_PI/4)*nr;
                 break;
             case 1:
-                X += cos(M_PI/4)*r;
-                Y -= cos(M_PI/4)*r;
+                X += cos(M_PI/4)*nr;
+                Y -= cos(M_PI/4)*nr;
                 break;
             case 2:
-                X -= cos(M_PI/4)*r;
-                Y -= cos(M_PI/4)*r;
+                X -= cos(M_PI/4)*nr;
+                Y -= cos(M_PI/4)*nr;
                 break;
             case 3:
-                X -= cos(M_PI/4)*r;
-                Y += cos(M_PI/4)*r;
+                X -= cos(M_PI/4)*nr;
+                Y += cos(M_PI/4)*nr;
                 break;
         }
 
@@ -293,6 +296,11 @@ void motion_set_h(float h_)
     extra_h = h_;
 }
 
+void motion_set_r(float r_)
+{
+    extra_r = r_;
+}
+
 void motion_set_x_speed(float x_speed)
 {
     dx = x_speed/(2.0*freq);
@@ -306,6 +314,11 @@ void motion_set_y_speed(float y_speed)
 void motion_set_turn_speed(float turn_speed)
 {
     turn = turn_speed/(2.0*freq);
+}
+
+void motion_extra_z(int index, float z)
+{
+    ez[index] = z;
 }
 
 float motion_get_dx()

@@ -181,6 +181,31 @@ RHOCK_NATIVE(robot_h)
     return RHOCK_NATIVE_CONTINUE;
 }
 
+RHOCK_NATIVE(robot_r)
+{
+    motion_set_r(RHOCK_POPF());
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_ez)
+{
+    float extra = RHOCK_POPF();
+    int leg = RHOCK_POPI()-1;
+    if (leg >= 0 && leg < 4) {
+        motion_extra_z(leg, extra);
+    }
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_reset)
+{
+    motion_init();
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
 RHOCK_NATIVE(robot_turn)
 {
     ON_ENTER() {
