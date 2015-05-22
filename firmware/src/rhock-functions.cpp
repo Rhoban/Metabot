@@ -190,11 +190,10 @@ RHOCK_NATIVE(robot_r)
 
 RHOCK_NATIVE(robot_ez)
 {
+    int leg = RHOCK_POPF();
     float extra = RHOCK_POPF();
-    int leg = RHOCK_POPI()-1;
-    if (leg >= 0 && leg < 4) {
-        motion_extra_z(leg, extra);
-    }
+    leg = ((leg-1)&3);
+    motion_extra_z(leg, extra);
 
     return RHOCK_NATIVE_CONTINUE;
 }
