@@ -125,7 +125,6 @@ void setup_functions()
     }
 
     if (gait == GAIT_TROT) {
-        /*
         // Rising the legs
         rise.addPoint(0.0, 1.0);
         rise.addPoint(0.3, 1.0);
@@ -140,8 +139,8 @@ void setup_functions()
         step.addPoint(0.5, 0.5);
         step.addPoint(0.85, -0.5);
         step.addPoint(1.0, -0.5);
-*/
 
+        /*
          // Rising the legs
          rise.addPoint(0.0, 0.0);
          rise.addPoint(0.1, 1.0);
@@ -154,6 +153,7 @@ void setup_functions()
          step.addPoint(0.1, -0.5);
          step.addPoint(0.5, 0.5);
          step.addPoint(1.0, -0.5);
+         */
     }
 }
 
