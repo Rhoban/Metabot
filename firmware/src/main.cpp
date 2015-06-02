@@ -18,6 +18,7 @@ TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
 
 TERMINAL_COMMAND(version, "Getting firmware version")
 {
+    terminal_io()->print("version=");
     terminal_io()->println(METABOT_VERSION);
 }
 
