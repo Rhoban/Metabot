@@ -7,6 +7,6 @@ if [ -d "RobotsWar" ]; then
     git pull
 else
     git clone https://github.com/RobotsWar/RobotsWar.git RobotsWar --depth=1
-    git clone https://github.com/Rhoban/Rhock.git Rhock --depth=1
-    ln -s $PWD/Rhock RobotsWar/Rhock
+    git clone https://github.com/Rhoban/Rhock.git RhockGit --depth=1
+    ln -s $PWD/RhockGit RobotsWar/Rhock
 fi
