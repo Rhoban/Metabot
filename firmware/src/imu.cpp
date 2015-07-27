@@ -7,11 +7,13 @@
 static int last_update;
 float magn_x, magn_y, magn_z;
 float gyro_x, gyro_y, gyro_z;
+float acc_x, acc_y, acc_z;
 float yaw;
 
 // Addresses
 #define MAGN_ADDR       0x1e
 #define GYRO_ADDR       0x68
+#define ACC_ADDR        0x53
 
 // Config
 #define MAGN_X_MIN      -650
@@ -48,6 +50,12 @@ uint8 gyro_scale[] = {0x16, 0x1b};
 uint8 gyro_50hz[] = {0x15, 0x0a};
 uint8 gyro_pll[] = {0x3e, 0x00};
 uint8 gyro_req[] = {0x1d};
+
+// Accelerometer packets
+uint8 acc_measure[] = {0x2d, 0x08};
+uint8 acc_resolution[] = {0x31, 0x08};
+uint8 acc_50hz[] = {0x2c, 0x09};
+uint8 acc_req[] = {0x32};
 
 // Magnetometer packets
 uint8 magn_continuous[] = {0x02, 0x00};
@@ -90,6 +98,19 @@ void imu_init()
     i2c_master_xfer(I2C1, &packet, 1, 500);
 
     packet.data = magn_50hz;
+    i2c_master_xfer(I2C1, &packet, 1, 500);
+    
+    // Initializing accelerometer
+    packet.addr = ACC_ADDR;
+    packet.flags = 0;
+    packet.data = acc_measure;
+    packet.length = 2;
+    i2c_master_xfer(I2C1, &packet, 1, 500);
+    
+    packet.data = acc_resolution;
+    i2c_master_xfer(I2C1, &packet, 1, 500);
+    
+    packet.data = acc_50hz;
     i2c_master_xfer(I2C1, &packet, 1, 500);
 
     // Initializing gyroscope
@@ -145,7 +166,7 @@ void gyro_update()
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    i2c_master_xfer(I2C1, &packet, 1, 1000);
+    i2c_master_xfer(I2C1, &packet, 1, 100);
 
     int gyro_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     gyro_x = GYRO_GAIN*VALUE_SIGN(gyro_x_r, 16);
@@ -158,6 +179,28 @@ void gyro_update()
     yaw = normalize(yaw);
 }
 
+void acc_update()
+{
+    packet.addr = ACC_ADDR;
+    packet.flags = 0;
+    packet.data = acc_req;
+    packet.length = 1;
+    i2c_master_xfer(I2C1, &packet, 1, 100);
+    
+    char buffer[6];
+    packet.flags = I2C_MSG_READ;
+    packet.data = (uint8*)buffer;
+    packet.length = 6;
+    i2c_master_xfer(I2C1, &packet, 1, 100);
+    
+    int acc_x_r = ((buffer[1]&0xff)<<8)|(buffer[0]&0xff);
+    acc_x = VALUE_SIGN(acc_x_r, 16);
+    int acc_y_r = ((buffer[3]&0xff)<<8)|(buffer[2]&0xff);
+    acc_y = VALUE_SIGN(acc_y_r, 16);
+    int acc_z_r = ((buffer[5]&0xff)<<8)|(buffer[4]&0xff);
+    acc_z = VALUE_SIGN(acc_z_r, 16);
+}
+
 void imu_tick()
 {
     int elapsed = millis()-last_update;
@@ -168,6 +211,7 @@ void imu_tick()
 
         gyro_update();
         magn_update();
+        acc_update();
     }
 }
 
@@ -189,6 +233,13 @@ TERMINAL_COMMAND(imu, "Monitors IMU")
         terminal_io()->print(gyro_y);
         terminal_io()->print(" ");
         terminal_io()->print(gyro_z);
+        terminal_io()->print(" ");
+        
+        terminal_io()->print(acc_x);
+        terminal_io()->print(" ");
+        terminal_io()->print(acc_y);
+        terminal_io()->print(" ");
+        terminal_io()->print(acc_z);
         terminal_io()->print(" ");
 
         terminal_io()->print(yaw);
