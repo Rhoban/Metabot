@@ -13,6 +13,7 @@
 #include "motion.h"
 #include "leds.h"
 #include "mapping.h"
+#include "imu.h"
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -52,6 +53,9 @@ void setup()
     // Initializing the buzzer
     buzzer_init();
     buzzer_play(MELODY_BOOT);
+
+    // Initializing the IMU
+    imu_init();
 
     // Initializing positions to 0
     for (int i=0; i<12; i++) {
@@ -125,4 +129,5 @@ void tick()
 void loop()
 {
     buzzer_tick();
+    imu_tick();
 }
