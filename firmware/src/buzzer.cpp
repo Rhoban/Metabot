@@ -12,11 +12,11 @@ struct buzzer_note {
 };
 
 struct buzzer_note melody_boot[] = {
-    {523, 200},
-    {659, 350},
-    {523, 200},
-    {698, 300},
-    {659, 160},
+    {523, 200/2},
+    {659, 350/2},
+    {523, 200/2},
+    {698, 300/2},
+    {659, 160/2},
     {0, 0}
 };
 
@@ -50,10 +50,16 @@ void buzzer_play_note(int note)
     timer.pause();
     timer.setPrescaleFactor(72000000 / (note * 100));
     timer.setOverflow(100);
-    timer.refresh();
-    timer.resume();
 
-    pwmWrite(BUZZER_PIN, note == 0 ? 0 : 50);
+    if (note == 0) {
+        pinMode(BUZZER_PIN, OUTPUT);
+        digitalWrite(BUZZER_PIN, HIGH);
+    } else {
+        timer.refresh();
+        timer.resume();
+        pinMode(BUZZER_PIN, PWM);
+        pwmWrite(BUZZER_PIN, 50);
+    }
 }
 
 static void buzzer_enter(struct buzzer_note *note)
