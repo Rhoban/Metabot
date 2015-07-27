@@ -152,7 +152,7 @@ void gyro_update()
     int gyro_y_r = ((buffer[2]&0xff)<<8)|(buffer[3]&0xff);
     gyro_y = GYRO_GAIN*VALUE_SIGN(gyro_y_r, 16);
     int gyro_z_r = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
-    gyro_z = GYRO_GAIN*VALUE_SIGN(gyro_z_r, 16) - 0.77;
+    gyro_z = GYRO_GAIN*VALUE_SIGN(gyro_z_r, 16);
 
     yaw -= gyro_z * 0.02;
     yaw = normalize(yaw);
