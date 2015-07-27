@@ -8,6 +8,7 @@
 #include <function.h>
 #include <commands.h>
 #include <rc.h>
+#include "buzzer.h"
 #include "config.h"
 #include "motion.h"
 #include "leds.h"
@@ -47,6 +48,10 @@ void setup()
 
     // Initializing config (see config.h)
     config_init();
+
+    // Initializing the buzzer
+    buzzer_init();
+    buzzer_play(MELODY_BOOT);
 
     // Initializing positions to 0
     for (int i=0; i<12; i++) {
@@ -119,4 +124,5 @@ void tick()
 
 void loop()
 {
+    buzzer_tick();
 }
