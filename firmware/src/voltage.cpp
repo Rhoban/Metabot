@@ -23,7 +23,7 @@ void voltage_init()
     float stepPerVolt = voltage_spv();
 
     voltage_limit_l = VOLTAGE_LIMIT*stepPerVolt;
-    voltage_limit_h = VOLTAGE_LIMIT*stepPerVolt + stepPerVolt;
+    voltage_limit_h = VOLTAGE_LIMIT*stepPerVolt + stepPerVolt*0.4;
     voltage_limit_s = VOLTAGE_SHUT*stepPerVolt;
     voltage_now = analogRead(VOLTAGE_PIN);
     voltage_is_error = false;
@@ -56,5 +56,5 @@ float voltage_current()
 TERMINAL_COMMAND(voltage, "Get the voltage")
 {
     terminal_io()->print("voltage=");
-    terminal_io()->println(voltage_current());
+    terminal_io()->println((int)(10*voltage_current()));
 }
