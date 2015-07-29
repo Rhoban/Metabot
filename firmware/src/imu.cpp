@@ -10,18 +10,20 @@ float gyro_x, gyro_y, gyro_z;
 float acc_x, acc_y, acc_z;
 float yaw;
 
+TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
+
 // Addresses
 #define MAGN_ADDR       0x1e
 #define GYRO_ADDR       0x68
 #define ACC_ADDR        0x53
 
 // Config
-#define MAGN_X_MIN      -650
-#define MAGN_X_MAX      60
-#define MAGN_Y_MIN      -100
-#define MAGN_Y_MAX      100
-#define MAGN_Z_MIN      -210
-#define MAGN_Z_MAX      120
+#define MAGN_X_MIN      200
+#define MAGN_X_MAX      850
+#define MAGN_Y_MIN      -50
+#define MAGN_Y_MAX      50
+#define MAGN_Z_MIN      -1000
+#define MAGN_Z_MAX      -300
 
 #define MAGN_X_CENTER   ((MAGN_X_MIN+MAGN_X_MAX)/2.0)
 #define MAGN_X_AMP      (MAGN_X_MAX-MAGN_X_MIN)
@@ -61,6 +63,8 @@ static uint8 magn_continuous[] = {0x02, 0x00};
 static uint8 magn_50hz[] = {0x00, 0b00011000};
 static uint8 magn_req[] = {0x03};
 
+static bool initialized = false;
+
 float normalize(float angle)
 {
     while (angle > 180) angle -= 360;
@@ -79,6 +83,7 @@ float weight_average(float a1, float w1, float a2, float w2)
 
 void imu_init()
 {
+    bool error = false;
     yaw = 0.0;
     last_update = millis();
 
@@ -88,58 +93,68 @@ void imu_init()
     // Initializing I2C bus
     i2c_init(I2C1);
     i2c_master_enable(I2C1, I2C_FAST_MODE);
-
+    
     // Initializing magnetometer
     packet.addr = MAGN_ADDR;
     packet.flags = 0;
     packet.data = magn_continuous;
     packet.length = 2;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
-
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    
     packet.data = magn_50hz;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     
     // Initializing accelerometer
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_measure;
     packet.length = 2;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    
+    terminal_io()->println("Acc2...");
     
     packet.data = acc_resolution;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     
     packet.data = acc_50hz;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
-
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    
     // Initializing gyroscope
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_reset;
     packet.length = 2;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     
     packet.data = gyro_scale;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     packet.data = gyro_50hz;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     packet.data = gyro_pll;
-    i2c_master_xfer(I2C1, &packet, 1, 500);
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+
+    initialized = true;
+    return;
+
+init_error:
+    initialized = false;
 }
 
 void magn_update()
 {
+    if (!initialized) return;
+
     packet.addr = MAGN_ADDR;
     packet.flags = 0;
     packet.data = magn_req;
     packet.length = 1;
-    i2c_master_xfer(I2C1, &packet, 1, 100);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
     
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    i2c_master_xfer(I2C1, &packet, 1, 1000);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
 
     int magn_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     magn_x = (VALUE_SIGN(magn_x_r, 16)-MAGN_X_CENTER)*100/MAGN_X_AMP;
@@ -155,17 +170,19 @@ void magn_update()
 
 void gyro_update()
 {
+    if (!initialized) return;
+
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_req;
     packet.length = 1;
-    i2c_master_xfer(I2C1, &packet, 1, 100);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
     
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    i2c_master_xfer(I2C1, &packet, 1, 100);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
 
     int gyro_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     gyro_x = GYRO_GAIN*VALUE_SIGN(gyro_x_r, 16);
@@ -180,17 +197,19 @@ void gyro_update()
 
 void acc_update()
 {
+    if (!initialized) return;
+
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_req;
     packet.length = 1;
-    i2c_master_xfer(I2C1, &packet, 1, 100);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
     
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    i2c_master_xfer(I2C1, &packet, 1, 100);
+    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
     
     int acc_x_r = ((buffer[1]&0xff)<<8)|(buffer[0]&0xff);
     acc_x = VALUE_SIGN(acc_x_r, 16);
@@ -212,14 +231,8 @@ void imu_tick()
         magn_update();
         acc_update();
     }
-}
 
-TERMINAL_COMMAND(imu, "Monitors IMU")
-{
-    while (!SerialUSB.available()) {
-        imu_tick();
-        delay(20);
-
+    if (imudbg) {
         terminal_io()->print(magn_x);
         terminal_io()->print(" ");
         terminal_io()->print(magn_y);
