@@ -42,7 +42,6 @@ float yaw;
     : (value-(1<<length)))
 
 struct i2c_msg packet;
-struct i2c_msg reply;
 
 // Gyroscope packets
 static uint8 gyro_reset[] = {0x3e, 0x80};
