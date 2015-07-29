@@ -45,22 +45,22 @@ struct i2c_msg packet;
 struct i2c_msg reply;
 
 // Gyroscope packets
-uint8 gyro_reset[] = {0x3e, 0x80};
-uint8 gyro_scale[] = {0x16, 0x1b};
-uint8 gyro_50hz[] = {0x15, 0x0a};
-uint8 gyro_pll[] = {0x3e, 0x00};
-uint8 gyro_req[] = {0x1d};
+static uint8 gyro_reset[] = {0x3e, 0x80};
+static uint8 gyro_scale[] = {0x16, 0x1b};
+static uint8 gyro_50hz[] = {0x15, 0x0a};
+static uint8 gyro_pll[] = {0x3e, 0x00};
+static uint8 gyro_req[] = {0x1d};
 
 // Accelerometer packets
-uint8 acc_measure[] = {0x2d, 0x08};
-uint8 acc_resolution[] = {0x31, 0x08};
-uint8 acc_50hz[] = {0x2c, 0x09};
-uint8 acc_req[] = {0x32};
+static uint8 acc_measure[] = {0x2d, 0x08};
+static uint8 acc_resolution[] = {0x31, 0x08};
+static uint8 acc_50hz[] = {0x2c, 0x09};
+static uint8 acc_req[] = {0x32};
 
 // Magnetometer packets
-uint8 magn_continuous[] = {0x02, 0x00};
-uint8 magn_50hz[] = {0x00, 0b00011000};
-uint8 magn_req[] = {0x03};
+static uint8 magn_continuous[] = {0x02, 0x00};
+static uint8 magn_50hz[] = {0x00, 0b00011000};
+static uint8 magn_req[] = {0x03};
 
 float normalize(float angle)
 {

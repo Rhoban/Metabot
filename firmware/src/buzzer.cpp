@@ -11,7 +11,7 @@ struct buzzer_note {
     int duration;
 };
 
-struct buzzer_note melody_boot[] = {
+static struct buzzer_note melody_boot[] = {
     {523, 200/2},
     {659, 350/2},
     {523, 200/2},
@@ -20,7 +20,7 @@ struct buzzer_note melody_boot[] = {
     {0, 0}
 };
 
-struct buzzer_note melody_alert[] = {
+static struct buzzer_note melody_alert[] = {
     {2000, 200},
     {200, 200},
     {2000, 200},
@@ -28,7 +28,7 @@ struct buzzer_note melody_alert[] = {
     {0, 0}
 };
 
-struct buzzer_note melody_custom[] = {
+static struct buzzer_note melody_custom[] = {
     {0, 0},
     {0, 0}
 };
