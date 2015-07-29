@@ -10,6 +10,8 @@ void bt_init()
 
     RC.begin(38400);
     RC.print("AT+RESET\r\r");
+    RC.print("AT+RESET\r\r");
+    RC.print("AT+RESET\r\r");
     RC.begin(921600);
 }
 
