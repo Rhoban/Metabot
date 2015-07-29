@@ -2,7 +2,6 @@
 #include <terminal.h>
 
 // Config
-#define BUZZER_PIN      11
 HardwareTimer           timer(2);
 
 // Partitions
@@ -120,4 +119,11 @@ TERMINAL_COMMAND(beep, "Plays a beep")
     melody_custom[0].freq = atoi(argv[0]);
     melody_custom[0].duration = 1000;
     buzzer_play(2);
+}
+
+void buzzer_stop()
+{
+    buzzer_play_note(0);
+    melody = NULL;
+    melody_repeat = NULL;
 }

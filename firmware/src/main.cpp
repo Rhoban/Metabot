@@ -8,12 +8,14 @@
 #include <function.h>
 #include <commands.h>
 #include <rc.h>
+#include "voltage.h"
 #include "buzzer.h"
 #include "config.h"
 #include "motion.h"
 #include "leds.h"
 #include "mapping.h"
 #include "imu.h"
+#include "bt.h"
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -33,15 +35,16 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
-// Average voltage
-TERMINAL_PARAMETER_INT(voltage, "Average voltage (dV)", 75);
-
 /**
  * Initializing
  */
 void setup()
 {
+    bt_init();
+
     motion_init();
+    
+    voltage_init();
 
     // Initializing the DXL bus
     delay(500);
@@ -59,7 +62,7 @@ void setup()
 
     // Initializing positions to 0
     for (int i=0; i<12; i++) {
-        dxl_set_position(servos_order[i], 0.0);
+        dxl_set_position(i+1, 0.0);
     }
     for (int i=0; i<4; i++) {
         l1[i] = l2[i] = l3[i] = 0;
@@ -71,29 +74,6 @@ void setup()
  */
 void tick()
 {
-    // Computing average voltage
-    static int idToRead = 0;
-    static int blink;
-
-    idToRead++;
-    if (idToRead >= 12) idToRead = 0;
-    bool success;
-    int voltageOnce = dxl_read_byte(idToRead+1, DXL_VOLTAGE, &success);
-    if (success) {
-        if (voltageOnce < voltage) voltage--;
-        if (voltageOnce > voltage) voltage++;
-    }
-
-    if (voltage < 60) {
-        dxl_write_word(DXL_BROADCAST, DXL_GOAL_TORQUE, 0);
-        blink++;
-        if (blink > 10) {
-            blink = 0;
-        }
-        dxl_write_byte(DXL_BROADCAST, DXL_LED, blink<5);
-        return;
-    }
-
     if (!move || !started) {
         t = 0.0;
         return;
@@ -108,7 +88,7 @@ void tick()
     if (t < 0.0) t += 1.0;
 
     motion_tick(t);
-   
+
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);
     dxl_set_position(mapping[3], l1[1]);
@@ -130,4 +110,5 @@ void loop()
 {
     buzzer_tick();
     imu_tick();
+    voltage_tick();
 }
