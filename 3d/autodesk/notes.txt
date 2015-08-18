@@ -1,0 +1,3 @@
+Améliorer la structure pour les capteurs de pression
+Mettre la trappe au bon niveau
+Mettre uniquement une vis pour la charniere
