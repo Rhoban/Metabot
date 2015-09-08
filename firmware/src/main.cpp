@@ -17,6 +17,16 @@
 #include "imu.h"
 #include "bt.h"
 
+#define LIT     22
+
+int x;
+TERMINAL_COMMAND(mem, "mem")
+{
+    int y;
+    terminal_io()->println(((int)&x)-0x20000000);
+    terminal_io()->println(((int)&y)-0x20000000);
+}
+
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
 
@@ -35,11 +45,20 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
+
+TERMINAL_COMMAND(suicide, "Lit the fuse")
+{
+    digitalWrite(LIT, HIGH);
+}
+
 /**
  * Initializing
  */
 void setup()
 {
+    digitalWrite(LIT, LOW);
+    pinMode(LIT, OUTPUT);
+
     bt_init();
 
     motion_init();

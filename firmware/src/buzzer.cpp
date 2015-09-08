@@ -52,7 +52,7 @@ void buzzer_play_note(int note)
 
     if (note == 0) {
         pinMode(BUZZER_PIN, OUTPUT);
-        digitalWrite(BUZZER_PIN, HIGH);
+        digitalWrite(BUZZER_PIN, LOW);
     } else {
         timer.refresh();
         timer.resume();
