@@ -159,7 +159,9 @@ void loop()
 
     // Updating the terminal
     terminal_tick();
+#if defined(RHOCK)
     rhock_tick();
+#endif
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
