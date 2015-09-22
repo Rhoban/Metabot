@@ -1,6 +1,7 @@
 # Try "make help" first
 #
-VERSION="1.1"
+MODEL="metabot2"
+VERSION="1.0"
 
 .DEFAULT_GOAL := sketch
 
@@ -146,8 +147,8 @@ install: $(BUILD_PATH)/$(BOARD).bin
 
 release: $(BUILD_PATH)/$(BOARD).bin
 	@echo "Copying to metabot.bin"
-	@echo $(VERSION) > ../metabot.version
-	cp $(BUILD_PATH)/$(BOARD).bin ../metabot.bin
+	@echo $(VERSION) > ../$(MODEL).version
+	cp $(BUILD_PATH)/$(BOARD).bin ../$(MODEL).bin
 
 # Force a rebuild if the target changed
 PREV_BUILD_TYPE = $(shell cat $(BUILD_PATH)/build-type 2>/dev/null)
