@@ -5,7 +5,7 @@
 /**
  * This is the dimension of the legs, in mm
  */
-#define L0      37
+#define L0      62
 #define L1      40
 #define L2      62
 #define L3_1    85
