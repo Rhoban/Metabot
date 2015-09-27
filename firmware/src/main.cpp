@@ -18,6 +18,8 @@
 #include "imu.h"
 #include "bt.h"
 
+bool isUSB = false;
+
 #define LIT     22
 
 // Time
@@ -37,7 +39,9 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 
 TERMINAL_COMMAND(rc, "Go to RC mode")
 {
+    RC.begin(921600);
     terminal_init(&RC);
+    isUSB = false;
 }
 
 // Enabling/disabling move
@@ -107,6 +111,8 @@ void setup()
     // Enable 50hz ticking
     servos_init();
     servos_attach_interrupt(setFlag);
+    
+    RC.begin(921600);
 }
 
 /**
@@ -145,8 +151,6 @@ void tick()
     dxl_set_position(mapping[8], l3[2]);
     dxl_set_position(mapping[11], l3[3]);
 }
-
-bool isUSB = false;
 
 void loop()
 {
