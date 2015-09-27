@@ -8,7 +8,8 @@ static int last_update;
 float magn_x, magn_y, magn_z;
 float gyro_x, gyro_y, gyro_z;
 float acc_x, acc_y, acc_z;
-float yaw;
+
+TERMINAL_PARAMETER_FLOAT(yaw, "Robot yaw", 0.0);
 
 TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
 
@@ -18,12 +19,12 @@ TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
 #define ACC_ADDR        0x53
 
 // Config
-#define MAGN_X_MIN      200
-#define MAGN_X_MAX      850
+#define MAGN_X_MIN      -319
+#define MAGN_X_MAX      307
 #define MAGN_Y_MIN      -50
 #define MAGN_Y_MAX      50
-#define MAGN_Z_MIN      -1000
-#define MAGN_Z_MAX      -300
+#define MAGN_Z_MIN      -700
+#define MAGN_Z_MAX      -27
 
 #define MAGN_X_CENTER   ((MAGN_X_MIN+MAGN_X_MAX)/2.0)
 #define MAGN_X_AMP      (MAGN_X_MAX-MAGN_X_MIN)
@@ -110,9 +111,7 @@ void imu_init()
     packet.data = acc_measure;
     packet.length = 2;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
-    terminal_io()->println("Acc2...");
-    
+     
     packet.data = acc_resolution;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     
@@ -157,11 +156,11 @@ void magn_update()
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
 
     int magn_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
-    magn_x = (VALUE_SIGN(magn_x_r, 16)-MAGN_X_CENTER)*100/MAGN_X_AMP;
+    magn_x = (VALUE_SIGN(magn_x_r, 16)-MAGN_X_CENTER)*100/(float)MAGN_X_AMP;
     int magn_y_r = ((buffer[2]&0xff)<<8)|(buffer[3]&0xff);
-    magn_y = (VALUE_SIGN(magn_y_r, 16)-MAGN_Y_CENTER)*100/MAGN_Y_AMP;
+    magn_y = (VALUE_SIGN(magn_y_r, 16)-MAGN_Y_CENTER)*100/(float)MAGN_Y_AMP;
     int magn_z_r = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
-    magn_z = (VALUE_SIGN(magn_z_r, 16)-MAGN_Z_CENTER)*100/MAGN_Z_AMP;
+    magn_z = (VALUE_SIGN(magn_z_r, 16)-MAGN_Z_CENTER)*100/(float)MAGN_Z_AMP;
 
     float new_yaw = atan2(magn_z, magn_x);
     float cur_yaw = DEG2RAD(yaw);
