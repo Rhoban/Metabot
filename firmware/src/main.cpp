@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <wirish/wirish.h>
-#include <servos.h>
 #include <terminal.h>
 #include <main.h>
 #include <math.h>
@@ -8,10 +7,15 @@
 #include <function.h>
 #include <commands.h>
 #include <rc.h>
+#include <rhock.h>
+#include <servos.h>
 #include "config.h"
 #include "motion.h"
 #include "leds.h"
 #include "mapping.h"
+
+bool flag = false;
+bool isUSB = false;
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -28,6 +32,18 @@ TERMINAL_COMMAND(started, "Is the robot started?")
     terminal_io()->println(started);
 }
 
+TERMINAL_COMMAND(rc, "Go to RC mode")
+{
+    RC.begin(921600);
+    terminal_init(&RC);
+    isUSB = false;
+}
+
+void setFlag()
+{
+    flag = true;
+}
+
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
@@ -39,6 +55,9 @@ TERMINAL_PARAMETER_INT(voltage, "Average voltage (dV)", 75);
  */
 void setup()
 {
+    RC.begin(921600);
+    terminal_init(&RC);
+
     motion_init();
 
     // Initializing the DXL bus
@@ -55,6 +74,10 @@ void setup()
     for (int i=0; i<4; i++) {
         l1[i] = l2[i] = l3[i] = 0;
     }
+
+    // Enabling 50hz ticking
+    servos_init();
+    servos_attach_interrupt(setFlag);
 }
 
 /**
@@ -119,4 +142,20 @@ void tick()
 
 void loop()
 {
+    // Updating the terminal
+    terminal_tick();
+#if defined(RHOCK)
+    rhock_tick();
+#endif
+    if (SerialUSB.available() && !isUSB) {
+        isUSB = true;
+        terminal_init(&SerialUSB);
+    }
+
+    // Calling user motion tick
+    if (flag) {
+        flag = false;
+        tick();
+        dxl_flush();
+    }
 }

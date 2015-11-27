@@ -5,10 +5,11 @@ VERSION="1.1"
 .DEFAULT_GOAL := sketch
 
 ## Local configuration
-LIB_MAPLE_HOME = ./RobotsWar/LibMaple
-LIB_RHOBAN_HOME = ./RobotsWar/LibRhoban
-LIB_RHOCK_HOME = ./RobotsWar/LibRhock
+LIB_MAPLE_HOME = ./Maple/LibMaple
+LIB_RHOBAN_HOME = ./Maple/LibRhoban
+LIB_RHOCK_HOME = ./Maple/LibRhock
 ENABLE_RHOCK := yes
+ENABLE_COMMANDS := yes
 
 ##
 ## Useful paths, constants, etc.
@@ -63,7 +64,9 @@ include $(MAKEDIR)/build-templates.mk
 #     #include "wirish.h"
 # It slows compilation noticeably; remove after 1 release.
 TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
-                   -I$(WIRISH_PATH)/include/wirish
+                   -I$(WIRISH_PATH)/include/wirish \
+		   -I$(LIB_RHOBAN_HOME) \
+		   -I$(LIB_RHOCK_HOME)
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
                    -ffunction-sections -fdata-sections \
@@ -88,10 +91,10 @@ LIBMAPLE_MODULES += $(SRCROOT)/wirish
 
 # Official libraries:
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
+#LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
 # Experimental libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
+#LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
 
 # User modules:
 ifneq ($(USER_MODULES),)
