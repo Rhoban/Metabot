@@ -68,10 +68,10 @@ void setup()
     config_init();
 
     // Initializing positions to 0
-    for (int i=0; i<12; i++) {
+    for (int i=0; i<18; i++) {
         dxl_set_position(servos_order[i], 0.0);
     }
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<6; i++) {
         l1[i] = l2[i] = l3[i] = 0;
     }
 
@@ -90,7 +90,7 @@ void tick()
     static int blink;
 
     idToRead++;
-    if (idToRead >= 12) idToRead = 0;
+    if (idToRead >= 18) idToRead = 0;
     bool success;
     int voltageOnce = dxl_read_byte(idToRead+1, DXL_VOLTAGE, &success);
     if (success) {
@@ -128,16 +128,22 @@ void tick()
     dxl_set_position(mapping[3], l1[1]);
     dxl_set_position(mapping[6], l1[2]);
     dxl_set_position(mapping[9], l1[3]);
+    dxl_set_position(mapping[12], l1[4]);
+    dxl_set_position(mapping[15], l1[5]);
 
     dxl_set_position(mapping[1], l2[0]);
     dxl_set_position(mapping[4], l2[1]);
     dxl_set_position(mapping[7], l2[2]);
     dxl_set_position(mapping[10], l2[3]);
+    dxl_set_position(mapping[13], l2[4]);
+    dxl_set_position(mapping[16], l2[5]);
 
     dxl_set_position(mapping[2], l3[0]);
     dxl_set_position(mapping[5], l3[1]);
     dxl_set_position(mapping[8], l3[2]);
     dxl_set_position(mapping[11], l3[3]);
+    dxl_set_position(mapping[14], l3[4]);
+    dxl_set_position(mapping[17], l3[5]);
 }
 
 void loop()

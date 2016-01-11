@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-extern uint8_t mapping[12];
+extern uint8_t mapping[18];
 void remap(int map);
 void colorize();
 

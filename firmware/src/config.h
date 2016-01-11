@@ -5,7 +5,7 @@
 /**
  * This is the dimension of the legs, in mm
  */
-#define L0      37
+#define L0      55
 #define L1      40
 #define L2      62
 #define L3_1    85
@@ -32,7 +32,11 @@ static int servos_order[] = {
     // Third leg
     7, 8, 9,          
     // Fourth leg
-    10, 11, 12
+    10, 11, 12,
+    // Fifth leg
+    13, 14, 15,
+    // Sixth leg
+    16, 17, 18
 };
 
 /**
@@ -85,5 +89,21 @@ static void config_init()
     dxl_set_min_max (servos_order[10], -100, 100);
     dxl_set_zero    (servos_order[11], 0);
     dxl_set_min_max (servos_order[11], -145, 145);
+    
+    // Fifth leg
+    dxl_set_zero    (servos_order[12], 0.00);
+    dxl_set_min_max (servos_order[12], -90, 90);
+    dxl_set_zero    (servos_order[13], 0.00);
+    dxl_set_min_max (servos_order[13], -100, 100);
+    dxl_set_zero    (servos_order[14], 0);
+    dxl_set_min_max (servos_order[14], -145, 145);
+    
+    // Sixth leg
+    dxl_set_zero    (servos_order[15], 0.00);
+    dxl_set_min_max (servos_order[15], -90, 90);
+    dxl_set_zero    (servos_order[16], 0.00);
+    dxl_set_min_max (servos_order[16], -100, 100);
+    dxl_set_zero    (servos_order[17], 0);
+    dxl_set_min_max (servos_order[17], -145, 145);
 }
 #endif

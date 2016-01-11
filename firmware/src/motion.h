@@ -2,7 +2,7 @@
 #define _METABOT_MOTION_H
 
 // Output angles
-extern float l1[4], l2[4], l3[4];
+extern float l1[6], l2[6], l3[6];
 
 // Initializes the motion
 void motion_init();

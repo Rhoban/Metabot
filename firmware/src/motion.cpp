@@ -28,13 +28,13 @@
 #include "motors.h"
 
 // Angles for the legs motor
-float l1[4], l2[4], l3[4];
+float l1[6], l2[6], l3[6];
 // Extra x, y and z for each leg
-static float ex[4], ey[4], ez[4];
+static float ex[6], ey[6], ez[6];
 
 float motion_get_motor(int idx)
 {
-    int c = (idx%3);
+    int c = (idx%5);
     switch (c) {
         case 0:
             return (l1[idx/3]);
@@ -168,7 +168,7 @@ void motion_init()
     // Setting the mapping to 0
     remap(0);
 
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<6; i++) {
         ex[i] = 0;
         ey[i] = 0;
         ez[i] = 0;
@@ -202,7 +202,7 @@ void motion_tick(float t)
     float turnRad = DEG2RAD(turn);
     float crabRad;
 
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<6; i++) {
         // Defining in which group of opposite legs this leg is
         bool group = ((i&1)==1);
 
@@ -227,24 +227,8 @@ void motion_tick(float t)
 
         // Add the radius to the leg, in the right direction
         float nr = (r+extra_r);
-        switch (i) {
-            case 0:
-                X += cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-            case 1:
-                X += cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 2:
-                X -= cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 3:
-                X -= cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-        }
+        X += cos(M_PI/6-i*M_PI/3)*nr;
+        Y += sin(M_PI/6-i*M_PI/3)*nr;
 
         // Rotate around the center of the robot
         if (group) {

@@ -7,7 +7,7 @@
 #include <dxl.h>
 #endif
 
-static char leds[12];
+static char leds[18];
 static bool leds_custom_flag;
 
 static int led_value_to_dxl(int val)
