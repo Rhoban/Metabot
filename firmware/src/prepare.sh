@@ -1,12 +1,12 @@
 #!/bin/sh
 
-if [ -d "RobotsWar" ]; then
-    cd RobotsWar &&
-    git pull
-    cd ../Rhock &&
+if [ -d "RhobanMaple" ]; then
+    cd Maple &&
+    git pull &&
+    cd Rhock &&
     git pull
 else
-    git clone https://github.com/RobotsWar/RobotsWar.git RobotsWar --depth=1
-    git clone https://github.com/Rhoban/Rhock.git RhockGit --depth=1
-    ln -s $PWD/RhockGit RobotsWar/Rhock
+    git clone https://github.com/Rhoban/Maple.git --depth=1 &&
+    cd Maple &&
+    git clone https://github.com/Rhoban/Rhock.git --depth=1
 fi

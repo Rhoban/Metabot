@@ -15,8 +15,16 @@ void bt_init()
     RC.begin(921600);
 }
 
+static void goToConf()
+{
+    digitalWrite(BTCONF_PIN, HIGH);
+    delay(100);
+    digitalWrite(BTCONF_PIN, LOW);
+}
+
 static void bt_conf(char *name, char *pin)
 {
+    goToConf();
     RC.print("AT\r\r");
     RC.print("AT+UART=921600,0,0\r\r");
     RC.print("AT+NAME=");
@@ -40,10 +48,6 @@ TERMINAL_COMMAND(btconf, "Bluetooth config")
         terminal_io()->println("And pin:");
         terminal_io()->println(pin);
 
-        digitalWrite(BTCONF_PIN, HIGH);
-        delay(100);
-        digitalWrite(BTCONF_PIN, LOW);
-
         RC.begin(9600);
         bt_conf(name, pin);
         RC.begin(38400);
@@ -55,4 +59,9 @@ TERMINAL_COMMAND(btconf, "Bluetooth config")
         RC.begin(921600);
         bt_conf(name, pin);
     }
+}
+
+TERMINAL_COMMAND(btpulse, "BT conf pulse")
+{
+    goToConf();
 }

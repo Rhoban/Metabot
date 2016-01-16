@@ -8,6 +8,7 @@
 #include <function.h>
 #include <commands.h>
 #include <rc.h>
+#include <rhock.h>
 #include "voltage.h"
 #include "buzzer.h"
 #include "config.h"
@@ -16,6 +17,10 @@
 #include "mapping.h"
 #include "imu.h"
 #include "bt.h"
+
+bool isUSB = false;
+
+#define LIT     22
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -32,18 +37,49 @@ TERMINAL_COMMAND(started, "Is the robot started?")
     terminal_io()->println(started);
 }
 
+TERMINAL_COMMAND(rc, "Go to RC mode")
+{
+    RC.begin(921600);
+    terminal_init(&RC);
+    isUSB = false;
+}
+
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
+
+
+TERMINAL_COMMAND(suicide, "Lit the fuse")
+{
+    digitalWrite(LIT, HIGH);
+}
+
+// Setting the flag, called @50hz
+bool flag = false;
+void setFlag()
+{
+    flag = true;
+}
 
 /**
  * Initializing
  */
 void setup()
 {
+    // Initializing terminal on the RC port
+    RC.begin(921600);
+    terminal_init(&RC);
+
+    // Lit pin is output low
+    digitalWrite(LIT, LOW);
+    pinMode(LIT, OUTPUT);
+
+    // Initializing bluetooth module
     bt_init();
 
+    // Initializing
     motion_init();
-    
+
+    // Initializing voltage measurement
     voltage_init();
 
     // Initializing the DXL bus
@@ -52,10 +88,6 @@ void setup()
 
     // Initializing config (see config.h)
     config_init();
-
-    // Initializing the buzzer
-    buzzer_init();
-    buzzer_play(MELODY_BOOT);
 
     // Initializing the IMU
     imu_init();
@@ -67,6 +99,20 @@ void setup()
     for (int i=0; i<4; i++) {
         l1[i] = l2[i] = l3[i] = 0;
     }
+
+    // Configuring board LED as output
+    pinMode(BOARD_LED_PIN, OUTPUT);
+    digitalWrite(BOARD_LED_PIN, LOW);
+
+    // Initializing the buzzer, and playing the start-up melody
+    buzzer_init();
+    buzzer_play(MELODY_BOOT);
+
+    // Enable 50hz ticking
+    servos_init();
+    servos_attach_interrupt(setFlag);
+    
+    RC.begin(921600);
 }
 
 /**
@@ -108,7 +154,27 @@ void tick()
 
 void loop()
 {
+    // Buzzer update
     buzzer_tick();
+    // IMU ticking
     imu_tick();
+    // Sampling the voltage
     voltage_tick();
+
+    // Updating the terminal
+    terminal_tick();
+#if defined(RHOCK)
+    rhock_tick();
+#endif
+    if (SerialUSB.available() && !isUSB) {
+        isUSB = true;
+        terminal_init(&SerialUSB);
+    }  
+
+    // Calling user motion tick
+    if (flag) {
+        flag = false;
+        tick();
+        dxl_flush();
+    }
 }
