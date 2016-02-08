@@ -80,6 +80,8 @@ void setup()
     servos_attach_interrupt(setFlag);
 }
 
+TERMINAL_PARAMETER_INT(step, "Number of step to do", -1);
+
 /**
  * Computing the servo values
  */
@@ -117,11 +119,13 @@ void tick()
     t += motion_get_f()*0.02;
     if (t > 1.0) {
         t -= 1.0;
+        if (step > 0) step--;
         colorize();
     }
     if (t < 0.0) t += 1.0;
+    if (step == 0) t = 0.0;
 
-    motion_tick(t);
+    motion_tick(t, step!=0 ? 1.0 : 0.0);
    
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);

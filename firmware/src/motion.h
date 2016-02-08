@@ -6,7 +6,7 @@ extern float l1[6], l2[6], l3[6];
 
 // Initializes the motion
 void motion_init();
-void motion_tick(float t);
+void motion_tick(float t, float gain);
 
 // Resets the motion
 void motion_reset();

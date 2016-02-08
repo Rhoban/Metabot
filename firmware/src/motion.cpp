@@ -181,7 +181,7 @@ void motion_init()
 
 float last_t = 0;
 
-void motion_tick(float t)
+void motion_tick(float t, float gain)
 {
     if (!motors_enabled()) {
         return;
@@ -199,7 +199,7 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
-    float turnRad = DEG2RAD(turn);
+    float turnRad = DEG2RAD(turn*gain);
     float crabRad;
 
     for (int i=0; i<6; i++) {
@@ -222,8 +222,8 @@ void motion_tick(float t)
         // Computing the order in the referencial of the body
         float stepping = step.getMod(legPhase);
         // Set X and Y to the moving vector
-        float X = stepping*dx;
-        float Y = stepping*dy;
+        float X = stepping*dx*gain;
+        float Y = stepping*dy*gain;
 
         // Add the radius to the leg, in the right direction
         float nr = (r+extra_r);
@@ -243,7 +243,7 @@ void motion_tick(float t)
         float vx, vy;
         legFrame(xOrder, yOrder, &vx, &vy, i, L0);
 
-        float enableRise = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5) ? 1 : 0;
+        float enableRise = (fabs(dx*gain)>0.5 || fabs(dy*gain)>0.5 || fabs(turn*gain)>5) ? 1 : 0;
 
         // This is the x,y,z order in the referencial of the leg
         x = ex[i] + vx;
