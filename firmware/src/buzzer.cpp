@@ -123,7 +123,7 @@ void buzzer_stop()
 
 void buzzer_beep(int freq, int duration)
 {
-    melody_custom[0].freq = atoi(argv[0]);
+    melody_custom[0].freq = freq;
     melody_custom[0].duration = duration;
     buzzer_play(2);
 }
