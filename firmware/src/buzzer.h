@@ -10,5 +10,6 @@ void buzzer_init();
 void buzzer_play(int melody, bool repeat=false);
 void buzzer_stop();
 void buzzer_tick();
+void buzzer_beep(int freq, int duration);
 
 #endif

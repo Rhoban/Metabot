@@ -114,16 +114,21 @@ TERMINAL_COMMAND(play, "Play a melody")
     buzzer_play(melnum);
 }
 
-TERMINAL_COMMAND(beep, "Plays a beep")
-{
-    melody_custom[0].freq = atoi(argv[0]);
-    melody_custom[0].duration = 1000;
-    buzzer_play(2);
-}
-
 void buzzer_stop()
 {
     buzzer_play_note(0);
     melody = NULL;
     melody_repeat = NULL;
+}
+
+void buzzer_beep(int freq, int duration)
+{
+    melody_custom[0].freq = atoi(argv[0]);
+    melody_custom[0].duration = duration;
+    buzzer_play(2);
+}
+
+TERMINAL_COMMAND(beep, "Plays a beep")
+{
+    buzzer_beep(atoi(argv[0]), 1000);
 }
