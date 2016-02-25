@@ -281,7 +281,7 @@ RHOCK_NATIVE(robot_dist)
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
     //     }, 
-    RHOCK_PUSHF(5);
+    RHOCK_PUSHF(0);
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
