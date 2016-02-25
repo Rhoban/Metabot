@@ -9,9 +9,9 @@ void bt_init()
     digitalWrite(BTCONF_PIN, LOW);
 
     RC.begin(38400);
-    RC.print("AT+RESET\r\r");
-    RC.print("AT+RESET\r\r");
-    RC.print("AT+RESET\r\r");
+    RC.write("AT+RESET\r\n");
+    RC.write("AT+RESET\r\n");
+    RC.write("AT+RESET\r\n");
     RC.begin(921600);
 }
 
@@ -25,15 +25,15 @@ static void goToConf()
 static void bt_conf(char *name, char *pin)
 {
     goToConf();
-    RC.print("AT\r\r");
-    RC.print("AT+UART=921600,0,0\r\r");
-    RC.print("AT+NAME=");
-    RC.print(name);
-    RC.print("\r\r");
-    RC.print("AT+PSWD=");
-    RC.print(pin);
-    RC.print("\r\r");
-    RC.print("AT+RESET\r\r");
+    RC.write("AT+UART=921600,0,0\r\n");
+    RC.write("AT\r\n");
+    RC.write("AT+NAME=");
+    RC.write(name);
+    RC.write("\r\n");
+    RC.write("AT+PSWD=");
+    RC.write(pin);
+    RC.write("\r\n");
+    RC.write("AT+RESET\r\n");
 }
 
 TERMINAL_COMMAND(btconf, "Bluetooth config")
