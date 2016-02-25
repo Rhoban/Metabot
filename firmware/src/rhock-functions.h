@@ -19,8 +19,13 @@ RHOCK_NATIVE_DECLARE(robot_x_speed, 51);
 RHOCK_NATIVE_DECLARE(robot_y_speed, 52);
 RHOCK_NATIVE_DECLARE(robot_turn_speed, 53);
 
+// Distances sensor
+RHOCK_NATIVE_DECLARE(robot_dist, 54);
+
 // Distances
 RHOCK_NATIVE_DECLARE(robot_turn, 60);
 RHOCK_NATIVE_DECLARE(robot_move_x, 61);
 RHOCK_NATIVE_DECLARE(robot_move_y, 62);
 
+// Buzzer
+RHOCK_NATIVE_DECLARE(robot_beep, 55);

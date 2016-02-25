@@ -6,10 +6,14 @@
 #include "motion.h"
 #ifndef __EMSCRIPTEN__
 #include <wirish/wirish.h>
+#else
+#include <emscripten.h>
 #endif
+#include "distance.h"
 #include "motors.h"
 #include "leds.h"
 #include "mapping.h"
+#include "buzzer.h"
 
 struct rhock_context *controlling = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
@@ -259,6 +263,41 @@ RHOCK_NATIVE(robot_move_y)
         RHOCK_PUSHF(time*1000);
         
         motion_control(0, speed, 0, context);
+        return RHOCK_NATIVE_WAIT;
+    }
+    ON_ELAPSED() {
+        RHOCK_SMASH(1);
+        motion_stop();
+        return RHOCK_NATIVE_CONTINUE;
+    }
+}
+
+RHOCK_NATIVE(robot_dist)
+{
+#ifndef __EMSCRIPTEN__
+    RHOCK_PUSHF(distance_get());
+#else
+    // XXX: Simulate it, with EM ASM:
+    //     return EM_ASM_INT({
+    //        return simulator_get_distance();
+    //     }, 
+    RHOCK_PUSHF(5);
+#endif
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_beep)
+{
+    ON_ENTER() {
+        float duration = RHOCK_POPF();
+        float beep = RHOCK_POPF();
+        RHOCK_PUSHF(duration*1000);
+
+#ifndef __EMSCRIPTEN__
+        buzzer_beep(beep, duration);
+#endif
+        
         return RHOCK_NATIVE_WAIT;
     }
     ON_ELAPSED() {
