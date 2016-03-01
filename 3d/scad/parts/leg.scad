@@ -2,10 +2,10 @@ use <../models/ollo.scad>;
 use <../util/rounded.scad>;
 
 module leg(sizeA=60, sizeB=20, sizeC=20, sizeBottom=10,
-        sizeTop=15, mode="arm", fixationAngle=0, thickness=2.2, print=false)
+        sizeTop=15, thickness=2.2, print=false)
 {
-    xOffset = (mode == "side") ? -10 : 0;
-    spacing = (mode == "side") ? 24 : 30;
+    xOffset = 0;
+    spacing = 30;
 
     module legSide()
     {
@@ -14,23 +14,11 @@ module leg(sizeA=60, sizeB=20, sizeC=20, sizeBottom=10,
                 translate([0,0,sizeA/2])
                     rotate([0,90,0]) {
                         cube([sizeA, 20, thickness], center=true);
-                        if (mode == "side") {
-                            translate([15-sizeA/2, 10, -thickness/2])
-                                rotate([0,0,+fixationAngle])
-                                rounded(25,10,thickness, center=true);
-                        }
                     }
             }
             translate([-thickness, 0, sizeA-15]) {
                 rotate([90,0,90]) {
-                    if (mode == "arm") {
-                        servoArm(2*thickness);
-                    }
-                }
-                if (mode == "side") {
-                    translate([0,10,0])
-                        rotate([90,90-fixationAngle,90])
-                        threeOllo(2*thickness);
+                    servoArm(2*thickness);
                 }
             }
         }
@@ -55,7 +43,7 @@ module leg(sizeA=60, sizeB=20, sizeC=20, sizeBottom=10,
         translate([0,0,10-xOffset])
             rotate([90,0,0])
             leg(sizeA, sizeB, sizeC, sizeBottom,
-                    sizeTop, mode, fixationAngle, thickness, false);
+                    sizeTop, thickness, false);
     } else {
         echo("[PART] leg");
         translate([0,xOffset,-sizeA+15]) {

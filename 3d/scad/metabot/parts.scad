@@ -6,20 +6,9 @@ use <../parts/u.scad>;
 use <../parts/side.scad>;
 use <../parts/leg.scad>;
 
-module metabot_colorize() {
-    color(PartsColor)
-        children();
-}
-
 module metabot_u(print=false) {
     metabot_colorize()
         u(UHeight, URadius, Thickness, UScrewsSpacing, UScrewsDiameter, print=print);
-}
-
-module metabot_leg(print=false) {
-    metabot_colorize()
-        leg(LegSizeA, LegSizeB, LegSizeC, LegSizeBottom,
-                LegSizeTop, (MotorsPerLeg == 2 ? "side" : "arm"), L3Angle, Thickness, print=print);
 }
 
 module metabot_body_screws() {
@@ -34,9 +23,9 @@ module metabot_body(print=false, top=false) {
 		}
 }
 
-module metabot_body4(print=false, top=false) {
+module metabot_body4(print=false, type="top") {
     metabot_colorize()
-    body4(BodySize, Legs, Thickness, print=print, fixation=top);
+    body4(Thickness, print=print, type=type);
 }
 
 module metabot_side(print=false) {

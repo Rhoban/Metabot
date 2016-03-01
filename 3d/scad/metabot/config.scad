@@ -1,15 +1,3 @@
-// Number of legs
-Legs = 4;
-
-// Size of the body
-BodySize = 23;
-
-// Number of motors per leg (2 or 3)
-MotorsPerLeg = 3;
-
-// Static L3 angle (used only if 2 motors per leg)
-L3Angle = -5;
-
 // Color of the parts, for rendering
 PartsColor = [0.8, 0.8, 0.8];
 
@@ -55,3 +43,8 @@ SideHolesToBorder = 5;
 
 // Defining the resolution
 $fn=35;
+
+module metabot_colorize() {
+    color(PartsColor)
+        children();
+}

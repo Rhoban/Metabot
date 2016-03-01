@@ -1,7 +1,7 @@
 include <config.scad>;
 use <../joints/double_u.scad>;
 use <../joints/side_to_side.scad>;
-use <../joints/leg.scad>;
+use <../parts/leg.scad>;
 
 module metabot_double_u(alpha=0) {
     double_u(UHeight, URadius, Thickness, UScrewsSpacing, UScrewsDiameter, col=PartsColor, alpha=alpha) {
@@ -15,16 +15,11 @@ module metabot_side_to_side(alpha=0) {
     }
 }
 
-module metabot_arm_leg() {
-    color(PartsColor) {
-        arm_leg(LegSizeA, LegSizeB, LegSizeC, LegSizeBottom,
-                LegSizeTop, (MotorsPerLeg == 2 ? "side" : "arm"), L3Angle, Thickness, print=print);
-    }
+module metabot_leg(print=false) {
+    metabot_colorize()
+        rotate([print ? 0 : 90,print ? 0 : 90,0])
+        leg(LegSizeA, LegSizeB, LegSizeC, LegSizeBottom,
+                LegSizeTop, Thickness, print=print);
 }
 
-module metabot_bottom_leg() {
-    color(PartsColor) {
-        bottom_leg(LegSizeA, LegSizeB, LegSizeC, LegSizeBottom,
-                LegSizeTop, (MotorsPerLeg == 2 ? "side" : "arm"), L3Angle, Thickness, print=print);
-    }
-}
+metabot_leg();
