@@ -34,23 +34,26 @@ module body(thickness=2.2, type="top", print=false) {
         rotate([0,0,45])
         translate([38,0,0])
         rotate([0,0,90])
-        threeOllo();
+        threeOllo(thickness);
     }
-    
-    // GP-2 fixation
-    translate([X,0,5.5])
-    difference() {
-        cube([thickness, 44, 11], center=true);
-        
-        translate([0,-37/2,2])
-        rotate([0,90,0])
-        hole3();
-        
-        translate([0,37/2,2])
-        rotate([0,90,0])
-        hole3();
-        
+
+    if (type == "bottom") {    
+        // GP-2 fixation
+        translate([X,0,5.5])
+        difference() {
+            cube([thickness, 44, 11], center=true);
+            
+            translate([0,-37/2,2])
+            rotate([0,90,0])
+            hole3();
+            
+            translate([0,37/2,2])
+            rotate([0,90,0])
+            hole3();
+            
+        }
     }
 }
 
-body(type="bottom");
+
+body();
