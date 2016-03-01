@@ -1,5 +1,5 @@
 use <../models/ollo.scad>;
-use <../util/hexapath.scad>;
+use <../util/octopath.scad>;
 use <../util/repeat4.scad>;
 use <../util/hole3.scad>;
 
@@ -12,11 +12,11 @@ module body(thickness=2.2, type="top", print=false) {
     
     difference() {
         // Making the exernal path
-        hexapath(X, Y, thickness=thickness);
+        octopath(X, Y, thickness=thickness);
         
         if (type == "top") {
             // Craving the board to make it accessible
-            hexapath(X-8, Y-8, thickness=99, center=true);
+            octopath(X-8, Y-8, thickness=99, center=true);
             
             // Adding holes for the magnets
             repeat4()
@@ -37,6 +37,20 @@ module body(thickness=2.2, type="top", print=false) {
         threeOllo();
     }
     
+    // GP-2 fixation
+    translate([X,0,5.5])
+    difference() {
+        cube([thickness, 44, 11], center=true);
+        
+        translate([0,-37/2,2])
+        rotate([0,90,0])
+        hole3();
+        
+        translate([0,37/2,2])
+        rotate([0,90,0])
+        hole3();
+        
+    }
 }
 
-body(type="top");
+body(type="bottom");

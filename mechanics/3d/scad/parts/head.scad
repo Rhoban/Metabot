@@ -1,5 +1,5 @@
 use <../models/ollo.scad>;
-use <../util/hexapath.scad>;
+use <../util/octopath.scad>;
 use <../util/repeat4.scad>;
 use <../util/hole3.scad>;
 
@@ -18,11 +18,11 @@ module head(height=25, thickness=2.2, print=false) {
         difference() {
             union() {    
                 difference() {    
-                    hexapath(X, Y, thickness=height);
+                    octopath(X, Y, thickness=height);
                     
                     // Craving the inside
                     translate([0,0,-0.1])
-                    hexapath(X-thickness, Y+3, thickness=height-thickness);
+                    octopath(X-thickness, Y+3, thickness=height-thickness);
                 }
         
                 // Spacers

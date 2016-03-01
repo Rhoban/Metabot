@@ -6,6 +6,7 @@ HeadHeight=30;
 
 // Thickness of parts (2.2 is good for Ollo rivets)
 Thickness = 2.2;
+BodyThickness = 3;
 
 // Sizes of the parts of the leg
 // Ratio of leg parts

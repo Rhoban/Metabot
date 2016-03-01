@@ -31,7 +31,7 @@ module metabotLeg(a, b, c) {
 
 module metabot(angles = [0,0,0]) {
     metabot_body(type="bottom");
-    translate([0,0,MotorDepth+Thickness]) {
+    translate([0,0,MotorDepth+BodyThickness]) {
         metabot_body(type="top");
         translate([0,0,-10])
         metabot_head();
@@ -40,7 +40,7 @@ module metabot(angles = [0,0,0]) {
     rotate([0,0,45])
     for (leg=[1:4]) {
         rotate([0,0,leg*360/4]) {
-            translate([0,38,Thickness]) {
+            translate([0,38,BodyThickness]) {
                 metabotLeg(angles[0], angles[1], angles[2]);
             }
         }

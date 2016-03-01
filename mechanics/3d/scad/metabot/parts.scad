@@ -17,7 +17,7 @@ module metabot_body_screws() {
 
 module metabot_body(print=false, type="top") {
     metabot_colorize()
-    body(Thickness, print=print, type=type);
+    body(BodyThickness, print=print, type=type);
 }
 
 module metabot_side(print=false) {

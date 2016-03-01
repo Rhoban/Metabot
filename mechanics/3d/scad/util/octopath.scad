@@ -1,5 +1,5 @@
-// Follow an hexagonal path
-module hexapath(X, Y, thickness, center=false)
+// Follow an octogonal path
+module octopath(X, Y, thickness, center=false)
 {
     union() {
         linear_extrude(thickness, center=center)
