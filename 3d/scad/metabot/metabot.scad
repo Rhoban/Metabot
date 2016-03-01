@@ -5,7 +5,6 @@ use <../models/motor_arm.scad>;
 use <parts.scad>;
 use <joints.scad>;
 
-
 /**
  * Angles 
  */
@@ -31,9 +30,11 @@ module metabotLeg(a, b, c) {
 }
 
 module metabot(angles = [0,0,0]) {
-    metabot_body4(type="bottom");
+    metabot_body(type="bottom");
     translate([0,0,MotorDepth+Thickness]) {
-        metabot_body4(type="top");
+        metabot_body(type="top");
+        translate([0,0,-10])
+        metabot_head();
     }
 
     rotate([0,0,45])

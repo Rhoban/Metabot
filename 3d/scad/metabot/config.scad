@@ -1,6 +1,9 @@
 // Color of the parts, for rendering
 PartsColor = [0.8, 0.8, 0.8];
 
+// Head height
+HeadHeight=30;
+
 // Thickness of parts (2.2 is good for Ollo rivets)
 Thickness = 2.2;
 
@@ -16,12 +19,6 @@ LegSizeBottom = 10;
 
 // Size of the "top" part of the legs, in mm
 LegSizeTop = 30;
-
-// Body screws
-BodyScrews = true;
-BodyScrewsSize = 3.3;
-BodyScrewsW = 7;
-BodyScrewsH = 12;
 
 // Motor dimensions
 MotorWidth = 24;
