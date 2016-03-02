@@ -14,6 +14,7 @@
 #include "leds.h"
 #include "mapping.h"
 #include "buzzer.h"
+#include "imu.h"
 
 struct rhock_context *controlling = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
@@ -281,7 +282,7 @@ RHOCK_NATIVE(robot_dist)
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
     //     }, 
-    RHOCK_PUSHF(0);
+    RHOCK_PUSHF(100.0);
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
@@ -291,11 +292,11 @@ RHOCK_NATIVE(robot_beep)
 {
     ON_ENTER() {
         float duration = RHOCK_POPF();
-        float beep = RHOCK_POPF();
-        RHOCK_PUSHF(duration*1000);
+        float freq = RHOCK_POPF();
+        RHOCK_PUSHF(duration);
 
 #ifndef __EMSCRIPTEN__
-        buzzer_beep(beep, duration);
+        buzzer_beep(freq, duration);
 #endif
         
         return RHOCK_NATIVE_WAIT;
@@ -305,4 +306,33 @@ RHOCK_NATIVE(robot_beep)
         motion_stop();
         return RHOCK_NATIVE_CONTINUE;
     }
+}
+
+RHOCK_NATIVE(robot_calibrate)
+{
+    int start = RHOCK_POPI();
+#ifndef __EMSCRIPTEN__
+    if (start) {
+        imu_calib_start();
+    } else {
+        imu_calib_stop();
+    }
+#endif
+    
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_yaw)
+{
+#ifndef __EMSCRIPTEN__
+    RHOCK_PUSHF(imu_yaw());
+#else
+    // XXX: Simulate it, with EM ASM:
+    //     return EM_ASM_INT({
+    //        return simulator_get_distance();
+    //     }, 
+    RHOCK_PUSHF(0.0);
+#endif
+
+    return RHOCK_NATIVE_CONTINUE;
 }

@@ -11,6 +11,7 @@
 #include <rhock.h>
 #include "voltage.h"
 #include "buzzer.h"
+#include "distance.h"
 #include "config.h"
 #include "motion.h"
 #include "leds.h"
@@ -88,6 +89,9 @@ void setup()
 
     // Initializing config (see config.h)
     config_init();
+
+    // initializing distance
+    distance_init();
 
     // Initializing the IMU
     imu_init();
