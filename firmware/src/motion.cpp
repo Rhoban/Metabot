@@ -63,7 +63,7 @@ TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 125.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
 TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
