@@ -205,7 +205,7 @@ void magn_update()
     } else {
         float new_yaw = atan2(magn_z, magn_x);
         float cur_yaw = DEG2RAD(yaw);
-        yaw = RAD2DEG(weight_average(new_yaw, 0.1, cur_yaw, 0.9));
+        yaw = RAD2DEG(weight_average(new_yaw, 0.01, cur_yaw, 0.99));
     }
 }
 
