@@ -3,6 +3,7 @@
 #include <terminal.h>
 #include <i2c.h>
 #include "imu.h"
+#include "motion.h"
 
 static int last_update;
 float magn_x, magn_y, magn_z;
@@ -10,6 +11,7 @@ float gyro_x, gyro_y, gyro_z;
 float acc_x, acc_y, acc_z;
 
 TERMINAL_PARAMETER_FLOAT(yaw, "Robot yaw", 0.0);
+TERMINAL_PARAMETER_FLOAT(gyro_yaw, "Robot gyro yaw", 0.0);
 
 TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
 
@@ -19,12 +21,21 @@ TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
 #define ACC_ADDR        0x53
 
 // Config
-#define MAGN_X_MIN      -319
-#define MAGN_X_MAX      307
-#define MAGN_Y_MIN      -50
-#define MAGN_Y_MAX      50
-#define MAGN_Z_MIN      -700
-#define MAGN_Z_MAX      -27
+float MAGN_X_MIN=-0.5;
+float MAGN_X_MAX=0.5;
+float MAGN_Y_MIN=-0.5;
+float MAGN_Y_MAX=0.5;
+float MAGN_Z_MIN=-0.5;
+float MAGN_Z_MAX=0.5;
+
+/*
+#define MAGN_X_MIN      -180
+#define MAGN_X_MAX      0
+#define MAGN_Y_MIN      -0.5
+#define MAGN_Y_MAX      0.5
+#define MAGN_Z_MIN      -320
+#define MAGN_Z_MAX      -105
+*/
 
 #define MAGN_X_CENTER   ((MAGN_X_MIN+MAGN_X_MAX)/2.0)
 #define MAGN_X_AMP      (MAGN_X_MAX-MAGN_X_MIN)
@@ -41,8 +52,8 @@ TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
 // Signing
 #define VALUE_SIGN(value, length) \
     ((value < (1<<(length-1))) ? \
-    (value) \
-    : (value-(1<<length)))
+     (value) \
+     : (value-(1<<length)))
 
 struct i2c_msg packet;
 
@@ -62,6 +73,7 @@ static uint8 acc_req[] = {0x32};
 // Magnetometer packets
 static uint8 magn_continuous[] = {0x02, 0x00};
 static uint8 magn_50hz[] = {0x00, 0b00011000};
+static uint8 magn_sens[] = {0x01, 0b10000000};
 static uint8 magn_req[] = {0x03};
 
 static bool initialized = false;
@@ -94,37 +106,40 @@ void imu_init()
     // Initializing I2C bus
     i2c_init(I2C1);
     i2c_master_enable(I2C1, I2C_FAST_MODE);
-    
+
     // Initializing magnetometer
     packet.addr = MAGN_ADDR;
     packet.flags = 0;
     packet.data = magn_continuous;
     packet.length = 2;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
+
     packet.data = magn_50hz;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
+
+    packet.data = magn_sens;
+    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+
     // Initializing accelerometer
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_measure;
     packet.length = 2;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-     
+
     packet.data = acc_resolution;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
+
     packet.data = acc_50hz;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
+
     // Initializing gyroscope
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_reset;
     packet.length = 2;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
-    
+
     packet.data = gyro_scale;
     if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
     packet.data = gyro_50hz;
@@ -139,6 +154,10 @@ init_error:
     initialized = false;
 }
 
+static bool calibrating = false;
+static bool first = false;
+static float calibrating_t = -1;
+
 void magn_update()
 {
     if (!initialized) return;
@@ -148,7 +167,7 @@ void magn_update()
     packet.data = magn_req;
     packet.length = 1;
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
-    
+
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
@@ -156,15 +175,38 @@ void magn_update()
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
 
     int magn_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
-    magn_x = (VALUE_SIGN(magn_x_r, 16)-MAGN_X_CENTER)*100/(float)MAGN_X_AMP;
     int magn_y_r = ((buffer[2]&0xff)<<8)|(buffer[3]&0xff);
-    magn_y = (VALUE_SIGN(magn_y_r, 16)-MAGN_Y_CENTER)*100/(float)MAGN_Y_AMP;
     int magn_z_r = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
-    magn_z = (VALUE_SIGN(magn_z_r, 16)-MAGN_Z_CENTER)*100/(float)MAGN_Z_AMP;
+    magn_x_r = VALUE_SIGN(magn_x_r, 16);
+    magn_y_r = VALUE_SIGN(magn_y_r, 16);
+    magn_z_r = VALUE_SIGN(magn_z_r, 16);
 
-    float new_yaw = atan2(magn_z, magn_x);
-    float cur_yaw = DEG2RAD(yaw);
-    yaw = RAD2DEG(weight_average(new_yaw, 0.1, cur_yaw, 0.9));
+    if (calibrating) {
+        if (first) {
+            first = false;
+            MAGN_X_MIN = MAGN_X_MAX = magn_x_r;
+            MAGN_Y_MIN = MAGN_Y_MAX = magn_y_r;
+            MAGN_Z_MIN = MAGN_Z_MAX = magn_z_r;
+        } else {
+            if (magn_x_r > MAGN_X_MAX) MAGN_X_MAX = magn_x_r;
+            if (magn_x_r < MAGN_X_MIN) MAGN_X_MIN = magn_x_r;
+            if (magn_y_r > MAGN_Y_MAX) MAGN_Y_MAX = magn_y_r;
+            if (magn_y_r < MAGN_Y_MIN) MAGN_Y_MIN = magn_y_r;
+            if (magn_z_r > MAGN_Z_MAX) MAGN_Z_MAX = magn_z_r;
+            if (magn_z_r < MAGN_Z_MIN) MAGN_Z_MIN = magn_z_r;
+        }
+    } else {
+        magn_x = (magn_x_r-MAGN_X_CENTER)/(float)MAGN_X_AMP;
+        magn_y = (magn_y_r-MAGN_Y_CENTER)/(float)MAGN_Y_AMP;
+        magn_z = (magn_z_r-MAGN_Z_CENTER)/(float)MAGN_Z_AMP;
+    }
+
+    if (calibrating) {
+    } else {
+        float new_yaw = atan2(magn_z, magn_x);
+        float cur_yaw = DEG2RAD(yaw);
+        yaw = RAD2DEG(weight_average(new_yaw, 0.01, cur_yaw, 0.99));
+    }
 }
 
 void gyro_update()
@@ -176,7 +218,7 @@ void gyro_update()
     packet.data = gyro_req;
     packet.length = 1;
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
-    
+
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
@@ -192,6 +234,9 @@ void gyro_update()
 
     yaw -= gyro_z * 0.02;
     yaw = normalize(yaw);
+
+    gyro_yaw -= gyro_z * 0.02;
+    gyro_yaw = normalize(gyro_yaw);
 }
 
 void acc_update()
@@ -203,13 +248,13 @@ void acc_update()
     packet.data = acc_req;
     packet.length = 1;
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
-    
+
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
     if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
-    
+
     int acc_x_r = ((buffer[1]&0xff)<<8)|(buffer[0]&0xff);
     acc_x = VALUE_SIGN(acc_x_r, 16);
     int acc_y_r = ((buffer[3]&0xff)<<8)|(buffer[2]&0xff);
@@ -229,33 +274,106 @@ void imu_tick()
         gyro_update();
         magn_update();
         acc_update();
+
+        if (calibrating) {
+            if (calibrating_t >= 0) {
+                calibrating_t += 0.02;
+                if (calibrating_t > 12) {
+                    motion_set_turn_speed(0);
+                    imu_calib_stop();
+                }
+            }
+        }
+
+        if (imudbg) {
+            terminal_io()->print(magn_x);
+            terminal_io()->print(" ");
+            terminal_io()->print(magn_y);
+            terminal_io()->print(" ");
+            terminal_io()->print(magn_z);
+            terminal_io()->print(" ");
+
+            terminal_io()->print(gyro_x);
+            terminal_io()->print(" ");
+            terminal_io()->print(gyro_y);
+            terminal_io()->print(" ");
+            terminal_io()->print(gyro_z);
+            terminal_io()->print(" ");
+
+            terminal_io()->print(acc_x);
+            terminal_io()->print(" ");
+            terminal_io()->print(acc_y);
+            terminal_io()->print(" ");
+            terminal_io()->print(acc_z);
+            terminal_io()->print(" ");
+
+            terminal_io()->print(gyro_yaw);
+            terminal_io()->print(" ");
+
+            terminal_io()->print(yaw);
+            terminal_io()->print(" ");    
+
+            terminal_io()->println();
+        }
     }
+}
 
-    if (imudbg) {
-        terminal_io()->print(magn_x);
-        terminal_io()->print(" ");
-        terminal_io()->print(magn_y);
-        terminal_io()->print(" ");
-        terminal_io()->print(magn_z);
-        terminal_io()->print(" ");
-        
-        terminal_io()->print(gyro_x);
-        terminal_io()->print(" ");
-        terminal_io()->print(gyro_y);
-        terminal_io()->print(" ");
-        terminal_io()->print(gyro_z);
-        terminal_io()->print(" ");
-        
-        terminal_io()->print(acc_x);
-        terminal_io()->print(" ");
-        terminal_io()->print(acc_y);
-        terminal_io()->print(" ");
-        terminal_io()->print(acc_z);
-        terminal_io()->print(" ");
+TERMINAL_COMMAND(calib, "Calibrates the IMU")
+{
+    calibrating_t = -1;
+    if (!calibrating && argc) {
+        imu_calib_start();
+        terminal_io()->println("Started calibration");
+    } else if (calibrating && !argc) {
+        imu_calib_stop();
 
-        terminal_io()->print(yaw);
-        terminal_io()->print(" ");
-        
+        terminal_io()->println("Calibration over");
+        terminal_io()->println("X: ");
+        terminal_io()->print(MAGN_X_MIN);
+        terminal_io()->print(" -> ");
+        terminal_io()->print(MAGN_X_MAX);
         terminal_io()->println();
+
+        terminal_io()->println("Y: ");
+        terminal_io()->print(MAGN_Y_MIN);
+        terminal_io()->print(" -> ");
+        terminal_io()->print(MAGN_Y_MAX);
+        terminal_io()->println();
+
+        terminal_io()->println("Z: ");
+        terminal_io()->print(MAGN_Z_MIN);
+        terminal_io()->print(" -> ");
+        terminal_io()->print(MAGN_Z_MAX);
+        terminal_io()->println();
+    } else {
+        terminal_io()->println("Usage: calib start, then calib");
     }
+}
+
+void imu_calib_start()
+{
+    calibrating = true;
+    first = true;
+}
+
+void imu_calib_stop()
+{
+    calibrating = false;
+}
+
+void imu_calib_rotate()
+{
+    imu_calib_start();
+    motion_set_turn_speed(60);
+    calibrating_t = 0.1;
+}
+
+float imu_yaw()
+{
+    return yaw;
+}
+
+TERMINAL_COMMAND(calibrot, "Calibrating rotation")
+{
+    imu_calib_rotate();
 }

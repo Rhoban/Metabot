@@ -2,6 +2,6 @@
 #define __DISTANCE_H
 
 void distance_init();
-int distance_get();
+float distance_get();
 
 #endif

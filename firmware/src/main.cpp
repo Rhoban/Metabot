@@ -11,6 +11,7 @@
 #include <rhock.h>
 #include "voltage.h"
 #include "buzzer.h"
+#include "distance.h"
 #include "config.h"
 #include "motion.h"
 #include "leds.h"
@@ -88,6 +89,9 @@ void setup()
 
     // Initializing config (see config.h)
     config_init();
+
+    // initializing distance
+    distance_init();
 
     // Initializing the IMU
     imu_init();
@@ -169,7 +173,11 @@ void loop()
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
-    }  
+    }
+    if (!SerialUSB.getDTR() && isUSB) {
+        isUSB = false;
+        terminal_init(&RC);
+    }
 
     // Calling user motion tick
     if (flag) {

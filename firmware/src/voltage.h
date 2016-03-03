@@ -7,6 +7,7 @@
 #define VOLTAGE_LIMIT   6.9
 #define VOLTAGE_SHUT    5.3
 
+bool voltage_error();
 void voltage_init();
 void voltage_tick();
 float voltage_current();
