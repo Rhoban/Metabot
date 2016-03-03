@@ -8,6 +8,11 @@ int voltage_limit_l;
 int voltage_limit_h;
 int voltage_limit_s;
 
+bool voltage_error()
+{
+    return voltage_is_error;
+}
+
 float voltage_spv()
 {
     float stepPerVolt = 4095/3.3;
@@ -31,19 +36,25 @@ void voltage_init()
 
 void voltage_tick()
 {
-    int newSample = analogRead(VOLTAGE_PIN);
-    if (newSample < voltage_now) voltage_now--;
-    if (newSample > voltage_now) voltage_now++;
+    static int divider = 0;
+    divider++;
 
-    if (voltage_is_error) {
-        if (voltage_now > voltage_limit_h || voltage_now < voltage_limit_s) {
-            voltage_is_error = false;
-            buzzer_stop();
-        }
-    } else {
-        if (voltage_now < voltage_limit_l && voltage_now > voltage_limit_s) {
-            voltage_is_error = true;
-            buzzer_play(MELODY_ALERT, true);
+    if (divider > 5) {
+        divider = 0;
+        int newSample = analogRead(VOLTAGE_PIN);
+        if (newSample < voltage_now) voltage_now--;
+        if (newSample > voltage_now) voltage_now++;
+
+        if (voltage_is_error) {
+            if (voltage_now > voltage_limit_h || voltage_now < voltage_limit_s) {
+                voltage_is_error = false;
+                buzzer_stop();
+            }
+        } else {
+            if (voltage_now < voltage_limit_l && voltage_now > voltage_limit_s) {
+                voltage_is_error = true;
+                buzzer_play(MELODY_ALERT, true);
+            }
         }
     }
 }

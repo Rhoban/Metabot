@@ -1,4 +1,5 @@
 #include "buzzer.h"
+#include "voltage.h"
 #include <terminal.h>
 
 // Config
@@ -78,6 +79,11 @@ static void buzzer_enter(struct buzzer_note *note)
 
 void buzzer_play(int melody_num, bool repeat)
 {
+    // Avoid playing another melody when there is a battery alert
+    if (voltage_error() && melody_num != MELODY_ALERT) {
+        return;
+    }
+
     struct buzzer_note *to_play = NULL;
 
     if (melody_num == MELODY_BOOT) {
