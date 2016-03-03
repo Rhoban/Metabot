@@ -9,7 +9,7 @@ void bt_init()
     digitalWrite(BTCONF_PIN, LOW);
 
     RC.begin(38400);
-    for (int k=0; k<10; k++) {
+    for (int k=0; k<5; k++) {
         RC.write("AT+RESET\r\n\r\n");
         RC.write("AT+RESET\r\n");
     }
@@ -26,6 +26,8 @@ static void goToConf()
 static void bt_conf(char *name, char *pin)
 {
     goToConf();
+    RC.write("AT\r\n");
+    delay(10);
     RC.write("AT+UART=921600,0,0\r\n");
     delay(10);
     RC.write("AT+NAME=");
@@ -54,15 +56,15 @@ TERMINAL_COMMAND(btconf, "Bluetooth config")
 
         for (int k=0; k<3; k++) {
             RC.begin(9600);
-            bt_conf(name, pin);
+            for (int n=0; n<3; n++) bt_conf(name, pin);
             RC.begin(38400);
-            bt_conf(name, pin);
+            for (int n=0; n<3; n++) bt_conf(name, pin);
             RC.begin(57600);
-            bt_conf(name, pin);
+            for (int n=0; n<3; n++) bt_conf(name, pin);
             RC.begin(115200);
-            bt_conf(name, pin);
+            for (int n=0; n<3; n++) bt_conf(name, pin);
             RC.begin(921600);
-            bt_conf(name, pin);
+            for (int n=0; n<3; n++) bt_conf(name, pin);
         }
     }
 }
