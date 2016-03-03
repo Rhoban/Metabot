@@ -173,7 +173,11 @@ void loop()
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
-    }  
+    }
+    if (!SerialUSB.getDTR() && isUSB) {
+        isUSB = false;
+        terminal_init(&RC);
+    }
 
     // Calling user motion tick
     if (flag) {
