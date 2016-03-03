@@ -9,6 +9,7 @@ float imu_yaw();
 void imu_init();
 void imu_tick();
 void imu_calib_start();
+void imu_calib_rotate();
 void imu_calib_stop();
 
 #endif

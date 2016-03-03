@@ -3,6 +3,7 @@
 #include <terminal.h>
 #include <i2c.h>
 #include "imu.h"
+#include "motion.h"
 
 static int last_update;
 float magn_x, magn_y, magn_z;
@@ -155,6 +156,7 @@ init_error:
 
 static bool calibrating = false;
 static bool first = false;
+static float calibrating_t = -1;
 
 void magn_update()
 {
@@ -273,6 +275,16 @@ void imu_tick()
         magn_update();
         acc_update();
 
+        if (calibrating) {
+            if (calibrating_t >= 0) {
+                calibrating_t += 0.02;
+                if (calibrating_t > 12) {
+                    motion_set_turn_speed(0);
+                    imu_calib_stop();
+                }
+            }
+        }
+
         if (imudbg) {
             terminal_io()->print(magn_x);
             terminal_io()->print(" ");
@@ -308,6 +320,7 @@ void imu_tick()
 
 TERMINAL_COMMAND(calib, "Calibrates the IMU")
 {
+    calibrating_t = -1;
     if (!calibrating && argc) {
         imu_calib_start();
         terminal_io()->println("Started calibration");
@@ -348,7 +361,19 @@ void imu_calib_stop()
     calibrating = false;
 }
 
+void imu_calib_rotate()
+{
+    imu_calib_start();
+    motion_set_turn_speed(60);
+    calibrating_t = 0.1;
+}
+
 float imu_yaw()
 {
     return yaw;
+}
+
+TERMINAL_COMMAND(calibrot, "Calibrating rotation")
+{
+    imu_calib_rotate();
 }

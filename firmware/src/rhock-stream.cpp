@@ -5,6 +5,7 @@
 #include "mapping.h"
 #include "motion.h"
 #include "motors.h"
+#include "imu.h"
 
 #define RHOCK_STREAM_METABOT    50
 
@@ -20,6 +21,12 @@ char rhock_on_packet(uint8_t type)
                     break;
                 case 1: // Stop
                     motors_disable();
+                    return 1;
+                    break;
+                case 2: // Rotate calibration
+#ifndef __EMSCRIPTEN__
+                    imu_calib_rotate();
+#endif
                     return 1;
                     break;
             }

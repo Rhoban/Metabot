@@ -308,20 +308,6 @@ RHOCK_NATIVE(robot_beep)
     }
 }
 
-RHOCK_NATIVE(robot_calibrate)
-{
-    int start = RHOCK_POPI();
-#ifndef __EMSCRIPTEN__
-    if (start) {
-        imu_calib_start();
-    } else {
-        imu_calib_stop();
-    }
-#endif
-    
-    return RHOCK_NATIVE_CONTINUE;
-}
-
 RHOCK_NATIVE(robot_yaw)
 {
 #ifndef __EMSCRIPTEN__
