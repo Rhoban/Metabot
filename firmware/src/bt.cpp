@@ -9,9 +9,10 @@ void bt_init()
     digitalWrite(BTCONF_PIN, LOW);
 
     RC.begin(38400);
-    RC.write("AT+RESET\r\n");
-    RC.write("AT+RESET\r\n");
-    RC.write("AT+RESET\r\n");
+    for (int k=0; k<10; k++) {
+        RC.write("AT+RESET\r\n\r\n");
+        RC.write("AT+RESET\r\n");
+    }
     RC.begin(921600);
 }
 
