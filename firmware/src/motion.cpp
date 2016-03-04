@@ -226,37 +226,20 @@ void motion_tick(float t)
 
         // Computing the order in the referencial of the body
         float stepping = step.getMod(legPhase);
-        // Set X and Y to the moving vector
-        float X = stepping*dx;
-        float Y = stepping*dy;
 
         // Add the radius to the leg, in the right direction
-        float nr = (r+extra_r);
-        switch (i) {
-            case 0:
-                X += cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-            case 1:
-                X += cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 2:
-                X -= cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 3:
-                X -= cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-        }
+        float radius = (r+extra_r);
+
+        // The leg position in the body frame
+        float X = (cos(M_PI/4)*radius) * ((i==0||i==1) ? 1 : -1);
+        float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
+        
+        // Add dX and dY to the moving vector
+        X += stepping*dx;
+        Y += stepping*dy;
 
         // Rotate around the center of the robot
-        if (group) {
-            crabRad = DEG2RAD(crab);
-        } else {
-            crabRad = -DEG2RAD(crab);
-        }
+        crabRad = DEG2RAD(crab) * (group ? 1 : -1);
         float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
         float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
 
