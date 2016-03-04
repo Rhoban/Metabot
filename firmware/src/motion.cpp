@@ -159,12 +159,17 @@ void setup_functions()
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
-// Is the robot moving?
-bool moving = false;
-
 // Extra values
 float extra_h = 0;
 float extra_r = 0;
+
+// Is the robot moving?
+bool moving = false;
+
+bool motion_is_moving()
+{
+    return moving;
+}
 
 void motion_init()
 {

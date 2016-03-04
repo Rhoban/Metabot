@@ -11,6 +11,9 @@ void motion_tick(float t);
 // Resets the motion
 void motion_reset();
 
+// Is the robot moving?
+bool motion_is_moving();
+
 // Sets parameters
 void motion_set_f(float f);
 void motion_set_h(float h);
