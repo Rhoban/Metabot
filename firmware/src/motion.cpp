@@ -179,14 +179,11 @@ void motion_init()
     freq = 2.0;
 }
 
-float last_t = 0;
-
 void motion_tick(float t)
 {
     if (!motors_enabled()) {
         return;
     }
-    last_t = t;
 
     // Setting up functions
     setup_functions();
@@ -276,9 +273,17 @@ void motion_tick(float t)
     }
 }
 
+#ifdef __EMSCRIPTEN__
+float sim_t = 0.0;
+#endif
+
 void motion_reset()
 {
     motion_init();
+
+#ifdef __EMSCRIPTEN__
+    sim_t = 0.0;
+#endif
 }
 
 void motion_set_f(float f_)
@@ -340,20 +345,12 @@ float motion_get_turn()
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
-    // Motion parameters
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(last_t));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dx));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(freq));
     // Angles
     for (int i=0; i<12; i++) {
         rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
     }
     // Leds
     led_stream_state();
-    // Is enabled?
-    rhock_stream_append(motors_enabled());
     rhock_stream_end();
 }
 #endif
@@ -361,12 +358,52 @@ void rhock_on_monitor()
 #ifdef __EMSCRIPTEN__
 using namespace emscripten;
 
+void simulator_tick()
+{
+    if (motors_enabled()) {
+        sim_t += motion_get_f()*0.02;
+        if (sim_t > 1) sim_t -= 1;
+        motion_tick(sim_t);
+    }
+}
+
+float simulator_get_dx()
+{
+    return dx;
+}
+
+float simulator_get_dy()
+{
+    return dy;
+}
+
+float simulator_get_turn()
+{
+    return turn;
+}
+
+float simulator_get_f()
+{
+    return motion_get_f();
+}
+
+bool simulator_get_enabled()
+{
+    return motors_enabled();
+}
+
 EMSCRIPTEN_BINDINGS(motion) {
     function("motion_get_dx", &motion_get_dx);
     function("motion_get_dy", &motion_get_dy);
     function("motion_get_turn", &motion_get_turn);
     function("motion_init", &motion_init);
-    function("motion_tick", &motion_tick);
     function("motion_get_motor", &motion_get_motor);
+
+    function("simulator_tick", &simulator_tick);
+    function("simulator_get_f", &simulator_get_f);
+    function("simulator_get_dx", &simulator_get_dx);
+    function("simulator_get_dy", &simulator_get_dy);
+    function("simulator_get_turn", &simulator_get_turn);
+    function("simulator_get_enabled", &simulator_get_enabled);
 }
 #endif
