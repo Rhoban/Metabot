@@ -159,6 +159,9 @@ void setup_functions()
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
+// Is the robot moving?
+bool moving = false;
+
 // Extra values
 float extra_h = 0;
 float extra_r = 0;
@@ -256,12 +259,13 @@ void motion_tick(float t)
         float vx, vy;
         legFrame(xOrder, yOrder, &vx, &vy, i, L0);
 
-        float enableRise = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5) ? 1 : 0;
+        // The robot is moving if there is dynamics parameters
+        moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
 
         // This is the x,y,z order in the referencial of the leg
         x = ex[i] + vx;
         y = ey[i] + vy;
-        z = ez[i] + h - extra_h + rise.getMod(legPhase)*alt*enableRise;
+        z = ez[i] + h - extra_h + (moving ? (rise.getMod(legPhase)*alt) : 0);
         if (i < 2) z += frontH;
 
         // Computing inverse kinematics
