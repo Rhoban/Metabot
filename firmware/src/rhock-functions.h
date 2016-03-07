@@ -32,3 +32,6 @@ RHOCK_NATIVE_DECLARE(robot_beep, 55);
 
 // IMU
 RHOCK_NATIVE_DECLARE(robot_yaw, 57);
+
+// Controls
+RHOCK_NATIVE_DECLARE(robot_get_control, 58);

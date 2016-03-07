@@ -15,6 +15,7 @@
 #include "mapping.h"
 #include "buzzer.h"
 #include "imu.h"
+#include "rhock-stream.h"
 
 struct rhock_context *controlling = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
@@ -321,4 +322,12 @@ RHOCK_NATIVE(robot_yaw)
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_get_control)
+{
+    int32_t control = RHOCK_VALUE_TO_INT(RHOCK_POPI());
+    if (control < RHOCK_CONTROLS) {
+        RHOCK_PUSHF(rhock_controls[control]/100.0);
+    }
 }

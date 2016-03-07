@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <rhock/event.h>
 #include <rhock/stream.h>
+#include "rhock-stream.h"
 #include "leds.h"
 #include "mapping.h"
 #include "motion.h"
@@ -8,6 +9,8 @@
 #include "imu.h"
 
 #define RHOCK_STREAM_METABOT    50
+
+short rhock_controls[16] = {0};
 
 char rhock_on_packet(uint8_t type)
 {
@@ -27,6 +30,16 @@ char rhock_on_packet(uint8_t type)
 #ifndef __EMSCRIPTEN__
                     imu_calib_rotate();
 #endif
+                    return 1;
+                    break;
+                case 3: // Set control
+                    if (rhock_stream_available() == 3) {
+                        uint8_t control = rhock_stream_read();
+                        if (control < RHOCK_CONTROLS) {
+                            uint16_t value = rhock_stream_read_short();
+                            rhock_controls[control] = (short)value;
+                        }
+                    }
                     return 1;
                     break;
             }
