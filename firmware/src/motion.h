@@ -23,6 +23,8 @@ void motion_set_y_speed(float y_speed);
 void motion_set_turn_speed(float turn_speed);
 
 // Add extra values
+void motion_extra_x(int index, float x);
+void motion_extra_y(int index, float y);
 void motion_extra_z(int index, float z);
 
 // Get values

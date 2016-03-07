@@ -235,8 +235,8 @@ void motion_tick(float t)
         float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
         
         // Add dX and dY to the moving vector
-        X += stepping*dx;
-        Y += stepping*dy;
+        X += stepping*dx + ex[i];
+        Y += stepping*dy + ey[i];
 
         // Rotate around the center of the robot
         crabRad = DEG2RAD(crab) * (group ? 1 : -1);
@@ -251,8 +251,8 @@ void motion_tick(float t)
         moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
 
         // This is the x,y,z order in the referencial of the leg
-        x = ex[i] + vx;
-        y = ey[i] + vy;
+        x = vx;
+        y = vy;
         z = ez[i] + h - extra_h + (moving ? (rise.getMod(legPhase)*alt) : 0);
         if (i < 2) z += frontH;
 
@@ -311,6 +311,16 @@ void motion_set_y_speed(float y_speed)
 void motion_set_turn_speed(float turn_speed)
 {
     turn = turn_speed/(2.0*freq);
+}
+
+void motion_extra_x(int index, float x)
+{
+    ex[index] = x;
+}
+
+void motion_extra_y(int index, float y)
+{
+    ey[index] = y;
 }
 
 void motion_extra_z(int index, float z)
