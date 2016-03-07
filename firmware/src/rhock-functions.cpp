@@ -327,7 +327,12 @@ RHOCK_NATIVE(robot_yaw)
 RHOCK_NATIVE(robot_get_control)
 {
     int32_t control = RHOCK_VALUE_TO_INT(RHOCK_POPI());
+
     if (control < RHOCK_CONTROLS) {
         RHOCK_PUSHF(rhock_controls[control]/100.0);
+    } else {
+        RHOCK_PUSHF(0);
     }
+    
+    return RHOCK_NATIVE_CONTINUE;
 }
