@@ -5,6 +5,21 @@
 #include "imu.h"
 #include "motion.h"
 
+#define I2C_TIMEOUT 2
+
+int32 i2c_master_xfer_reinit(i2c_dev *dev,
+        i2c_msg *msgs,
+        uint16 num,
+        uint32 timeout) 
+{
+    int32 r = i2c_master_xfer(dev, msgs, num, timeout);
+    if (r != 0) {
+        i2c_init(I2C1);
+        i2c_master_enable(I2C1, I2C_FAST_MODE);
+    }
+    return r;
+}
+
 static int last_update;
 float magn_x, magn_y, magn_z;
 float gyro_x, gyro_y, gyro_z;
@@ -112,40 +127,40 @@ void imu_init()
     packet.flags = 0;
     packet.data = magn_continuous;
     packet.length = 2;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     packet.data = magn_50hz;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     packet.data = magn_sens;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     // Initializing accelerometer
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_measure;
     packet.length = 2;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     packet.data = acc_resolution;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     packet.data = acc_50hz;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     // Initializing gyroscope
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_reset;
     packet.length = 2;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     packet.data = gyro_scale;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
     packet.data = gyro_50hz;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
     packet.data = gyro_pll;
-    if (i2c_master_xfer(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
 
     initialized = true;
     return;
@@ -166,13 +181,13 @@ void magn_update()
     packet.flags = 0;
     packet.data = magn_req;
     packet.length = 1;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     int magn_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     int magn_y_r = ((buffer[2]&0xff)<<8)|(buffer[3]&0xff);
@@ -217,13 +232,13 @@ void gyro_update()
     packet.flags = 0;
     packet.data = gyro_req;
     packet.length = 1;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     int gyro_x_r = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     gyro_x = GYRO_GAIN*VALUE_SIGN(gyro_x_r, 16);
@@ -247,13 +262,13 @@ void acc_update()
     packet.flags = 0;
     packet.data = acc_req;
     packet.length = 1;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer(I2C1, &packet, 1, 10) != 0) return;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) return;
 
     int acc_x_r = ((buffer[1]&0xff)<<8)|(buffer[0]&0xff);
     acc_x = VALUE_SIGN(acc_x_r, 16);
