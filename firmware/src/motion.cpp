@@ -19,13 +19,12 @@
 #include <rhock/event.h>
 #include <rhock/stream.h>
 #endif
-#include "config.h"
 #include "function.h"
 #include "motion.h"
 #include "kinematic.h"
-#include "mapping.h"
 #include "leds.h"
 #include "motors.h"
+#include "dc.h"
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
@@ -174,8 +173,6 @@ bool motion_is_moving()
 void motion_init()
 {
     // Setting the mapping to 0
-    remap(0);
-
     for (int i=0; i<4; i++) {
         ex[i] = 0;
         ey[i] = 0;
@@ -193,76 +190,15 @@ void motion_tick(float t)
         return;
     }
 
-    // Setting up functions
-    setup_functions();
+    static float smooth_dx = 0;
+    static float smooth_dy = 0;
+    static float smooth_turn = 0;
 
-    // Smoothing 180
-    if (backLegs && smoothBackLegs < 1) {
-        smoothBackLegs += 0.02;
-    }
-    if (!backLegs && smoothBackLegs > 0) {
-        smoothBackLegs -= 0.02;
-    }
+    smooth_dx = dx*0.5 + smooth_dx*0.5;
+    smooth_dy = dy*0.5 + smooth_dy*0.5;
+    smooth_turn = turn*0.5 + smooth_turn*0.5;
 
-    float turnRad = DEG2RAD(turn);
-    float crabRad;
-
-    for (int i=0; i<4; i++) {
-        // Defining in which group of opposite legs this leg is
-        bool group = ((i&1)==1);
-
-        // This defines the phase of the gait
-        float legPhase;
-
-        if (gait == GAIT_WALK) {
-            float phases[] = {0.0, 0.5, 0.75, 0.25};
-            legPhase = t + phases[i];
-        }
-        if (gait == GAIT_TROT) {
-            legPhase = t + group*0.5;
-        }
-
-        float x, y, z, a, b, c;
-
-        // Computing the order in the referencial of the body
-        float stepping = step.getMod(legPhase);
-
-        // Add the radius to the leg, in the right direction
-        float radius = (r+extra_r);
-
-        // The leg position in the body frame
-        float X = (cos(M_PI/4)*radius) * ((i==0||i==1) ? 1 : -1);
-        float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
-        
-        // Add dX and dY to the moving vector
-        X += stepping*dx + ex[i];
-        Y += stepping*dy + ey[i];
-
-        // Rotate around the center of the robot
-        crabRad = DEG2RAD(crab) * (group ? 1 : -1);
-        float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
-        float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
-
-        // Move to the leg frame
-        float vx, vy;
-        legFrame(xOrder, yOrder, &vx, &vy, i, L0);
-
-        // The robot is moving if there is dynamics parameters
-        moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
-
-        // This is the x,y,z order in the referencial of the leg
-        x = vx;
-        y = vy;
-        z = ez[i] + h - extra_h + (moving ? (rise.getMod(legPhase)*alt) : 0);
-        if (i < 2) z += frontH;
-
-        // Computing inverse kinematics
-        if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -signs[0]*a;
-            l2[i] = -signs[1]*b;
-            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
-        }
-    }
+    dc_xyt(smooth_dx, -smooth_dy, smooth_turn);
 }
 
 #ifdef __EMSCRIPTEN__

@@ -1,8 +1,8 @@
 # Project targets
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
-SRC_FILES = main.cpp kinematic.cpp motion.cpp leds.cpp mapping.cpp motors.cpp \
-	    buzzer.cpp imu.cpp distance.cpp voltage.cpp bt.cpp
+SRC_FILES = main.cpp kinematic.cpp motion.cpp leds.cpp motors.cpp \
+	    buzzer.cpp imu.cpp distance.cpp bt.cpp opticals.cpp dc.cpp
 
 
 ifeq ($(ENABLE_RHOCK),yes)
@@ -10,7 +10,7 @@ SRC_FILES += rhock-functions.cpp rhock-stream.cpp
 endif
 
 # Uncomment to disable robot campus commands
-CFLAGS += -DHAS_DXL -DHAS_TERMINAL -DDISABLE_SERVOS_COMMANDS
+CFLAGS += -DHAS_TERMINAL -DDISABLE_SERVOS_COMMANDS
 # CFLAGS += -DDXL_VERSION_1
 
 OBJ_FILES_CPP = $(SRC_FILES:.cpp=.o)

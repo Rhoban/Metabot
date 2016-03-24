@@ -5,6 +5,7 @@
 #define LED_G   (1<<1)
 #define LED_B   (1<<0)
 
+void leds_init();
 void led_set(int index, int value, bool custom=false);
 void led_set_all(int value, bool custom=false);
 void led_stream_state();

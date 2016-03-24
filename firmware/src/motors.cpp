@@ -2,21 +2,9 @@
 #include <commands.h>
 #endif
 #include "leds.h"
-#include "mapping.h"
 #include "motors.h"
 
 static bool is_enabled = false;
-
-void motors_colorize()
-{
-    if (motors_enabled()) {
-        // Colorizing the front of the robot
-        colorize();
-    } else {
-        // Turning all leds red
-        led_set_all(LED_R);
-    }
-}
 
 void motors_enable()
 {
@@ -26,7 +14,6 @@ void motors_enable()
     // Running the actual motors
     start();
 #endif
-    motors_colorize();
 }
 
 void motors_disable()
@@ -38,7 +25,6 @@ void motors_disable()
     // Stopping the actual motors
     stop();
 #endif
-    motors_colorize();
 }
 
 bool motors_enabled()

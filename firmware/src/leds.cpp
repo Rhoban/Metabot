@@ -4,19 +4,32 @@
 #include <rhock/stream.h>
 #endif
 #ifndef __EMSCRIPTEN__
+#include <terminal.h>
 #include <dxl.h>
 #endif
 
-static char leds[12];
+#define LEDS_R 28
+#define LEDS_B 29
+#define LEDS_G 30
+
+static char led;
 static bool leds_custom_flag;
 
-static int led_value_to_dxl(int val)
+void leds_init()
 {
-    char dxlv = 0;
-    if (val & LED_R) dxlv |= 1;
-    if (val & LED_G) dxlv |= 2;
-    if (val & LED_B) dxlv |= 4;
-    return dxlv;
+    digitalWrite(LEDS_R, LOW);
+    digitalWrite(LEDS_G, LOW);
+    digitalWrite(LEDS_B, LOW);
+    pinMode(LEDS_R, OUTPUT);
+    pinMode(LEDS_G, OUTPUT);
+    pinMode(LEDS_B, OUTPUT);
+}
+
+void led_set_pins()
+{
+    digitalWrite(LEDS_R, (led&LED_R)?HIGH:LOW);
+    digitalWrite(LEDS_G, (led&LED_G)?HIGH:LOW);
+    digitalWrite(LEDS_B, (led&LED_B)?HIGH:LOW);
 }
 
 char leds_are_custom()
@@ -34,10 +47,8 @@ void led_set(int index, int value, bool custom)
     if (custom) {
         leds_custom_flag = true;
     }
-    leds[index-1] = value;
-#ifndef __EMSCRIPTEN__
-    dxl_write_byte(index, DXL_LED, led_value_to_dxl(value));
-#endif
+
+    led_set_all(value);
 }
 
 void led_set_all(int value, bool custom)
@@ -45,22 +56,12 @@ void led_set_all(int value, bool custom)
     if (custom) {
         leds_custom_flag = true;
     }
-    for (int i=0; i<sizeof(leds); i++) {
-        leds[i] = value;
-    }
-#ifndef __EMSCRIPTEN__
-    dxl_write_byte(DXL_BROADCAST, DXL_LED, led_value_to_dxl(value));
-#endif
+
+    led = value;
+    led_set_pins();
 }
 
 void led_stream_state()
 {
-#ifdef RHOCK
-    for (int i=0; i<sizeof(leds);) {
-        uint8_t v = 0;
-        v += leds[i++]<<4;
-        v += leds[i++];
-        rhock_stream_append(v);
-    }
-#endif
+    rhock_stream_append(led);
 }

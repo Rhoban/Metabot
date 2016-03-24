@@ -3,7 +3,6 @@
 #include <rhock/stream.h>
 #include "rhock-stream.h"
 #include "leds.h"
-#include "mapping.h"
 #include "motion.h"
 #include "motors.h"
 #include "imu.h"
