@@ -5,7 +5,10 @@
 #include "imu.h"
 #include "motion.h"
 
+static bool initialized = false;
+
 #define I2C_TIMEOUT 2
+TERMINAL_PARAMETER_INT(kkk, "kkk", 0);
 
 int32 i2c_master_xfer_reinit(i2c_dev *dev,
         i2c_msg *msgs,
@@ -13,9 +16,9 @@ int32 i2c_master_xfer_reinit(i2c_dev *dev,
         uint32 timeout) 
 {
     int32 r = i2c_master_xfer(dev, msgs, num, timeout);
-    if (r != 0) {
-        i2c_init(I2C1);
-        i2c_master_enable(I2C1, I2C_FAST_MODE);
+    if (r != 0 || dev->state != I2C_STATE_IDLE) {
+        initialized = false;
+        kkk++;
     }
     return r;
 }
@@ -91,8 +94,6 @@ static uint8 magn_50hz[] = {0x00, 0b00011000};
 static uint8 magn_sens[] = {0x01, 0b10000000};
 static uint8 magn_req[] = {0x03};
 
-static bool initialized = false;
-
 float normalize(float angle)
 {
     while (angle > 180) angle -= 360;
@@ -127,40 +128,40 @@ void imu_init()
     packet.flags = 0;
     packet.data = magn_continuous;
     packet.length = 2;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = magn_50hz;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = magn_sens;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     // Initializing accelerometer
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_measure;
     packet.length = 2;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = acc_resolution;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = acc_50hz;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     // Initializing gyroscope
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_reset;
     packet.length = 2;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = gyro_scale;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
     packet.data = gyro_50hz;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
     packet.data = gyro_pll;
-    if (i2c_master_xfer_reinit(I2C1, &packet, 1, 100) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(I2C1, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     initialized = true;
     return;
@@ -286,9 +287,13 @@ void imu_tick()
     if (elapsed > 20) {
         last_update += 20;
 
-        gyro_update();
-        magn_update();
-        acc_update();
+        if (initialized) {
+            gyro_update();
+            magn_update();
+            acc_update();
+        } else {
+            imu_init();
+        }
 
         if (calibrating) {
             if (calibrating_t >= 0) {
