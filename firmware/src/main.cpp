@@ -96,7 +96,6 @@ void setup()
  */
 void tick()
 {
-    return;
     if (!move || !started) {
         led_set_all(LED_R);
         dc_command(0, 0, 0);
@@ -171,6 +170,4 @@ void loop()
         dcFlag = false;
         tick();
     }
-
-    dc_tick();
 }
