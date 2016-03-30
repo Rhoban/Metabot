@@ -49,6 +49,9 @@ TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
  */
 void setup()
 {
+    // This disable Serial2 from APB1
+    RCC_BASE->APB1ENR &= ~RCC_APB1ENR_USART2EN;
+
     // Initializing terminal on the RC port
     RC.begin(115200);
     terminal_init(&RC);
@@ -93,6 +96,7 @@ void setup()
  */
 void tick()
 {
+    return;
     if (!move || !started) {
         led_set_all(LED_R);
         dc_command(0, 0, 0);
@@ -167,4 +171,6 @@ void loop()
         dcFlag = false;
         tick();
     }
+
+    dc_tick();
 }
