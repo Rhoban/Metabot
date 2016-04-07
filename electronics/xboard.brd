@@ -4135,24 +4135,24 @@ design rules under a new name.</description>
 <element name="U$4" library="SparkFun-Electromechanical" package="STAND-OFF" value="" x="-11.44535625" y="32.607240625" rot="R45"/>
 <element name="R3" library="rcl" package="R0805" value="20K" x="23.945059375" y="-8.123340625" rot="R180"/>
 <element name="R5" library="rcl" package="R0805" value="10K" x="27.545059375" y="-11.323340625" rot="R90"/>
-<element name="U$5" library="rhoban" package="56000001009" value="56000001009" x="-34.6968" y="7.6608"/>
-<element name="U$6" library="rhoban" package="TO252" value="SUD50N04-8M8P-4GE3" x="-20.2824" y="14.0672" rot="R90"/>
+<element name="FUSE" library="rhoban" package="56000001009" value="56000001009" x="-34.6968" y="7.6608"/>
+<element name="MOS" library="rhoban" package="TO252" value="SUD50N04-8M8P-4GE3" x="-20.2824" y="14.0672" rot="R90"/>
 <element name="R6" library="rcl" package="R0805" value="470" x="-15.7824" y="7.5672"/>
 <element name="U$7" library="rhoban" package="SOT223" value="TS2940CW-3.3RP" x="4.224928125" y="-6.2006125" rot="R180"/>
 <element name="U$8" library="rhoban" package="SOT223" value="AP1117E50G-13" x="4.3939375" y="14.40955" rot="R180"/>
 <element name="R7" library="rcl" package="R0805" value="20" x="-14.7824" y="-0.4328" rot="R90"/>
-<element name="U$9" library="rhoban" package="PANASONIC_D" value="47uF" x="18.285203125" y="10.38588125" rot="R90"/>
-<element name="U$10" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.358734375" y="3.40605625"/>
-<element name="U$11" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.342078125" y="23.708159375"/>
+<element name="DC2" library="rhoban" package="PANASONIC_D" value="47uF" x="18.285203125" y="10.38588125" rot="R90"/>
+<element name="DC3" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.358734375" y="3.40605625"/>
+<element name="DC4" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.342078125" y="23.708159375"/>
 <element name="U$12" library="rhoban" package="SOT-23" value="NPN_BC817,215" x="6.4227875" y="-24.982771875" rot="R180"/>
 <element name="R8" library="rcl" package="R0805" value="470" x="7.3511" y="-20.324259375" rot="R90"/>
-<element name="U$13" library="rhoban" package="BUZZER66" value="BUZZER66" x="-4.581790625" y="-31.34356875"/>
+<element name="BUZZER" library="rhoban" package="BUZZER66" value="BUZZER66" x="-4.581790625" y="-31.34356875"/>
 <element name="CA" library="rhoban" package="C0805" value="C_EU-100NF" x="-23.6728" y="-7.112" rot="R270">
 <attribute name="FARNELL_LINK" value="http://fr.farnell.com/kemet/c0805c104j5ractu/condensateur-100nf-50v-x7r-0805/dp/1414663RL" x="-23.6728" y="-7.112" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="DATASHEET" value="condo100nF.pdf" x="-23.6728" y="-7.112" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R9" library="rhoban" package="R0805" value="4K" x="-21.65883125" y="7.5608375"/>
-<element name="U$14" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.541653125" y="31.152875"/>
+<element name="DC1" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.541653125" y="31.152875"/>
 </elements>
 <signals>
 <signal name="GND" class="1">
@@ -4170,16 +4170,16 @@ design rules under a new name.</description>
 <contactref element="DIST4" pad="2"/>
 <contactref element="IMU" pad="3"/>
 <contactref element="R5" pad="1"/>
-<contactref element="U$6" pad="2"/>
+<contactref element="MOS" pad="2"/>
 <contactref element="U$8" pad="1"/>
 <contactref element="U$7" pad="2"/>
-<contactref element="U$9" pad="-"/>
-<contactref element="U$10" pad="-"/>
-<contactref element="U$11" pad="-"/>
+<contactref element="DC2" pad="-"/>
+<contactref element="DC3" pad="-"/>
+<contactref element="DC4" pad="-"/>
 <contactref element="U$12" pad="2"/>
 <contactref element="CA" pad="2"/>
 <contactref element="R9" pad="1"/>
-<contactref element="U$14" pad="-"/>
+<contactref element="DC1" pad="-"/>
 <wire x1="24" y1="13.6" x2="18.4" y2="8" width="0.889" layer="1"/>
 <wire x1="24" y1="14.2" x2="24" y2="13.6" width="0.889" layer="1"/>
 <wire x1="18.4" y1="8" x2="18.285203125" y2="7.98588125" width="0.889" layer="1"/>
@@ -4323,8 +4323,8 @@ design rules under a new name.</description>
 <contactref element="XBEE" pad="14"/>
 <contactref element="IMU" pad="2"/>
 <contactref element="U$7" pad="3"/>
-<contactref element="U$9" pad="+"/>
-<contactref element="U$13" pad="P$2"/>
+<contactref element="DC2" pad="+"/>
+<contactref element="BUZZER" pad="P$2"/>
 <wire x1="-0.2" y1="-5.2" x2="1.8" y2="-3.2" width="0.254" layer="1"/>
 <wire x1="-0.2" y1="-30.2" x2="-0.2" y2="-19.6" width="0.254" layer="1"/>
 <wire x1="-0.2" y1="-19.6" x2="-0.2" y2="-5.2" width="0.254" layer="1"/>
@@ -4357,10 +4357,10 @@ design rules under a new name.</description>
 <contactref element="XL3" pad="P$2"/>
 <contactref element="XL4" pad="P$2"/>
 <contactref element="R3" pad="2"/>
-<contactref element="U$5" pad="P$2"/>
-<contactref element="U$6" pad="3"/>
+<contactref element="FUSE" pad="P$2"/>
+<contactref element="MOS" pad="3"/>
 <contactref element="U$8" pad="3"/>
-<contactref element="U$11" pad="+"/>
+<contactref element="DC4" pad="+"/>
 <wire x1="-9.4" y1="17" x2="-9.4" y2="12.4" width="0.889" layer="1"/>
 <wire x1="-9.4" y1="12.4" x2="-9.475046875" y2="12.26779375" width="0.889" layer="1"/>
 <wire x1="-9.4" y1="17" x2="-9.414565625" y2="17.08493125" width="0.889" layer="1"/>
@@ -4451,7 +4451,7 @@ design rules under a new name.</description>
 <contactref element="DIST4" pad="3"/>
 <contactref element="U$7" pad="1"/>
 <contactref element="U$8" pad="2"/>
-<contactref element="U$10" pad="+"/>
+<contactref element="DC3" pad="+"/>
 <contactref element="CA" pad="1"/>
 <wire x1="-21.2" y1="-6" x2="-21.8" y2="-6" width="0.254" layer="1"/>
 <wire x1="-21.8" y1="-6" x2="-23.6" y2="-6" width="0.254" layer="1"/>
@@ -4565,7 +4565,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="V+_IN" class="1">
 <contactref element="V+" pad="P$1"/>
-<contactref element="U$5" pad="P$1"/>
+<contactref element="FUSE" pad="P$1"/>
 <wire x1="-36.2" y1="6.6" x2="-37.2" y2="7.6" width="0.889" layer="1"/>
 <wire x1="-36.2" y1="0.2" x2="-36.2" y2="6.6" width="0.889" layer="1"/>
 <wire x1="-37.2" y1="7.6" x2="-37.2368" y2="7.6608" width="0.889" layer="1"/>
@@ -4731,7 +4731,7 @@ design rules under a new name.</description>
 <contactref element="MAPLE_MINI" pad="X30"/>
 </signal>
 <signal name="N$1">
-<contactref element="U$6" pad="1"/>
+<contactref element="MOS" pad="1"/>
 <contactref element="R6" pad="1"/>
 <wire x1="-16" y1="8.2" x2="-16.6" y2="7.6" width="0.254" layer="1"/>
 <wire x1="-16" y1="11.2" x2="-16" y2="8.2" width="0.254" layer="1"/>
@@ -4778,7 +4778,7 @@ design rules under a new name.</description>
 <wire x1="7.4" y1="-21.4" x2="7.3511" y2="-21.274259375" width="0.254" layer="1"/>
 </signal>
 <signal name="MAPLE_VCC">
-<contactref element="U$14" pad="+"/>
+<contactref element="DC1" pad="+"/>
 <contactref element="MAPLE_MINI" pad="VCC"/>
 <wire x1="7.2" y1="34.4" x2="-3" y2="34.4" width="0.254" layer="1"/>
 <wire x1="7.2" y1="31.2" x2="7.2" y2="34.4" width="0.254" layer="1"/>
@@ -4786,7 +4786,7 @@ design rules under a new name.</description>
 <wire x1="7.2" y1="31.2" x2="7.271653125" y2="31.152875" width="0.254" layer="1"/>
 </signal>
 <signal name="N$5">
-<contactref element="U$13" pad="P$1"/>
+<contactref element="BUZZER" pad="P$1"/>
 <contactref element="U$12" pad="3"/>
 <wire x1="0" y1="-32.6" x2="6.4" y2="-26.2" width="0.254" layer="1"/>
 <wire x1="-7.8" y1="-32.6" x2="0" y2="-32.6" width="0.254" layer="1"/>
