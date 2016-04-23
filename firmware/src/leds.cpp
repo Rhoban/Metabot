@@ -7,29 +7,109 @@
 #include <terminal.h>
 #include <dxl.h>
 #endif
+#include "function.h"
 
-#define LEDS_R 28
-#define LEDS_B 29
-#define LEDS_G 30
-
-static char led;
 static bool leds_custom_flag;
+
+#define LEDS_PIN        17
+
+#include "leds_nops.h"
+
+static gpio_dev *dev = PIN_MAP[LEDS_PIN].gpio_device;
+static uint8 bit = PIN_MAP[LEDS_PIN].gpio_bit;
+
+uint32_t led1_r, led1_g, led1_b;
+uint32_t led2_r, led2_g, led2_b;
+uint32_t led3_r, led3_g, led3_b;
+uint32_t led1=0, led2=0, led3=0;
+
+static inline void send_bit(int v)
+{
+    if (!v) {
+        gpio_write_bit(dev, bit, 1);
+        NOPS_400;
+        gpio_write_bit(dev, bit, 0);
+        NOPS_850;
+    } else {
+        gpio_write_bit(dev, bit, 1);
+        NOPS_800;
+        gpio_write_bit(dev, bit, 0);
+        NOPS_450;
+    }
+}
+
+void led_update()
+{
+    nvic_globalirq_disable();
+    led1 = led1_b | (led1_r<<8) | (led1_g<<16);
+    led2 = led2_b | (led2_r<<8) | (led2_g<<16);
+    led3 = led3_b | (led3_r<<8) | (led3_g<<16);
+
+#include "leds_sends.h"
+    gpio_write_bit(dev, bit, 0);
+    nvic_globalirq_enable();
+}
+
+TERMINAL_COMMAND(ld, "Test")
+{
+    int led = atoi(argv[0]);
+    if (led == 1) {
+        led1_r = atoi(argv[1]);
+        led1_g = atoi(argv[2]);
+        led1_b = atoi(argv[3]);
+    }
+    if (led == 2) {
+        led2_r = atoi(argv[1]);
+        led2_g = atoi(argv[2]);
+        led2_b = atoi(argv[3]);
+    }
+    if (led == 3) {
+        led3_r = atoi(argv[1]);
+        led3_g = atoi(argv[2]);
+        led3_b = atoi(argv[3]);
+    }
+
+    /*
+    double t;
+    Function fr, fg, fb;
+    fr.addPoint(0, 0);
+    fr.addPoint(2, 255);
+    fr.addPoint(4, 128);
+    fr.addPoint(6, 0);
+    fr.addPoint(8, 30);
+    fr.addPoint(10, 0);
+    
+    fg.addPoint(0, 255);
+    fg.addPoint(2, 0);
+    fg.addPoint(4, 128);
+    fg.addPoint(6, 40);
+    fg.addPoint(8, 0);
+    fg.addPoint(10, 255);
+    
+    fb.addPoint(0, 128);
+    fb.addPoint(2, 30);
+    fb.addPoint(4, 0);
+    fb.addPoint(6, 0);
+    fb.addPoint(8, 128);
+    fb.addPoint(10, 128);
+
+    t = 0;
+    while (1) {
+        led3_r = led2_r = led1_r = (int)fr.getMod(t);
+        led3_g = led2_g = led1_g = (int)fg.getMod(t);
+        led3_b = led2_b = led1_b = (int)fb.getMod(t);
+        delay(10);
+        t += 0.01;
+        led_update();
+    }
+    */
+        
+    led_update();
+}
 
 void leds_init()
 {
-    digitalWrite(LEDS_R, LOW);
-    digitalWrite(LEDS_G, LOW);
-    digitalWrite(LEDS_B, LOW);
-    pinMode(LEDS_R, OUTPUT);
-    pinMode(LEDS_G, OUTPUT);
-    pinMode(LEDS_B, OUTPUT);
-}
-
-void led_set_pins()
-{
-    digitalWrite(LEDS_R, (led&LED_R)?HIGH:LOW);
-    digitalWrite(LEDS_G, (led&LED_G)?HIGH:LOW);
-    digitalWrite(LEDS_B, (led&LED_B)?HIGH:LOW);
+    pinMode(LEDS_PIN, OUTPUT);
 }
 
 char leds_are_custom()
@@ -57,11 +137,13 @@ void led_set_all(int value, bool custom)
         leds_custom_flag = true;
     }
 
-    led = value;
-    led_set_pins();
+    led1_r = led2_r = led3_r = (value&LED_R) ? 255 : 0;
+    led1_g = led2_g = led3_g = (value&LED_G) ? 255 : 0;
+    led1_b = led2_b = led3_b = (value&LED_B) ? 255 : 0;
+    led_update();
 }
 
 void led_stream_state()
 {
-    rhock_stream_append(led);
+//    rhock_stream_append();
 }

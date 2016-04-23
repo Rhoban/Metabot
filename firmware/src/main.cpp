@@ -63,13 +63,10 @@ void setup()
     leds_init();
 
     // Initializing
-    motion_init();
-
-    // Initializing the DXL bus
-    delay(500);
+    // motion_init();
 
     // initializing distance
-    distance_init();
+    // distance_init();
 
     // Initializing the IMU
     //imu_init();
@@ -79,11 +76,11 @@ void setup()
     digitalWrite(BOARD_LED_PIN, LOW);
     
     // Enabling opticals
-    opticals_init();
+    // opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
-    buzzer_init();
-    buzzer_play(MELODY_BOOT);
+    //buzzer_init();
+    //buzzer_play(MELODY_BOOT);
 
     // Initizaliting DC
     dc_init();
@@ -147,12 +144,13 @@ TERMINAL_COMMAND(mot, "Motor test")
 void loop()
 {
     // Buzzer update
-    buzzer_tick();
+    //buzzer_tick();
     // IMU ticking
     //imu_tick();
 
     // Updating the terminal
     terminal_tick();
+    
 #if defined(RHOCK)
     rhock_tick();
 #endif

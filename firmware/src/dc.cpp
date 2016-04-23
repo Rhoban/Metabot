@@ -3,87 +3,49 @@
 #include <wirish.h>
 #include "dc.h"
 
-TERMINAL_PARAMETER_INT(kkk, "Debug", 0);
+#define M1A 15  // 4 CH2
+#define M1B 16  // 4 CH1
+#define M2A 10  // 2 CH2
+// XXX: In future fix, to avoid conflict with buzzer
+// #define M2A 5  // 3 CH1
+#define M2B 27  // 1 CH1
+#define M3A 3   // 3 CH3
+#define M3B 4   // 3 CH2
 
-// XXX: Avoid using digitalWrite?
-static HardwareTimer timer(4);
+TERMINAL_PARAMETER_INT(kkk, "Debug", 0);
 
 #define MOTORS 3
 
+static int divider = 0;
 bool dcFlag = false;
 
 struct dc_motor {
-    int pinA;
-    int pinB;
+    int a, b;
     float x, y;
 };
 
-struct dc_motor_pwm {
-    int pin;
-    int ts;
-};
+/**
+ 
+            ^
+            | x
+
+     2v /       \ 1v
+                        -> y
+
+            -
+            <3
+
+
+*/
 
 static struct dc_motor motors[MOTORS] = {
-    {9, 27, 0.866, -0.5},
-    {15, 16, -0.8660, -0.5},
-    {2, 3, 0, 1}
+    {M1A, M1B, -0.866, -0.5},
+    {M2A, M2B, -0.866, 0.5},
+    {M3A, M3B, 0, 1}
 };
-static struct dc_motor_pwm motorsPWMFront[MOTORS];
-static struct dc_motor_pwm motorsPWM[MOTORS];
-static int current;
-static int divider;
-static bool dirty = false;
-static bool irq = false;
 
-bool dc_flag = false;
-
-static void _dc_update();
-static void dc_next(int count)
+static void _dc_ovf()
 {
-    while (current < MOTORS && motorsPWM[current].pin && motorsPWM[current].ts <= count) {
-        digitalWrite(motorsPWM[current].pin, LOW);
-        current++;
-    }
-    if (current < MOTORS && motorsPWM[current].pin) {
-        timer.setCompare(TIMER_CH1, motorsPWM[current].ts);
-        irq = true;
-    } else {
-        irq = false;
-    }
-}
-
-static void _dc_update()
-{
-    if (irq) {
-        dc_next(timer.getCount());
-    }
-}
-
-static void _dc_overflow()
-{
-    irq = false;
-    if (dirty) {
-        dirty = false;
-        for (int k=0; k<MOTORS; k++) {
-            if (motorsPWM[k].pin) {
-                digitalWrite(motorsPWM[k].pin, LOW);
-            }
-        }
-        for (int k=0; k<MOTORS; k++) {
-            motorsPWM[k] = motorsPWMFront[k];
-        }
-    }
-
-    // Setting all the pins to HIGH
-    for (int k=0; k<MOTORS; k++) {
-        if (motorsPWM[k].pin && motorsPWM[k].ts) {
-            digitalWrite(motorsPWM[k].pin, HIGH);
-        }
-    }
-    current = 0;
-    dc_next(0);
-
-    // Ticking the flag
     divider++;
     if (divider >= 480) {
         divider = 0;
@@ -91,48 +53,38 @@ static void _dc_overflow()
     }
 }
 
-void dc_init()
+static void _init_timer(int number)
 {
-    for (int k=0; k<MOTORS; k++) {
-        motorsPWM[k].pin = motorsPWMFront[k].pin = 0;
-        digitalWrite(motors[k].pinA, LOW);
-        digitalWrite(motors[k].pinB, LOW);
-        pinMode(motors[k].pinA, OUTPUT);
-        pinMode(motors[k].pinB, OUTPUT);
+    HardwareTimer timer(number);
+
+    // Configuring timer
+    timer.pause();
+    timer.setPrescaleFactor(1); 
+    timer.setOverflow(3000); // 24Khz
+
+    if (number == 3) {
+        timer.attachCompare1Interrupt(_dc_ovf);
+        timer.setCompare(TIMER_CH1, 1);
     }
 
-    timer.pause();
-    timer.setPrescaleFactor(1);
-    timer.setOverflow(3000);
-    timer.setCount(0);
-    timer.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
-    timer.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
-    timer.setMode(TIMER_CH3, TIMER_OUTPUT_COMPARE);
-    timer.setMode(TIMER_CH4, TIMER_OUTPUT_COMPARE);
-    
-    timer.attachCompare1Interrupt(_dc_update);
-    timer.setCompare(TIMER_CH1, 0xffff);
-
-    timer.setCompare(TIMER_CH4, 0);
-    timer.attachCompare4Interrupt(_dc_overflow);
     timer.refresh();
     timer.resume();
 }
 
-void dc_bubble(int a, int b)
+void dc_init()
 {
-    if (motorsPWMFront[a].ts > motorsPWMFront[b].ts) {
-        struct dc_motor_pwm tmp = motorsPWMFront[a];
-        motorsPWMFront[a] = motorsPWMFront[b];
-        motorsPWMFront[b] = tmp;
+    // XXX Init timers
+    _init_timer(1);
+    _init_timer(2);
+    _init_timer(3);
+    _init_timer(4);
+    
+    for (int k=0; k<3; k++) {
+        pwmWrite(motors[k].a, 0);
+        pwmWrite(motors[k].b, 0);
+        pinMode(motors[k].a, PWM);
+        pinMode(motors[k].b, PWM);
     }
-}
-
-void dc_sort()
-{
-    dc_bubble(1, 2);
-    dc_bubble(0, 1);
-    dc_bubble(1, 2);
 }
 
 int _min(int a, int b)
@@ -142,22 +94,14 @@ int _min(int a, int b)
 
 void dc_command(int m1, int m2, int m3)
 {
-    /*
-    terminal_io()->print(m1); terminal_io()->print(" ");
-    terminal_io()->print(m2); terminal_io()->print(" ");
-    terminal_io()->print(m3); terminal_io()->print(" ");
-    terminal_io()->println();
-    */
+    pwmWrite(M1A, m1>0 ? m1 : 0);
+    pwmWrite(M1B, m1<0 ? -m1 : 0);
 
-    motorsPWMFront[0].pin = (m1 < 0) ? motors[0].pinA : motors[0].pinB;
-    motorsPWMFront[0].ts = _min(3000, abs(m1));
-    motorsPWMFront[1].pin = (m2 < 0) ? motors[1].pinA : motors[1].pinB;
-    motorsPWMFront[1].ts = _min(3000, abs(m2));
-    motorsPWMFront[2].pin = (m3 < 0) ? motors[2].pinA : motors[2].pinB;
-    motorsPWMFront[2].ts = _min(3000, abs(m3));
-    dc_sort();
+    pwmWrite(M2A, m2>0 ? m2 : 0);
+    pwmWrite(M2B, m2<0 ? -m2 : 0);
 
-    dirty = true;
+    pwmWrite(M3A, m3>0 ? m3 : 0);
+    pwmWrite(M3B, m3<0 ? -m3 : 0);
 }
 
 static int s(int m)
@@ -172,7 +116,7 @@ void dc_xyt(float x, float y, float t)
     int m3 = (x*motors[2].x+y*motors[2].y)*80;
 
     m1 += t*80;
-    m2 += t*80;
+    m2 -= t*80;
     m3 += t*80;
 
     /*
@@ -182,6 +126,14 @@ void dc_xyt(float x, float y, float t)
     */
 
     dc_command(m1, m2, m3);
+}
+
+TERMINAL_COMMAND(tst, "Test")
+{
+    pinMode(M3A, OUTPUT);
+    digitalWrite(M3A, HIGH);
+    delay(500);
+    digitalWrite(M3A, LOW);
 }
 
 TERMINAL_COMMAND(dc, "DC test")
