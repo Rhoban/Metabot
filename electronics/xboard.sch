@@ -6145,7 +6145,7 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="157.48" y1="68.58" x2="160.02" y2="68.58" width="0.1524" layer="91"/>
-<label x="182.88" y="55.88" size="1.778" layer="95"/>
+<label x="165.1" y="68.58" size="1.778" layer="95"/>
 <pinref part="R2" gate="G$1" pin="1"/>
 <wire x1="160.02" y1="68.58" x2="165.1" y2="68.58" width="0.1524" layer="91"/>
 </segment>
