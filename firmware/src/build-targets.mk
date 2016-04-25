@@ -2,7 +2,8 @@
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
 SRC_FILES = main.cpp kinematic.cpp motion.cpp leds.cpp motors.cpp \
-	    buzzer.cpp imu.cpp distance.cpp bt.cpp opticals.cpp dc.cpp
+	    buzzer.cpp imu.cpp distance.cpp bt.cpp opticals.cpp dc.cpp \
+	    mux.cpp
 
 
 ifeq ($(ENABLE_RHOCK),yes)

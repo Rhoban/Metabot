@@ -13,7 +13,7 @@ void bt_init()
         RC.write("AT+RESET\r\n\r\n");
         RC.write("AT+RESET\r\n");
     }
-    RC.begin(115200);
+    RC.begin(921600);
 }
 
 static void goToConf()
@@ -28,7 +28,7 @@ static void bt_conf(char *name, char *pin)
     goToConf();
     RC.write("AT\r\n");
     delay(10);
-    RC.write("AT+UART=115200,0,0\r\n");
+    RC.write("AT+UART=921600,0,0\r\n");
     delay(10);
     RC.write("AT+NAME=");
     RC.write(name);

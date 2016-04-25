@@ -72,6 +72,7 @@ TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/Wir
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
+		   -DRC=Serial1 \
 		   -DBOOTLOADER_$(BOOTLOADER) \
 		   -DMETABOT_VERSION="\"$(VERSION)\""
 GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)

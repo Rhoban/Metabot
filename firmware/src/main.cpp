@@ -15,6 +15,7 @@
 #include "imu.h"
 #include "bt.h"
 #include "dc.h"
+#include "mux.h"
 #include "opticals.h"
 
 bool isUSB = false;
@@ -36,7 +37,7 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 
 TERMINAL_COMMAND(rc, "Go to RC mode")
 {
-    RC.begin(115200);
+    RC.begin(921600);
     terminal_init(&RC);
     isUSB = false;
 }
@@ -53,7 +54,7 @@ void setup()
     RCC_BASE->APB1ENR &= ~RCC_APB1ENR_USART2EN;
 
     // Initializing terminal on the RC port
-    RC.begin(115200);
+    RC.begin(921600);
     terminal_init(&RC);
 
     // Initializing bluetooth module
@@ -64,12 +65,15 @@ void setup()
 
     // Initializing
     // motion_init();
+    
+    // Mux
+    mux_init();
 
     // initializing distance
-    // distance_init();
+    distance_init();
 
     // Initializing the IMU
-    //imu_init();
+    imu_init();
 
     // Configuring board LED as output
     pinMode(BOARD_LED_PIN, OUTPUT);
@@ -85,7 +89,7 @@ void setup()
     // Initizaliting DC
     dc_init();
 
-    RC.begin(115200);
+    RC.begin(921600);
 }
 
 /**
@@ -93,8 +97,9 @@ void setup()
  */
 void tick()
 {
+    leds_tick();
     if (!move || !started) {
-        led_set_all(LED_R);
+        led_set_mode(LEDS_OFF);
         dc_command(0, 0, 0);
         t = 0.0;
         return;
@@ -104,7 +109,7 @@ void tick()
     t += motion_get_f()*0.02;
     if (t > 1.0) {
         t -= 1.0;
-        led_set_all(LED_G);
+        led_set_mode(LEDS_FRONT);
     }
     if (t < 0.0) t += 1.0;
 
@@ -146,7 +151,7 @@ void loop()
     // Buzzer update
     //buzzer_tick();
     // IMU ticking
-    //imu_tick();
+    imu_tick();
 
     // Updating the terminal
     terminal_tick();

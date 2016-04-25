@@ -25,6 +25,7 @@
 #include "leds.h"
 #include "motors.h"
 #include "dc.h"
+#include "imu.h"
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
@@ -184,11 +185,67 @@ void motion_init()
     freq = 2.0;
 }
 
+TERMINAL_PARAMETER_FLOAT(kP, "Yaw gain", 1.5);
+TERMINAL_PARAMETER_FLOAT(kI, "Yaw gain", 0);
+TERMINAL_PARAMETER_FLOAT(kD, "Yaw gain", 0.0);
+
+float target_yaw = 0;
+
+bool calib = false;
+int alpha;
+float calibT = 0;
+float speed = 0;
+int speedN;
+
+TERMINAL_COMMAND(hc, "Holo calib")
+{
+    calib = true;
+    alpha = 0;
+    speed = 0;
+    speedN=0;
+    calibT = 0;
+}
+
+void calib_tick()
+{
+    if (calib) {
+        calibT += 0.02;
+        float a = alpha*2*M_PI/50.0;
+        if (calibT > 2) {
+            alpha++;
+            calibT = 0;
+            
+            terminal_io()->print(a);
+            terminal_io()->print(" ");
+            terminal_io()->print(speed/speedN);
+            terminal_io()->println();
+            dc_xyt(0, 0, 0);
+            delay(2000);
+
+            speed=0;
+            speedN=0;
+        }
+
+        if (alpha > 50) {
+            dx = 0;
+            dy = 0;
+            calib = false;
+        } else {
+            dx = 50*cos(a);
+            dy = 50*sin(a);
+            speed += imu_yaw_speed();
+            speedN++;
+        }
+    }
+}
+
 void motion_tick(float t)
 {
     if (!motors_enabled()) {
         return;
     }
+
+    calib_tick();
 
     static float smooth_dx = 0;
     static float smooth_dy = 0;
@@ -196,7 +253,23 @@ void motion_tick(float t)
 
     smooth_dx = dx*0.5 + smooth_dx*0.5;
     smooth_dy = dy*0.5 + smooth_dy*0.5;
-    smooth_turn = turn*0.5 + smooth_turn*0.5;
+
+    /*
+    target_yaw += turn*kD;
+    while (target_yaw < -180) target_yaw += 360;
+    while (target_yaw > 180) target_yaw -= 360;
+
+    float yawError = imu_gyro_yaw() - target_yaw;
+    while (yawError < -180) yawError += 360;
+    while (yawError > 180) yawError -= 360;
+
+    float turnT = yawError*kI + turn*kP;
+    if (turnT > 60) turnT = 60;
+    if (turnT < -60) turnT = -60;
+    */
+    float turnT = turn*kP;
+
+    smooth_turn = turnT*0.5 + smooth_turn*0.5;
 
     dc_xyt(smooth_dx, -smooth_dy, smooth_turn);
 }

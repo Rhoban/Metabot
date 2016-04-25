@@ -7,7 +7,7 @@
 #include <terminal.h>
 #include <dxl.h>
 #endif
-#include "function.h"
+#include <function.h>
 
 static bool leds_custom_flag;
 
@@ -18,10 +18,12 @@ static bool leds_custom_flag;
 static gpio_dev *dev = PIN_MAP[LEDS_PIN].gpio_device;
 static uint8 bit = PIN_MAP[LEDS_PIN].gpio_bit;
 
-uint32_t led1_r, led1_g, led1_b;
-uint32_t led2_r, led2_g, led2_b;
-uint32_t led3_r, led3_g, led3_b;
-uint32_t led1=0, led2=0, led3=0;
+Function breath;
+TERMINAL_PARAMETER_FLOAT(lt, "Leds t", 0);
+uint8_t mode = LEDS_CUSTOM;
+uint8_t led1_r, led1_g, led1_b;
+uint8_t led2_r, led2_g, led2_b;
+uint8_t led3_r, led3_g, led3_b;
 
 static inline void send_bit(int v)
 {
@@ -41,6 +43,8 @@ static inline void send_bit(int v)
 void led_update()
 {
     nvic_globalirq_disable();
+
+    uint32_t led1=0, led2=0, led3=0;
     led1 = led1_b | (led1_r<<8) | (led1_g<<16);
     led2 = led2_b | (led2_r<<8) | (led2_g<<16);
     led3 = led3_b | (led3_r<<8) | (led3_g<<16);
@@ -109,6 +113,11 @@ TERMINAL_COMMAND(ld, "Test")
 
 void leds_init()
 {
+    breath.clear();
+    breath.addPoint(0, 0);
+    breath.addPoint(1, 255);
+    breath.addPoint(2, 0);
+
     pinMode(LEDS_PIN, OUTPUT);
 }
 
@@ -131,6 +140,17 @@ void led_set(int index, int value, bool custom)
     led_set_all(value);
 }
 
+void led_set_mode(int mode_)
+{
+    mode = mode_;
+
+    if (mode != LEDS_CUSTOM) {
+        led1_r = led2_r = led3_r = 0;
+        led1_g = led2_g = led3_g = 0;
+        led1_b = led2_b = led3_b = 0;
+    }
+}
+
 void led_set_all(int value, bool custom)
 {
     if (custom) {
@@ -146,4 +166,20 @@ void led_set_all(int value, bool custom)
 void led_stream_state()
 {
 //    rhock_stream_append();
+}
+
+void leds_tick()
+{
+    lt += 0.02;
+    if (mode == LEDS_FRONT) {
+        led1_g = led3_g = (int)breath.getMod(lt);
+        led1_r = led3_r = (int)breath.getMod(lt)/2;
+        led2_g = (int)breath.getMod(lt)/6;
+        led2_r = (int)breath.getMod(lt)/2;
+        led_update();
+    } else if (mode == LEDS_OFF) {
+        led1_r = led3_r = led2_r = (int)breath.getMod(lt);
+        led1_g = led3_g = (int)breath.getMod(lt)/4;
+        led_update();
+    }
 }
