@@ -80,7 +80,7 @@ void setup()
     digitalWrite(BOARD_LED_PIN, LOW);
     
     // Enabling opticals
-    // opticals_init();
+    opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
     //buzzer_init();
