@@ -91,7 +91,8 @@ static uint8 acc_req[] = {0x32};
 // Magnetometer packets
 static uint8 magn_continuous[] = {0x02, 0x00};
 static uint8 magn_50hz[] = {0x00, 0b00011000};
-static uint8 magn_sens[] = {0x01, 0b10000000};
+                        // Three highest bits are sensitivity
+static uint8 magn_sens[] = {0x01, 0b11100000};
 static uint8 magn_req[] = {0x03};
 
 float normalize(float angle)
