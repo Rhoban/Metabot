@@ -83,8 +83,8 @@ void setup()
     opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
-    //buzzer_init();
-    //buzzer_play(MELODY_BOOT);
+    buzzer_init();
+    buzzer_play(MELODY_CUSTOM);
 
     // Initizaliting DC
     dc_init();
@@ -149,7 +149,7 @@ TERMINAL_COMMAND(mot, "Motor test")
 void loop()
 {
     // Buzzer update
-    //buzzer_tick();
+    buzzer_tick();
     // IMU ticking
     imu_tick();
 
