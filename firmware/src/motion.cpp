@@ -26,11 +26,15 @@
 #include "mapping.h"
 #include "leds.h"
 #include "motors.h"
+#include "animal.h"
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
 // Extra x, y and z for each leg
 static float ex[4], ey[4], ez[4];
+
+static float extra_dx, extra_dy;
+
 
 float motion_get_motor(int idx)
 {
@@ -159,6 +163,8 @@ void setup_functions()
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
+TERMINAL_PARAMETER_INT(animal, "Activate/deactivate animal behaviour", 1);
+
 // Extra values
 float extra_h = 0;
 float extra_r = 0;
@@ -185,6 +191,10 @@ void motion_init()
     extra_h = 0;
     extra_r = 0;
     freq = 2.0;
+
+    extra_dx = 0;
+
+    setupAnimalBehaviour();
 }
 
 void motion_tick(float t)
@@ -213,7 +223,7 @@ void motion_tick(float t)
 
         // This defines the phase of the gait
         float legPhase;
-
+	
         if (gait == GAIT_WALK) {
             float phases[] = {0.0, 0.5, 0.75, 0.25};
             legPhase = t + phases[i];
@@ -235,8 +245,8 @@ void motion_tick(float t)
         float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
         
         // Add dX and dY to the moving vector
-        X += stepping*dx + ex[i];
-        Y += stepping*dy + ey[i];
+        X += stepping*(dx+extra_dx) + ex[i];
+        Y += stepping*(dy+extra_dy) + ey[i];
 
         // Rotate around the center of the robot
         crabRad = DEG2RAD(crab) * (group ? 1 : -1);
@@ -249,6 +259,9 @@ void motion_tick(float t)
 
         // The robot is moving if there is dynamics parameters
         moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
+
+	if(animal)
+	  handleAnimalBehaviour(motion_get_f());
 
         // This is the x,y,z order in the referencial of the leg
         x = vx;
@@ -293,6 +306,10 @@ void motion_set_h(float h_)
     extra_h = h_;
 }
 
+float motion_get_h(){
+  return extra_h;
+}
+
 void motion_set_r(float r_)
 {
     extra_r = r_;
@@ -313,14 +330,22 @@ void motion_set_turn_speed(float turn_speed)
     turn = turn_speed/(2.0*freq);
 }
 
-void motion_extra_x(int index, float x)
+void motion_set_extra_x(int index, float x)
 {
     ex[index] = x;
 }
 
-void motion_extra_y(int index, float y)
+float motion_get_extra_x(int index){
+  return ex[index];
+}
+
+void motion_set_extra_y(int index, float y)
 {
     ey[index] = y;
+}
+
+float motion_get_extra_y(int index){
+  return ey[index];
 }
 
 void motion_extra_z(int index, float z)
@@ -328,9 +353,29 @@ void motion_extra_z(int index, float z)
     ez[index] = z;
 }
 
+float motion_get_extra_dx(){
+  return extra_dx;
+}
+
+void motion_set_extra_dx(float dx){
+  extra_dx = dx;
+}
+
+float motion_get_extra_dy(){
+  return extra_dy;
+}
+
+void motion_set_extra_dy(float dy){
+  extra_dy = dy;
+}
+
+
 float motion_get_dx()
 {
     return dx;
+}
+void motion_set_dx(float d){
+  dx = d;
 }
 
 float motion_get_dy()
@@ -341,6 +386,10 @@ float motion_get_dy()
 float motion_get_turn()
 {
     return turn;
+}
+
+void motion_set_turn(float t){
+  turn = t;
 }
 
 #ifdef RHOCK

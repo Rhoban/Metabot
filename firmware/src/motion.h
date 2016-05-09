@@ -17,21 +17,37 @@ bool motion_is_moving();
 // Sets parameters
 void motion_set_f(float f);
 void motion_set_h(float h);
+float motion_get_h();
+
 void motion_set_r(float r);
 void motion_set_x_speed(float x_speed);
 void motion_set_y_speed(float y_speed);
 void motion_set_turn_speed(float turn_speed);
 
 // Add extra values
-void motion_extra_x(int index, float x);
-void motion_extra_y(int index, float y);
+void motion_set_extra_x(int index, float x);
+void motion_set_extra_y(int index, float y);
 void motion_extra_z(int index, float z);
 
+float motion_get_extra_x(int index);
+float motion_get_extra_y(int index);
+
+float motion_get_extra_dx();
+void motion_set_extra_dx(float dx);
+
+
+float motion_get_extra_dy();
+void motion_set_extra_dy(float dy);
+ 
+ 
 // Get values
 float motion_get_f();
 float motion_get_dx();
 float motion_get_dy();
 float motion_get_turn();
+
+void motion_set_dx(float d);
+void motion_set_turn(float t);
 
 // Get the angles for a specific motor
 float motion_get_motor(int idx);
