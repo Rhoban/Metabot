@@ -36,6 +36,11 @@ static float ex[4], ey[4], ez[4];
 static float extra_dx, extra_dy;
 
 
+bool enableLKick = false;
+bool enableRKick = false;
+
+float ti, elapsed;
+
 float motion_get_motor(int idx)
 {
     int c = (idx%3);
@@ -82,6 +87,17 @@ TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
 
 #ifdef HAS_TERMINAL
+
+TERMINAL_COMMAND(kickLeft, "Kick with front left leg"){
+  enableLKick = true;
+  ti = elapsed;
+}
+
+TERMINAL_COMMAND(kickRight, "Kick with the front right leg"){
+  enableRKick = true;
+  ti = elapsed;
+}
+
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
 {
     if (backLegs == 0) backLegs = 1;
@@ -103,6 +119,7 @@ TERMINAL_PARAMETER_INT(gait, "Gait (0:walk, 1:trot)", GAIT_TROT);
 // Functions
 Function rise;
 Function step;
+Function kickFunction;
 
 /**
  * Initializing functions
@@ -111,7 +128,8 @@ void setup_functions()
 {
     rise.clear();
     step.clear();
-
+    kickFunction.clear();
+    
     if (gait == GAIT_WALK) {
         // Rising the legs
         rise.addPoint(0.0, 0.0);
@@ -159,6 +177,10 @@ void setup_functions()
          step.addPoint(1.0, -0.5);
          */
     }
+        kickFunction.addPoint(0.0, 0);
+        kickFunction.addPoint(0.2, 70);
+	kickFunction.addPoint(0.4, 0);
+    
 }
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
@@ -202,7 +224,7 @@ void motion_tick(float t)
     if (!motors_enabled()) {
         return;
     }
-
+    elapsed = t;
     // Setting up functions
     setup_functions();
 
@@ -276,6 +298,11 @@ void motion_tick(float t)
             l3[i] = -signs[2]*(c - 180*smoothBackLegs);
         }
     }
+
+    if(enableLKick)
+      kick(true);
+    else if(enableRKick)
+      kick(false);
 }
 
 #ifdef __EMSCRIPTEN__
@@ -390,6 +417,21 @@ float motion_get_turn()
 
 void motion_set_turn(float t){
   turn = t;
+}
+
+void kick(bool left){
+  if(left){
+    motion_set_extra_x(0, kickFunction.getMod(ti));
+    if(elapsed - ti >3){
+      enableLKick = false;
+    }
+  }
+  else{
+    motion_set_extra_x(1, kickFunction.getMod(ti));
+    if(elapsed - ti >3){
+      enableRKick = false;
+    }
+  }
 }
 
 #ifdef RHOCK

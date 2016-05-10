@@ -52,4 +52,7 @@ void motion_set_turn(float t);
 // Get the angles for a specific motor
 float motion_get_motor(int idx);
 
+//Actions
+void kick(bool left);
+
 #endif

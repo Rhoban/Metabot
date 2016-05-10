@@ -89,12 +89,10 @@ void handleStamina(){
     current_stamina+=staminaRegeneration*(speed/10);
   }
   if(current_stamina>60){
-    led_set_all(LED_R|LED_G|LED_B);
     motion_set_extra_dx(0);
     motion_set_extra_dy(0);
   }
   else if(current_stamina<60 && current_stamina>40){
-    led_set_all(LED_R|LED_B);
     if(motion_get_dx() != 0)
       motion_set_extra_dx( (motion_get_dx()>0)? -20 : 20 );
     else
@@ -106,7 +104,6 @@ void handleStamina(){
       motion_set_extra_dy(0);
   }
   else if(current_stamina<40 && current_stamina>20){
-    led_set_all(LED_R|LED_G);
     if(motion_get_dx() != 0)
       motion_set_extra_dx( (motion_get_dx()>0)? -40 : 40 );
     else
@@ -117,7 +114,6 @@ void handleStamina(){
       motion_set_extra_dy(0);
   }
  else if(current_stamina<20){
-    led_set_all(LED_R);
     if(motion_get_dx() != 0)
       motion_set_extra_dx( (motion_get_dx()>0)? -60 : 60 );
     else
@@ -129,7 +125,7 @@ void handleStamina(){
       motion_set_extra_dy(0);
   }
  else if(current_stamina<=0){
-   led_set_all(LED_R);
+
    if(motion_get_dx() != 0)
       motion_set_extra_dx( (motion_get_dx()>0)? -motion_get_dx() : motion_get_dx() );
     else
