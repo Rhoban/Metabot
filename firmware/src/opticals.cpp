@@ -14,12 +14,19 @@ void opticals_init()
 
 TERMINAL_COMMAND(opt, "Test opticals")
 {
-    mux_set_addr(6);
     digitalWrite(OPTICAL_EN1, HIGH);
     digitalWrite(OPTICAL_EN2, HIGH);
     while (!SerialUSB.available()) {
         delay(1);
-        terminal_io()->println(mux_sample(1));
+        mux_set_addr(5);
+        terminal_io()->print(mux_sample(1));
+        terminal_io()->print(" ");
+        mux_set_addr(6);
+        terminal_io()->print(mux_sample(1));
+        terminal_io()->print(" ");
+        mux_set_addr(7);
+        terminal_io()->print(mux_sample(1));
+        terminal_io()->println();
         delay(10);
     }
 }
