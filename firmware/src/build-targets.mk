@@ -3,7 +3,7 @@
 # Ex : main.cpp test.cpp ...
 SRC_FILES = main.cpp kinematic.cpp motion.cpp leds.cpp motors.cpp \
 	    buzzer.cpp imu.cpp distance.cpp bt.cpp opticals.cpp dc.cpp \
-	    mux.cpp
+	    mux.cpp pulse.cpp
 
 
 ifeq ($(ENABLE_RHOCK),yes)

@@ -17,6 +17,7 @@
 #include "dc.h"
 #include "mux.h"
 #include "opticals.h"
+#include "pulse.h"
 
 bool isUSB = false;
 
@@ -50,6 +51,11 @@ TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
  */
 void setup()
 {
+    init();
+
+    // Pulse
+    pulse_init();
+
     // This disable Serial2 from APB1
     RCC_BASE->APB1ENR &= ~RCC_APB1ENR_USART2EN;
 
@@ -83,24 +89,27 @@ void setup()
     opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
-    //buzzer_init();
-    //buzzer_play(MELODY_BOOT);
+    buzzer_init();
+    buzzer_play(MELODY_BOOT);
+
+    RC.begin(921600);
 
     // Initizaliting DC
     dc_init();
-
-    RC.begin(921600);
 }
+
+TERMINAL_PARAMETER_INT(ddd, "ddd", 0);
 
 /**
  * Computing the servo values
  */
 void tick()
 {
+    ddd++;
     leds_tick();
     if (!move || !started) {
         led_set_mode(LEDS_OFF);
-        dc_command(0, 0, 0);
+//        dc_command(0, 0, 0);
         t = 0.0;
         return;
     }
@@ -113,7 +122,7 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-    motion_tick(t);
+//   motion_tick(t);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")
@@ -149,7 +158,8 @@ TERMINAL_COMMAND(mot, "Motor test")
 void loop()
 {
     // Buzzer update
-    //buzzer_tick();
+    buzzer_tick();
+
     // IMU ticking
     imu_tick();
 

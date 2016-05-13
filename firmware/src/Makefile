@@ -9,7 +9,7 @@ VERSION="1.0"
 LIB_MAPLE_HOME = ./Maple/LibMaple
 LIB_RHOBAN_HOME = ./Maple/LibRhoban
 LIB_RHOCK_HOME = ./Maple/LibRhock
-ENABLE_RHOCK := yes
+ENABLE_RHOCK := no
 ENABLE_COMMANDS := yes
 
 ##
