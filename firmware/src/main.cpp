@@ -86,6 +86,7 @@ void setup()
     // Initializing the DXL bus
     delay(500);
     dxl_init();
+    dxl_pidp(26);
 
     // Initializing config (see config.h)
     config_init();
@@ -137,7 +138,16 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-    motion_tick(t);
+    if (voltage_error()) {
+        dxl_disable_all();
+        if (t < 0.5) {
+            led_set_all(LED_R|LED_G);
+        } else {
+            led_set_all(0);
+        }
+    } else {
+        motion_tick(t);
+    }
 
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);
