@@ -63,16 +63,16 @@ float motion_get_motor(int idx)
 #define AMPLITUDE 30
 
 // Speed factor
-TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
+TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.6);
 
 // Legs bacakward mode
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
 // Amplitude & altitude of the robot
-TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
+TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 31.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 162.0);
 TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
@@ -185,7 +185,7 @@ void setup_functions()
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
-TERMINAL_PARAMETER_INT(animal, "Activate/deactivate animal behaviour", 1);
+TERMINAL_PARAMETER_INT(animal, "Activate/deactivate animal behaviour", 0);
 
 // Extra values
 float extra_h = 0;
@@ -219,8 +219,18 @@ void motion_init()
     setupAnimalBehaviour();
 }
 
+void constrainValue(volatile float *value, float min, float max)
+{
+    if (*value < min) *value = min;
+    if (*value > max) *value = max;
+}
+
 void motion_tick(float t)
 {
+    constrainValue(&dx, -80, 80);
+    constrainValue(&dy, -80, 80);
+    constrainValue(&turn, -45, 45);
+
     if (!motors_enabled()) {
         return;
     }
@@ -282,8 +292,9 @@ void motion_tick(float t)
         // The robot is moving if there is dynamics parameters
         moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
 
-	if(animal)
+	if (animal) {
 	  handleAnimalBehaviour(motion_get_f());
+        }
 
         // This is the x,y,z order in the referencial of the leg
         x = vx;

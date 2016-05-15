@@ -5,11 +5,22 @@
 /**
  * This is the dimension of the legs, in mm
  */
+
+#if 1
+// Laser parts
+#define L0      61
+#define L1      46
+#define L2      55
+#define L3_1    90
+#define L3_2    43
+#else
+// 3D parts
 #define L0      62
 #define L1      40
 #define L2      62
 #define L3_1    85
 #define L3_2    35
+#endif
 
 /**
  * Servos are supposed to be like this:
