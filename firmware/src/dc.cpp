@@ -7,7 +7,7 @@
 
 #define M1A 15  // 4 CH2
 #define M1B 16  // 4 CH1
-#define M2A 5  // 3 CH1
+#define M2A 5   // 3 CH1
 #define M2B 27  // 1 CH1
 #define M3A 3   // 3 CH3
 #define M3B 4   // 3 CH2
@@ -110,6 +110,7 @@ int _min(int a, int b)
 
 void dc_command(int m1, int m2, int m3)
 {
+    m1 = -m1;
     m2 = -m2;
     m3 = -m3;
 

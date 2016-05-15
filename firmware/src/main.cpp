@@ -109,7 +109,7 @@ void tick()
     leds_tick();
     if (!move || !started) {
         led_set_mode(LEDS_OFF);
-//        dc_command(0, 0, 0);
+        dc_command(0, 0, 0);
         t = 0.0;
         return;
     }
@@ -122,7 +122,7 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-//   motion_tick(t);
+   motion_tick(t);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")
