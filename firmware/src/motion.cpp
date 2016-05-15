@@ -63,17 +63,17 @@ float motion_get_motor(int idx)
 #define AMPLITUDE 30
 
 // Speed factor
-TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.6);
+TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 1.8);
 
 // Legs bacakward mode
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
 // Amplitude & altitude of the robot
-TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 31.0);
+TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 25.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 162.0);
-TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 140.0);
+TERMINAL_PARAMETER_FLOAT(h, "Robot height", -60.0);
 
 // Direction vector
 TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
@@ -84,7 +84,7 @@ TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
 
 // Front delta h
-TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
+TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 5.0);
 
 #ifdef HAS_TERMINAL
 
