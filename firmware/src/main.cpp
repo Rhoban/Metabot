@@ -86,7 +86,7 @@ void setup()
     // Initializing the DXL bus
     delay(500);
     dxl_init();
-    dxl_pidp(26);
+    dxl_pidp(24);
 
     // Initializing config (see config.h)
     config_init();
