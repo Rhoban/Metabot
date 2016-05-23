@@ -38,8 +38,10 @@ static float extra_dx, extra_dy;
 
 bool enableLKick = false;
 bool enableRKick = false;
+bool penaltyRight = false;
+bool penaltyLeft = false;
 
-float ti, elapsed;
+float elapsed;
 
 float motion_get_motor(int idx)
 {
@@ -89,13 +91,46 @@ TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 5.0);
 #ifdef HAS_TERMINAL
 
 TERMINAL_COMMAND(kickLeft, "Kick with front left leg"){
-  enableLKick = true;
-  ti = elapsed;
+  if(enableLKick == false){
+    enableLKick = true;
+    elapsed = 0;
+  }
 }
 
 TERMINAL_COMMAND(kickRight, "Kick with the front right leg"){
-  enableRKick = true;
-  ti = elapsed;
+  if(enableRKick == false){
+    enableRKick = true;
+    elapsed = 0;
+  }
+}
+
+TERMINAL_COMMAND(penaltyRightCommand, "enter/quit penalty mode for the right leg")
+{
+  // digitalWrite(BOARD_LED_PIN, LOW);
+  // delay(500);
+  // digitalWrite(BOARD_LED_PIN, HIGH);
+  // delay(500);
+  
+  if(penaltyRight == true){//leaving penalty mode
+    penaltyRight = false;
+    motion_extra_z(0, 0);
+  }
+  else{//entering penalty mode
+    penaltyRight =true;
+    motion_extra_z(0, 30);
+  }
+}
+
+TERMINAL_COMMAND(penaltyLeftCommand, "enter/quit penalty mode for the left leg")
+{
+  if(penaltyLeft == true){//leaving penalty mode
+    penaltyLeft = false;
+    motion_extra_z(1, 0);
+  }
+  else{//entering penalty mode
+    penaltyLeft =true;
+    motion_extra_z(1, 30);
+  }
 }
 
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
@@ -119,7 +154,7 @@ TERMINAL_PARAMETER_INT(gait, "Gait (0:walk, 1:trot)", GAIT_TROT);
 // Functions
 Function rise;
 Function step;
-Function kickFunction;
+Function kickFunction, kickFunction_oppositeLeg;
 
 /**
  * Initializing functions
@@ -129,6 +164,7 @@ void setup_functions()
     rise.clear();
     step.clear();
     kickFunction.clear();
+    kickFunction_oppositeLeg.clear();
     
     if (gait == GAIT_WALK) {
         // Rising the legs
@@ -177,9 +213,20 @@ void setup_functions()
          step.addPoint(1.0, -0.5);
          */
     }
-        kickFunction.addPoint(0.0, 0);
-        kickFunction.addPoint(0.2, 70);
-	kickFunction.addPoint(0.4, 0);
+        // kickFunction.addPoint(0.0, 0);
+        // kickFunction.addPoint(0.20, 150);
+	// kickFunction.addPoint(0.40, 0);
+
+    
+    kickFunction.addPoint(0.0, 0);
+    kickFunction.addPoint(0.10, -30);
+    kickFunction.addPoint(0.30, 140);
+    kickFunction.addPoint(0.40, 0);
+    
+	kickFunction_oppositeLeg.addPoint(0.0, 0);
+	kickFunction_oppositeLeg.addPoint(0.05, 20);
+	kickFunction_oppositeLeg.addPoint(0.35, 20);
+	kickFunction_oppositeLeg.addPoint(0.40, 0);
     
 }
 
@@ -216,6 +263,8 @@ void motion_init()
 
     extra_dx = 0;
 
+    elapsed = 0;
+    
     setupAnimalBehaviour();
 }
 
@@ -231,10 +280,13 @@ void motion_tick(float t)
     constrainValue(&dy, -80, 80);
     constrainValue(&turn, -45, 45);
 
+    elapsed += motion_get_f()*0.01;
+    
     if (!motors_enabled()) {
         return;
     }
-    elapsed = t;
+
+    
     // Setting up functions
     setup_functions();
 
@@ -246,6 +298,11 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
+
+
+    if(penaltyRight || penaltyLeft)
+      led_set_all(LED_R | LED_G | LED_B);
+    
     float turnRad = DEG2RAD(turn);
     float crabRad;
 
@@ -432,15 +489,23 @@ void motion_set_turn(float t){
 
 void kick(bool left){
   if(left){
-    motion_set_extra_x(0, kickFunction.getMod(ti));
-    if(elapsed - ti >3){
+    motion_set_extra_x(1, kickFunction.getMod(elapsed));
+    motion_extra_z(1, -kickFunction_oppositeLeg.getMod(elapsed));
+    motion_extra_z(3, kickFunction_oppositeLeg.getMod(elapsed));
+    motion_set_extra_y(1, kickFunction.getMod(elapsed)/2);
+    if(elapsed >0.40){
       enableLKick = false;
+      enableRKick = false;
     }
   }
   else{
-    motion_set_extra_x(1, kickFunction.getMod(ti));
-    if(elapsed - ti >3){
+    motion_set_extra_x(0, kickFunction.getMod(elapsed));
+    motion_extra_z(0, -kickFunction_oppositeLeg.getMod(elapsed));
+    motion_extra_z(2, kickFunction_oppositeLeg.getMod(elapsed));
+    motion_set_extra_y(0, -kickFunction.getMod(elapsed)/2);
+    if(elapsed >0.40){
       enableRKick = false;
+      enableLKick = false;
     }
   }
 }
