@@ -65,13 +65,13 @@ float motion_get_motor(int idx)
 #define AMPLITUDE 30
 
 // Speed factor
-TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 1.8);
+TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2);
 
 // Legs bacakward mode
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
 // Amplitude & altitude of the robot
-TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 25.0);
+TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 20.0);
 
 // Static position
 TERMINAL_PARAMETER_FLOAT(r, "Robot size", 140.0);
@@ -106,18 +106,26 @@ TERMINAL_COMMAND(kickRight, "Kick with the front right leg"){
 
 TERMINAL_COMMAND(penaltyRightCommand, "enter/quit penalty mode for the right leg")
 {
-  // digitalWrite(BOARD_LED_PIN, LOW);
-  // delay(500);
-  // digitalWrite(BOARD_LED_PIN, HIGH);
-  // delay(500);
   
   if(penaltyRight == true){//leaving penalty mode
     penaltyRight = false;
     motion_extra_z(0, 0);
+    motion_extra_z(2, 0);
+    // dxl_set_position(mapping[1], 0);
+    // dxl_set_position(mapping[3], 0);
+    motion_set_extra_x(1, 0);
+    motion_set_extra_x(3, 0);
   }
   else{//entering penalty mode
+    dx = dy = 0;
     penaltyRight =true;
-    motion_extra_z(0, 30);
+    motion_extra_z(0, 40);
+    motion_extra_z(2, 20);
+    
+    motion_set_extra_x(1, 30);
+    motion_set_extra_x(3, 30);
+    // dxl_set_position(mapping[1], 20);
+    // dxl_set_position(mapping[3], 20);
   }
 }
 
@@ -126,10 +134,23 @@ TERMINAL_COMMAND(penaltyLeftCommand, "enter/quit penalty mode for the left leg")
   if(penaltyLeft == true){//leaving penalty mode
     penaltyLeft = false;
     motion_extra_z(1, 0);
+    motion_extra_z(3, 0);
+    // dxl_set_position(mapping[0], 0);
+    // dxl_set_position(mapping[2], 0);
+    
+    motion_set_extra_x(0, 30);
+    motion_set_extra_x(2, 30);
   }
   else{//entering penalty mode
+    dx = dy = 0;
     penaltyLeft =true;
-    motion_extra_z(1, 30);
+    motion_extra_z(1, 40);
+    motion_extra_z(3, 20);
+    // dxl_set_position(mapping[0], 20);
+    // dxl_set_position(mapping[2], 20);
+    
+    motion_set_extra_x(0, 0);
+    motion_set_extra_x(2, 0);
   }
 }
 
@@ -213,20 +234,16 @@ void setup_functions()
          step.addPoint(1.0, -0.5);
          */
     }
-        // kickFunction.addPoint(0.0, 0);
-        // kickFunction.addPoint(0.20, 150);
-	// kickFunction.addPoint(0.40, 0);
-
     
     kickFunction.addPoint(0.0, 0);
     kickFunction.addPoint(0.10, -30);
     kickFunction.addPoint(0.30, 140);
     kickFunction.addPoint(0.40, 0);
     
-	kickFunction_oppositeLeg.addPoint(0.0, 0);
-	kickFunction_oppositeLeg.addPoint(0.05, 20);
-	kickFunction_oppositeLeg.addPoint(0.35, 20);
-	kickFunction_oppositeLeg.addPoint(0.40, 0);
+    kickFunction_oppositeLeg.addPoint(0.0, 0);
+    kickFunction_oppositeLeg.addPoint(0.05, 20);
+    kickFunction_oppositeLeg.addPoint(0.35, 20);
+    kickFunction_oppositeLeg.addPoint(0.40, 0);
     
 }
 
@@ -286,7 +303,6 @@ void motion_tick(float t)
         return;
     }
 
-    
     // Setting up functions
     setup_functions();
 
@@ -299,9 +315,25 @@ void motion_tick(float t)
     }
 
 
+    //penalty mode
+    if(penaltyRight || penaltyLeft){
 
-    if(penaltyRight || penaltyLeft)
-      led_set_all(LED_R | LED_G | LED_B);
+      float a, b, c;
+      
+      // Computing inverse kinematics
+      if (computeIK(dx, dy, 40, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
+	l1[0] = -signs[0]*a;
+	l2[0] = -signs[1]*b;
+	l3[0] = -signs[2]*(c - 180*smoothBackLegs);
+      }      
+      
+
+      
+      dx = dy = 0;
+      turn = 0;
+      
+    }
+    
     
     float turnRad = DEG2RAD(turn);
     float crabRad;
