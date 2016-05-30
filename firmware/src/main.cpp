@@ -86,7 +86,7 @@ void setup()
     // Initializing the DXL bus
     delay(500);
     dxl_init();
-    dxl_pidp(24);
+    dxl_pidp(32);
 
     // Initializing config (see config.h)
     config_init();
@@ -111,7 +111,7 @@ void setup()
 
     // Initializing the buzzer, and playing the start-up melody
     buzzer_init();
-    buzzer_play(MELODY_BOOT);
+    //buzzer_play(MELODY_BOOT);
 
     // Enable 50hz ticking
     servos_init();

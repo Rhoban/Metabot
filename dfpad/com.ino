@@ -23,7 +23,7 @@ void comTick()
 void command(char *cmd)
 {
   Serial1.write(cmd);
-  Serial1.write("\r\n"); 
+  Serial1.write("\n"); 
 
 }
 
@@ -32,6 +32,6 @@ void command(char *cmd, float v)
   Serial1.write(cmd);
   Serial1.write(" ");
   Serial1.print(v);
-  Serial1.write("\r\n");
+  Serial1.write("\n");
 }
 

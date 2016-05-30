@@ -43,6 +43,9 @@ bool penaltyLeft = false;
 
 float elapsed;
 
+float averageDx[10] = {0}; int iterAverageDx = 0;
+float averageDy[10] = {0}; int iterAverageDy = 0;
+float averageDxValue, averageDyValue;
 float motion_get_motor(int idx)
 {
     int c = (idx%3);
@@ -109,7 +112,7 @@ TERMINAL_COMMAND(penaltyRightCommand, "enter/quit penalty mode for the right leg
   
   if(penaltyRight == true){//leaving penalty mode
     penaltyRight = false;
-    motion_extra_z(0, 0);
+    //motion_extra_z(0, 0);
     motion_extra_z(2, 0);
     // dxl_set_position(mapping[1], 0);
     // dxl_set_position(mapping[3], 0);
@@ -119,7 +122,7 @@ TERMINAL_COMMAND(penaltyRightCommand, "enter/quit penalty mode for the right leg
   else{//entering penalty mode
     dx = dy = 0;
     penaltyRight =true;
-    motion_extra_z(0, 40);
+    //motion_extra_z(0, 10);
     motion_extra_z(2, 20);
     
     motion_set_extra_x(1, 30);
@@ -144,7 +147,7 @@ TERMINAL_COMMAND(penaltyLeftCommand, "enter/quit penalty mode for the left leg")
   else{//entering penalty mode
     dx = dy = 0;
     penaltyLeft =true;
-    motion_extra_z(1, 40);
+    motion_extra_z(1, 10);
     motion_extra_z(3, 20);
     // dxl_set_position(mapping[0], 20);
     // dxl_set_position(mapping[2], 20);
@@ -314,24 +317,29 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
-
+    float originalDx = dx;
+    float originalDy = dy;
+    
     //penalty mode
     if(penaltyRight || penaltyLeft){
-
-      float a, b, c;
+      averageDx[iterAverageDx++] = dx;
+      averageDy[iterAverageDy++] = dy;
+      if(iterAverageDx == 9)
+	iterAverageDx = 0;
+      if(iterAverageDy == 9)
+	iterAverageDy = 0;
       
-      // Computing inverse kinematics
-      if (computeIK(dx, dy, 40, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-	l1[0] = -signs[0]*a;
-	l2[0] = -signs[1]*b;
-	l3[0] = -signs[2]*(c - 180*smoothBackLegs);
-      }      
+      averageDxValue = 0;
+      averageDyValue = 0;
+      for(int i = 0 ; i < 10 ; i++){
+	averageDxValue += averageDx[i];
+	averageDyValue += averageDy[i];
+      }
+      averageDxValue = averageDxValue/10;
+      averageDyValue = averageDyValue/10;
       
-
-      
-      dx = dy = 0;
-      turn = 0;
-      
+      dx = dy = 0 ;
+      turn = 0;      
     }
     
     
@@ -392,11 +400,20 @@ void motion_tick(float t)
         if (i < 2) z += frontH;
 
         // Computing inverse kinematics
-        if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -signs[0]*a;
-            l2[i] = -signs[1]*b;
-            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
-        }
+	if((penaltyRight || penaltyLeft) && (i == 0)){
+	  // x = averageDxValue*5;
+	  // y = averageDyValue;
+	  x = originalDx*2;
+	  y = originalDy;
+	  z = 30;
+	}
+	
+	if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
+	  l1[i] = (((penaltyRight || penaltyLeft) && i == 0) ? (-signs[0]*a) : ((-signs[0]*a)/2));
+	  l2[i] = -signs[1]*b;
+	  l3[i] = -signs[2]*(c - 180*smoothBackLegs);
+	}
+	    
     }
 
     if(enableLKick)

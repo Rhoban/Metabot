@@ -57,6 +57,28 @@ void loop() {
   ON_CHANGE(joypad_right_y) {
     command("turn", normalize(btns.joypad_right_y)/2.0);    
   }
+  
+  ON_PRESS(rz2){
+     command("kickRight"); 
+  }
+  
+  ON_PRESS(lz2){
+     command("kickLeft"); 
+  }
+  
+  ON_PRESS(rz1){
+     command("penaltyRightCommand"); 
+  }
+  ON_RELEASE(rz1){
+      command("penaltyRightCommand"); 
+  }
+  
+  ON_PRESS(lz1){
+     command("penaltyLeftCommand"); 
+  }
+  ON_RELEASE(lz1){
+     command("penaltyLeftCommand");  
+  }
 
 
   if (safe == 0) {

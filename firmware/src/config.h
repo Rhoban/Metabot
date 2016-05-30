@@ -6,7 +6,7 @@
  * This is the dimension of the legs, in mm
  */
 
-#if 1
+#if 0
 // Laser parts
 #define L0      61
 #define L1      46
