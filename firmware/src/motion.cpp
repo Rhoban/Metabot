@@ -387,7 +387,7 @@ void motion_tick(float t)
         legFrame(xOrder, yOrder, &vx, &vy, i, L0);
 
         // The robot is moving if there is dynamics parameters
-        moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
+        moving = (fabs(dx)>6 || fabs(dy)>6 || fabs(turn)>5);
 
 	if (animal) {
 	  handleAnimalBehaviour(motion_get_f());

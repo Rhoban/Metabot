@@ -153,6 +153,6 @@ void loop() {
   
   last_btns = btns;
 
-  delay(3);
+  delay(10);
 }
 

@@ -18,6 +18,12 @@ struct state readButtons()
   btns.joypad_right_x = analogRead(BTN_JRX);
   btns.joypad_right_y = analogRead(BTN_JRY);
   
+  if (abs(btns.joypad_left_x-512) < 30) btns.joypad_left_x = 512;
+  if (abs(btns.joypad_left_y-512) < 30) btns.joypad_left_y = 512;
+  if (abs(btns.joypad_right_x-512) < 30) btns.joypad_right_x = 512;
+  if (abs(btns.joypad_right_y-512) < 30) btns.joypad_right_y = 512;
+  
+  
   btns.up = !digitalRead(BTN_UP);
   btns.left = !digitalRead(BTN_LEFT);
   btns.down = !digitalRead(BTN_DOWN);
@@ -30,7 +36,7 @@ struct state readButtons()
 
 
   btns.lz1 = !digitalRead(BTN_LZ1);
-  btns.lz2 = !digitalRead(BTN_LZ2);
+  btns.lz2 = !digitalRead(BTN_LZ2);  
   btns.rz1 = !digitalRead(BTN_RZ1);
   btns.rz2 = !digitalRead(BTN_RZ2);
   
@@ -50,6 +56,6 @@ float normalize(int pad)
   v = pad;
   v -= 512;
   v *= 90/512.0;
-  if (v < 4 && v >-4) v =0;
+
   return -v;
 }
