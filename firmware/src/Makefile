@@ -11,6 +11,7 @@ LIB_RHOBAN_HOME = ./Maple/LibRhoban
 LIB_RHOCK_HOME = ./Maple/LibRhock
 ENABLE_RHOCK := no
 ENABLE_COMMANDS := yes
+PATH := $(CURDIR)/Maple/BinutilsArm/bin:$(PATH)
 
 ##
 ## Useful paths, constants, etc.
