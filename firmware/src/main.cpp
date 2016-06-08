@@ -17,6 +17,7 @@
 #include "dc.h"
 #include "mux.h"
 #include "opticals.h"
+#include "voltage.h"
 #include "pulse.h"
 
 bool isUSB = false;
@@ -96,29 +97,41 @@ void setup()
 
     // Initizaliting DC
     dc_init();
-}
 
-TERMINAL_PARAMETER_INT(ddd, "ddd", 0);
+    // Voltage
+    voltage_init();
+}
 
 /**
  * Computing the servo values
  */
 void tick()
 {
-    ddd++;
     leds_tick();
-    if (!move || !started) {
-//        led_set_mode(LEDS_OFF);
+    if (!move || !started || voltage_error()) {
         dc_command(0, 0, 0);
-        t = 0.0;
+        if (voltage_error()) {
+            t += 0.01;
+            if (t > 0.5) {
+                t = 0;
+            }
+            if (t > 0.25) {
+                led_set_mode(LEDS_OFF);
+            } else {
+                led_set_all(0);
+                led_set_mode(LEDS_CUSTOM);
+            }
+        } else {
+            led_set_mode(LEDS_OFF);
+        }
         return;
     }
 
     // Incrementing and normalizing t
-    t += motion_get_f()*0.02;
+    t += motion_get_f()*0.01;
     if (t > 1.0) {
         t -= 1.0;
-//        led_set_mode(LEDS_FRONT);
+        led_set_mode(LEDS_FRONT);
     }
     if (t < 0.0) t += 1.0;
 
@@ -165,6 +178,10 @@ void loop()
 
     // Updating the terminal
     terminal_tick();
+
+    // Updating voltage
+    // XXX: Can be do less frequently
+    voltage_tick();
     
 #if defined(RHOCK)
     rhock_tick();

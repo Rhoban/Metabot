@@ -168,18 +168,15 @@ void leds_tick()
 {
     lt += 0.02;
 
-    if (lastMode != mode) {
-        if (mode == LEDS_FRONT) {
-            led1_g = led3_g = 255;
-            led1_r = led3_r = 255/2;
-            led2_g = 255/6;
-            led2_r = 255/2;
-            led_update();
-        } else if (mode == LEDS_OFF) {
-            led1_r = led3_r = led2_r = 255;
-            led1_g = led3_g = 255/4;
-            led_update();
-        }
-        lastMode = mode;
+    if (mode == LEDS_FRONT) {
+        led1_r = led2_r = led3_r = 255;
+        led1_g = led2_g = led3_g = 255;
+        led1_b = led2_b = led3_b = 255;
+        led_update();
+    } else if (mode == LEDS_OFF) {
+        led1_r = led3_r = led2_r = 255;
+        led1_g = led3_g = 255/4;
+        led_update();
     }
+    lastMode = mode;
 }

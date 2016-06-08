@@ -3,8 +3,7 @@
 # Ex : main.cpp test.cpp ...
 SRC_FILES = main.cpp kinematic.cpp motion.cpp leds.cpp motors.cpp \
 	    buzzer.cpp imu.cpp distance.cpp bt.cpp opticals.cpp dc.cpp \
-	    mux.cpp pulse.cpp
-
+	    mux.cpp pulse.cpp voltage.cpp
 
 ifeq ($(ENABLE_RHOCK),yes)
 SRC_FILES += rhock-functions.cpp rhock-stream.cpp

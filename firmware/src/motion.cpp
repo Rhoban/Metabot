@@ -239,6 +239,10 @@ void calib_tick()
     }
 }
 
+TERMINAL_PARAMETER_FLOAT(smooth_dx, "Smooth dx", 0);
+TERMINAL_PARAMETER_FLOAT(smooth_dy, "Smooth dy", 0);
+TERMINAL_PARAMETER_FLOAT(smooth_turn, "Smooth turn", 0);
+
 void motion_tick(float t)
 {
     if (!motors_enabled()) {
@@ -246,10 +250,6 @@ void motion_tick(float t)
     }
 
     calib_tick();
-
-    static float smooth_dx = 0;
-    static float smooth_dy = 0;
-    static float smooth_turn = 0;
 
     smooth_dx = dx*0.5 + smooth_dx*0.5;
     smooth_dy = dy*0.5 + smooth_dy*0.5;

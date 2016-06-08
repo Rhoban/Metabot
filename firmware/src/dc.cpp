@@ -48,7 +48,7 @@ static void _dc_ovf()
 {
     kkk++;
     divider++;
-    if (divider >= 480) {
+    if (divider >= 240) {
         divider = 0;
         dcFlag = true;
     }
