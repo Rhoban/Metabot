@@ -108,7 +108,7 @@ void tick()
     ddd++;
     leds_tick();
     if (!move || !started) {
-        led_set_mode(LEDS_OFF);
+//        led_set_mode(LEDS_OFF);
         dc_command(0, 0, 0);
         t = 0.0;
         return;
@@ -118,7 +118,7 @@ void tick()
     t += motion_get_f()*0.02;
     if (t > 1.0) {
         t -= 1.0;
-        led_set_mode(LEDS_FRONT);
+//        led_set_mode(LEDS_FRONT);
     }
     if (t < 0.0) t += 1.0;
 
