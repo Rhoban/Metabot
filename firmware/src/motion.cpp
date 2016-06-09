@@ -54,28 +54,28 @@ float motion_get_motor(int idx)
 #define AMPLITUDE 30
 
 // Speed factor
-TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
+TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", INIT_FREQ);
 
 // Legs bacakward mode
-TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
+TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", INIT_BACKLEGS);
 
 // Amplitude & altitude of the robot
-TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
+TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", INIT_ALT);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
-TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", INIT_R);
+TERMINAL_PARAMETER_FLOAT(h, "Robot height", INIT_H);
 
 // Direction vector
-TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
-TERMINAL_PARAMETER_FLOAT(dy, "Dy", 0.0);
-TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
+TERMINAL_PARAMETER_FLOAT(dx, "Dx", INIT_DX);
+TERMINAL_PARAMETER_FLOAT(dy, "Dy", INIT_DY);
+TERMINAL_PARAMETER_FLOAT(crab, "Crab", INIT_CRAB);
 
 // Turning, in ° per step
-TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
+TERMINAL_PARAMETER_FLOAT(turn, "Turn", INIT_TURN);
 
 // Front delta h
-TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
+TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", INIT_FRONTH);
 
 #ifdef HAS_TERMINAL
 TERMINAL_COMMAND(toggleBackLegs, "Toggle back legs")
@@ -88,6 +88,19 @@ TERMINAL_COMMAND(toggleCrab, "Toggle crab mode")
 {
     if (crab == 0) crab = 30;
     else if (crab == 30) crab = 0;
+}
+TERMINAL_COMMAND(reset, "Reset robot's motion parameters"){
+    motion_init();
+    freq = INIT_FREQ;
+    backLegs = INIT_BACKLEGS;
+    alt = INIT_ALT;
+    r = INIT_R;
+    h = INIT_H;
+    dx = INIT_DX;
+    dy = INIT_DY;
+    crab = INIT_CRAB;
+    turn = INIT_TURN;
+    frontH = INIT_FRONTH;
 }
 #endif
 
