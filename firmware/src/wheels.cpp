@@ -32,12 +32,12 @@ TERMINAL_PARAMETER_FLOAT(k_i, "gain integral for rotation servoing", 0.1);
 TERMINAL_PARAMETER_FLOAT(k_f, "gain to balance friction", 0.0); /* + */
 TERMINAL_PARAMETER_FLOAT(k_magic, "ratio x/y ... magic ...", 1.0);
 TERMINAL_PARAMETER_FLOAT(k_t, "gain rotation order", 0.005);
-TERMINAL_PARAMETER_FLOAT(k_o, "gain dx/dycommand", 1.0);
-TERMINAL_PARAMETER_FLOAT(k_or, "gain rotation command", 0.01);
+TERMINAL_PARAMETER_FLOAT(k_o, "gain dx/dycommand", 1.5);
+TERMINAL_PARAMETER_FLOAT(k_or, "gain rotation command", 0.02);
 TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order", 0.05);
 
 
-#define MEASURE_SIZE 20
+#define MEASURE_SIZE 10
 static float meas_ord[3][MEASURE_SIZE];
 static float meas_vel[3][MEASURE_SIZE];
 static int meas_nb[3] = { 0, 0, 0 };
@@ -463,24 +463,18 @@ public:
 };
 
 static float default_ord_vel[][2] = {
-  { 1900.00, 0.38 },
-  { 1955.00, 0.50 },
-  { 2010.00, 0.57 },
-  { 2065.00, 0.65 },
-  { 2120.00, 0.70 },
-  { 2175.00, 0.78 },
-  { 2230.00, 0.86 },
-  { 2285.00, 0.93 },
-  { 2340.00, 1.00 },
-  { 2395.00, 1.05 },
-  { 2450.00, 1.12 },
-  { 2505.00, 1.12 },
-  { 2560.00, 1.18 },
-  { 2615.00, 1.23 },
-  { 2670.00, 1.25 },
-  { 2725.00, 1.27 },
+  { 1500.00, 0.39 },
+  { 1666.00, 0.47 },
+  { 1832.00, 0.55 },
+  { 1998.00, 0.63 },
+  { 2164.00, 0.75 },
+  { 2330.00, 0.91 },
+  { 2496.00, 1.08 },
+  { 2662.00, 1.17 },
+  { 2828.00, 1.21 },
+  { 2994.00, 1.22 }
 };
-static int default_meas_nb = 16;
+static int default_meas_nb = 10;
 
 static float default_min_optical[3] = { 234, 247, 221 };
 static float default_max_optical[3] = { 3521, 3776, 3229 };
@@ -500,7 +494,7 @@ static int curr_val;
 static float curr_order = 0;
 static float last_measure = 0.0;
 
-#define CALIB_MIN_ORDER 1900
+#define CALIB_MIN_ORDER 1500
 #define CALIB_MAX_ORDER 3000
 
 typedef enum {
@@ -620,12 +614,13 @@ void wheel_calib_tick() {
   }
 
   if (calib_state == CalibSpeedStart) {
-    if (curr_order == 0) curr_order = CALIB_MIN_ORDER;
+    if (curr_order == 0) 
+      curr_order = CALIB_MIN_ORDER;
     else { 
       if (curr_order > 0) 
 	curr_order = -curr_order;
       else 
-	curr_order = -curr_order + (CALIB_MAX_ORDER - CALIB_MIN_ORDER) / MEASURE_SIZE;
+	curr_order = -curr_order + (CALIB_MAX_ORDER - CALIB_MIN_ORDER) / (MEASURE_SIZE-1);
     }
     if (curr_order <= CALIB_MAX_ORDER) {
       terminal_io()->print("- testing order ");
@@ -649,20 +644,21 @@ void wheel_calib_tick() {
       stat.push_value(v);
     }
     if (elapsed > 3 * 1000) {
-      calib_state = CalibSpeedInit;
-      t_init = millis();
       stat.print_report();
       if (curr_order > 0) last_measure = stat.mean;
       if (curr_order < 0) {
 	float v = (last_measure - stat.mean) / 2;
 	if (meas_nb[wheel_idx]==0 || meas_vel[wheel_idx][meas_nb[wheel_idx]-1] < v) {
-	  wheel[wheel_idx].push_measure(fabs(curr_order), v);
 	  terminal_io()->print("push measure : ");
 	  terminal_io()->print(fabs(curr_order));
 	  terminal_io()->print(" -> ");
 	  terminal_io()->println(v);
+	  wheel[wheel_idx].push_measure(fabs(curr_order), v);
+	  print_measure_array();
 	} 
       }
+      calib_state = CalibSpeedStart;
+      t_init = millis();
     }
   }
 
@@ -696,13 +692,15 @@ TERMINAL_COMMAND(wheelCalib, "Launch the calibration of the wheels")
   wheel_init();
 }
 
-TERMINAL_COMMAND(w_calib, "calibrate the speed of a wheel w_calib <wheel idx>")
+*/
+
+TERMINAL_COMMAND(wheel_calib, "calibrate the speed of a wheel w_calib <wheel idx>")
 {
   if (argc == 1) {
     calib_wheel(atoi(argv[0]));
   }
 }
-*/
+
 
 /*
 

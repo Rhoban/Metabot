@@ -18,25 +18,10 @@
 #include "mux.h"
 #include "opticals.h"
 #include "wheels.h"
+#include "voltage.h"
+#include "pulse.h"
 
 bool isUSB = false;
-
-static bool buzzer_started = false;
-
-/* TODO
-TERMINAL_COMMAND(buzzer, "activate sound")
-{
-  buzzer_init(); 
-  buzzer_play(MELODY_BOOT);
-  buzzer_started = true;
-}
-
-TERMINAL_COMMAND(stopBuzzer, "Stop sound")
-{
-  buzzer_started = false;
-}
-
-*/
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -68,6 +53,11 @@ TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
  */
 void setup()
 {
+    init();
+
+    // Pulse
+    pulse_init();
+
     // This disable Serial2 from APB1
     RCC_BASE->APB1ENR &= ~RCC_APB1ENR_USART2EN;
 
@@ -101,17 +91,17 @@ void setup()
     opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
-    // buzzer_init(); /* BUZZER */
-    // buzzer_play(MELODY_CUSTOM); /* BUZZER */
+    buzzer_init();
+    buzzer_play(MELODY_BOOT);
+    RC.begin(921600);
 
     // Initizaliting DC
     dc_init();
 
     wheel_init();
-
-    RC.begin(921600);
-
     started = 1;
+    // Voltage
+    voltage_init();
 }
 
 /**
@@ -119,24 +109,33 @@ void setup()
  */
 void tick()
 {
-  led_set_mode(LEDS_OFF); // TODO: tmp, pour les yeux ...
-  // leds_tick();
-
-    if (!move || !started) {
-        led_set_mode(LEDS_OFF);
+    leds_tick();
+    if (!move || !started || voltage_error()) {
         dc_command(0, 0, 0);
-        t = 0.0;
+        if (voltage_error()) {
+            t += 0.01;
+            if (t > 0.5) {
+                t = 0;
+            }
+            if (t > 0.25) {
+                led_set_mode(LEDS_OFF);
+            } else {
+                led_set_all(0);
+                led_set_mode(LEDS_CUSTOM);
+            }
+        } else {
+            led_set_mode(LEDS_OFF);
+        }
         return;
     }
 
     // Incrementing and normalizing t
-    t += motion_get_f()*0.02;
+    t += motion_get_f()*0.01;
     if (t > 1.0) {
         t -= 1.0;
         // led_set_mode(LEDS_FRONT);
     }
     if (t < 0.0) t += 1.0;
-    
     // motion_tick(t);
 }
 
@@ -146,40 +145,22 @@ TERMINAL_COMMAND(mot, "Motor test")
     pwmWrite(15, atoi(argv[0]));
     delay(1000);
     pwmWrite(15, 0);
-
-    /*
-#define MOTA 9
-#define MOTB 27
-    pwmWrite(MOTA, 0);
-    pwmWrite(MOTB, 0);
-    pinMode(MOTA, PWM);
-    pinMode(MOTB, PWM);
-    int o = atoi(argv[0]);
-    if (o < 0) {
-        pwmWrite(MOTA, -o);
-    } else {
-        pwmWrite(MOTB, o);
-    }
-    while (!SerialUSB.available()) {
-        terminal_io()->println(timer.getCount());
-        delay(100);
-    }
-    delay(1000);
-    pwmWrite(MOTA, 0);
-    pwmWrite(MOTB, 0);
-    */
 }
 
 void loop()
 {
     // Buzzer update
-  if (buzzer_started) buzzer_tick(); /* BUZZ */
+    buzzer_tick();
+
     // IMU ticking
-  imu_tick();
+    imu_tick();
 
     // Updating the terminal
     terminal_tick();
     opticals_tick();
+    // Updating voltage
+    // XXX: Can be do less frequently
+    voltage_tick();
     
     wheel_tick();
 

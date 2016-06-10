@@ -94,27 +94,4 @@ TERMINAL_COMMAND(opt, "Test opticals")
     terminal_io()->println();
     delay(10);
   }
-
-
-  
-  /*
-  int value[16];
-  digitalWrite(OPTICAL_EN1, HIGH);
-  digitalWrite(OPTICAL_EN2, HIGH);
-  for (int m=0; m<2; m++)
-    for (int a=0; a<8; a++) {
-      mux_set_addr(a);
-      delay(1);
-      value[m*8+a] = mux_sample(m);
-      delay(10);
-    }
-  } 
-
-    while (!SerialUSB.available()) {
-        terminal_io()->print(TOTO);
-        terminal_io()->print("\t");
-    }
-    terminal_io()->println();
-    delay(10);
-  */
 }

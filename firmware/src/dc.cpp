@@ -7,9 +7,7 @@
 
 #define M1A 15  // 4 CH2
 #define M1B 16  // 4 CH1
-#define M2A 5  // 2 CH2
-// XXX: In future fix, to avoid conflict with buzzer
-// #define M2A 5  // 3 CH1
+#define M2A 5   // 3 CH1
 #define M2B 27  // 1 CH1
 #define M3A 3   // 3 CH3
 #define M3B 4   // 3 CH2
@@ -44,10 +42,13 @@ static struct dc_motor motors[MOTORS] = {
     {M3A, M3B, 0, 1}
 };
 
+TERMINAL_PARAMETER_INT(kkk, "xx", 0);
+
 static void _dc_ovf()
 {
+    kkk++;
     divider++;
-    if (divider >= 480) {
+    if (divider >= 240) {
         divider = 0;
         dcFlag = true;
     }
@@ -63,8 +64,8 @@ static void _init_timer(int number)
     timer.setOverflow(3000); // 24Khz
 
     if (number == 3) {
-        timer.attachCompare1Interrupt(_dc_ovf);
         timer.setCompare(TIMER_CH1, 1);
+        timer.attachCompare1Interrupt(_dc_ovf);
     }
 
     timer.refresh();
@@ -75,18 +76,17 @@ Function compensation;
 
 void dc_init()
 {
-    // XXX Init timers
-    _init_timer(1);
-    _init_timer(2);
-    _init_timer(3);
-    _init_timer(4);
-    
     for (int k=0; k<3; k++) {
         pwmWrite(motors[k].a, 0);
         pwmWrite(motors[k].b, 0);
         pinMode(motors[k].a, PWM);
         pinMode(motors[k].b, PWM);
     }
+    
+    // XXX Init timers
+    _init_timer(1);
+    _init_timer(3);
+    _init_timer(4);
 
     compensation.addPoint(M_PI*0/6, 0);
     compensation.addPoint(M_PI*1/6, -60);
@@ -130,6 +130,7 @@ void dc_single_command(int idx, int m) {
 
 void dc_command(int m1, int m2, int m3)
 {
+    m1 = -m1;
     m2 = -m2;
     m3 = -m3;
 

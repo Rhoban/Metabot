@@ -21,6 +21,7 @@ static uint8 bit = PIN_MAP[LEDS_PIN].gpio_bit;
 Function breath;
 TERMINAL_PARAMETER_FLOAT(lt, "Leds t", 0);
 uint8_t mode = LEDS_CUSTOM;
+uint8_t lastMode = -1;
 uint8_t led1_r, led1_g, led1_b;
 uint8_t led2_r, led2_g, led2_b;
 uint8_t led3_r, led3_g, led3_b;
@@ -113,11 +114,6 @@ TERMINAL_COMMAND(ld, "Test")
 
 void leds_init()
 {
-    breath.clear();
-    breath.addPoint(0, 0);
-    breath.addPoint(1, 255);
-    breath.addPoint(2, 0);
-
     pinMode(LEDS_PIN, OUTPUT);
 }
 
@@ -171,15 +167,16 @@ void led_stream_state()
 void leds_tick()
 {
     lt += 0.02;
+
     if (mode == LEDS_FRONT) {
-        led1_g = led3_g = (int)breath.getMod(lt);
-        led1_r = led3_r = (int)breath.getMod(lt)/2;
-        led2_g = (int)breath.getMod(lt)/6;
-        led2_r = (int)breath.getMod(lt)/2;
+        led1_r = led2_r = led3_r = 255;
+        led1_g = led2_g = led3_g = 255;
+        led1_b = led2_b = led3_b = 255;
         led_update();
     } else if (mode == LEDS_OFF) {
-        led1_r = led3_r = led2_r = (int)breath.getMod(lt);
-        led1_g = led3_g = (int)breath.getMod(lt)/4;
+        led1_r = led3_r = led2_r = 255;
+        led1_g = led3_g = 255/4;
         led_update();
     }
+    lastMode = mode;
 }
