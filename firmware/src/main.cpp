@@ -17,8 +17,26 @@
 #include "dc.h"
 #include "mux.h"
 #include "opticals.h"
+#include "wheels.h"
 
 bool isUSB = false;
+
+static bool buzzer_started = false;
+
+/* TODO
+TERMINAL_COMMAND(buzzer, "activate sound")
+{
+  buzzer_init(); 
+  buzzer_play(MELODY_BOOT);
+  buzzer_started = true;
+}
+
+TERMINAL_COMMAND(stopBuzzer, "Stop sound")
+{
+  buzzer_started = false;
+}
+
+*/
 
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
@@ -76,20 +94,24 @@ void setup()
     imu_init();
 
     // Configuring board LED as output
-    pinMode(BOARD_LED_PIN, OUTPUT);
-    digitalWrite(BOARD_LED_PIN, LOW);
+    // TODO TEMP pinMode(BOARD_LED_PIN, OUTPUT);
+    // TODO TEMP digitalWrite(BOARD_LED_PIN, LOW);
     
     // Enabling opticals
     opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
-    buzzer_init();
-    buzzer_play(MELODY_CUSTOM);
+    // buzzer_init(); /* BUZZER */
+    // buzzer_play(MELODY_CUSTOM); /* BUZZER */
 
     // Initizaliting DC
     dc_init();
 
+    wheel_init();
+
     RC.begin(921600);
+
+    started = 1;
 }
 
 /**
@@ -97,7 +119,9 @@ void setup()
  */
 void tick()
 {
-    leds_tick();
+  led_set_mode(LEDS_OFF); // TODO: tmp, pour les yeux ...
+  // leds_tick();
+
     if (!move || !started) {
         led_set_mode(LEDS_OFF);
         dc_command(0, 0, 0);
@@ -109,11 +133,11 @@ void tick()
     t += motion_get_f()*0.02;
     if (t > 1.0) {
         t -= 1.0;
-        led_set_mode(LEDS_FRONT);
+        // led_set_mode(LEDS_FRONT);
     }
     if (t < 0.0) t += 1.0;
-
-    motion_tick(t);
+    
+    // motion_tick(t);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")
@@ -149,13 +173,16 @@ TERMINAL_COMMAND(mot, "Motor test")
 void loop()
 {
     // Buzzer update
-    buzzer_tick();
+  if (buzzer_started) buzzer_tick(); /* BUZZ */
     // IMU ticking
-    imu_tick();
+  imu_tick();
 
     // Updating the terminal
     terminal_tick();
+    opticals_tick();
     
+    wheel_tick();
+
 #if defined(RHOCK)
     rhock_tick();
 #endif
@@ -171,6 +198,6 @@ void loop()
     // Calling user motion tick
     if (dcFlag) {
         dcFlag = false;
-        tick();
+        // TODO TEMPS tick();
     }
 }

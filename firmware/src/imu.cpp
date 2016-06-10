@@ -7,6 +7,7 @@
 
 //static bool initialized = false;
 TERMINAL_PARAMETER_BOOL(initialized, "Imu initialized", false);
+TERMINAL_PARAMETER_BOOL(imu, "show Imu", false);
 
 #define I2C_TIMEOUT 2
 
@@ -296,6 +297,33 @@ void acc_update()
     acc_z = VALUE_SIGN(acc_z_r, 16);
 }
 
+/* basic check for lost system, if the system is lost it re-launch the system. */
+float last_acc_x, last_acc_y;
+int last_change_tick_nb = 0;
+bool imu_ok = true;
+
+void imu_check() {
+  if (acc_x != last_acc_x || acc_y != last_acc_y) {
+    last_change_tick_nb=0;
+    last_acc_x = acc_x;
+    last_acc_y = acc_y;
+    imu_ok = true;
+    return;
+  }
+  last_change_tick_nb++;
+  if (last_change_tick_nb > 20) {
+    imu_ok = false;
+    initialized = false;
+    delay(10);
+    i2c_bus_reset(I2C2);
+    delay(10);
+    i2c_disable(I2C2);
+    delay(10);
+    imu_init();
+    terminal_io()->println("caution imu error");
+  }
+}
+
 void imu_tick()
 {
     int elapsed = millis()-last_update;
@@ -321,6 +349,8 @@ void imu_tick()
                 }
             }
         }
+
+	imu_check();
 
         if (imudbg) {
             terminal_io()->print(magn_x);
@@ -352,6 +382,19 @@ void imu_tick()
 
             terminal_io()->println();
         }
+
+
+        if (imu) {
+            terminal_io()->print(acc_x);
+            terminal_io()->print("\t ");
+            terminal_io()->print(acc_y);
+            terminal_io()->print("\t ");
+            terminal_io()->print(gyro_yaw);
+            terminal_io()->print("\t ");
+            terminal_io()->print(yaw);
+            terminal_io()->println();
+        }
+
     }
 }
 

@@ -9,7 +9,7 @@ VERSION="1.0"
 LIB_MAPLE_HOME = ./Maple/LibMaple
 LIB_RHOBAN_HOME = ./Maple/LibRhoban
 LIB_RHOCK_HOME = ./Maple/LibRhock
-ENABLE_RHOCK := yes
+ENABLE_RHOCK := no
 ENABLE_COMMANDS := yes
 
 ##
@@ -43,7 +43,7 @@ BOARD ?= maple_mini
 MEMORY_TARGET ?= flash
 
 BOOTLOADER ?= robotis
-BOOTLOADER_PORT ?= /dev/ttyACM0
+BOOTLOADER_PORT ?= /dev/tty.usbmodem1411   
 
 # $(BOARD)- and $(MEMORY_TARGET)-specific configuration
 include $(MAKEDIR)/target-config.mk

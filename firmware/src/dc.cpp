@@ -7,7 +7,7 @@
 
 #define M1A 15  // 4 CH2
 #define M1B 16  // 4 CH1
-#define M2A 10  // 2 CH2
+#define M2A 5  // 2 CH2
 // XXX: In future fix, to avoid conflict with buzzer
 // #define M2A 5  // 3 CH1
 #define M2B 27  // 1 CH1
@@ -108,6 +108,26 @@ int _min(int a, int b)
     return (a < b) ? a : b;
 }
 
+void dc_single_command(int idx, int m) {
+  switch (idx) {
+  case 0:
+    m = -m;
+    pwmWrite(M1A, m>0 ? m : 0);
+    pwmWrite(M1B, m<0 ? -m : 0);    
+    break;
+  case 1:
+    m = -m;
+    pwmWrite(M2A, m>0 ? m : 0);
+    pwmWrite(M2B, m<0 ? -m : 0);    
+    break;
+  case 2:
+    m = -m;
+    pwmWrite(M3A, m>0 ? m : 0);
+    pwmWrite(M3B, m<0 ? -m : 0);    
+    break;
+  }
+}
+
 void dc_command(int m1, int m2, int m3)
 {
     m2 = -m2;
@@ -142,7 +162,6 @@ void dc_xyt(float x, float y, float t)
     int m1 = (x*motors[0].x+y*motors[0].y)*40;
     int m2 = (x*motors[1].x+y*motors[1].y)*40;
     int m3 = (x*motors[2].x+y*motors[2].y)*40;
-
 
     m1 += t*40;
     m2 -= t*40;
