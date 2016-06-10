@@ -92,7 +92,7 @@ void setup()
 
     // Initializing the buzzer, and playing the start-up melody
     buzzer_init();
-    buzzer_play(MELODY_CUSTOM);
+    buzzer_play(MELODY_BOOT);
     RC.begin(921600);
 
     // Initizaliting DC

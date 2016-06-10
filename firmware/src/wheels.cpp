@@ -5,44 +5,36 @@
 #include "statistic.h"
 #include "imu.h"
 
-#define IMPOSSIBLE_BRUT_VAL 10000
-
-// TODO: parametrer l'ordre maximal (3000)
-#define DEFAULT_ORDER 2500
-
-#define bin_order 0
-
-// TEMP:
-float my_optical_get(int idx) {
-  if (idx==0) return optical_get(2);
-  if (idx==1) return optical_get(0);
-  if (idx==2) return optical_get(1);
-  return 0.0;
-}
-
-// trier tout les paramètres fixés et les passer en constantes 
-// TERMINAL_PARAMETER_BOOL(bin_order, "commande exclusive en x, y", 0);
-TERMINAL_PARAMETER_FLOAT(smooth, "position smooth", 1.0);
-TERMINAL_PARAMETER_BOOL(sdebug, "speed servoing debug", 0);
-TERMINAL_PARAMETER_FLOAT(start_delay, "starting delay", 0.01);
+TERMINAL_PARAMETER_FLOAT(smooth_pos_factor, "wheel position smoothing", 1.0);
+TERMINAL_PARAMETER_FLOAT(start_wheel_delay, "starting delay for make wheel turn (sec)", 0.01);
 TERMINAL_PARAMETER_FLOAT(k_vel, "gain for velocity servoing", 50.0);
-TERMINAL_PARAMETER_FLOAT(k_i_vel, "gain for velocity servoing", 0.1);
+TERMINAL_PARAMETER_FLOAT(k_i_vel, "integral gain for velocity servoing", 0.1);
 TERMINAL_PARAMETER_FLOAT(k_rot, "gain for rotation servoing", 100.0);
-TERMINAL_PARAMETER_FLOAT(k_i, "gain integral for rotation servoing", 0.1);
+TERMINAL_PARAMETER_FLOAT(k_i_rot, "integral gain for rotation servoing", 0.1);
 TERMINAL_PARAMETER_FLOAT(k_f, "gain to balance friction", 0.0); /* + */
 TERMINAL_PARAMETER_FLOAT(k_magic, "ratio x/y ... magic ...", 1.0);
-TERMINAL_PARAMETER_FLOAT(k_t, "gain rotation order", 0.005);
-TERMINAL_PARAMETER_FLOAT(k_o, "gain dx/dycommand", 1.5);
-TERMINAL_PARAMETER_FLOAT(k_or, "gain rotation command", 0.02);
-TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order", 0.50);
+TERMINAL_PARAMETER_FLOAT(k_turn, "gain rotation order", 0.005);
+TERMINAL_PARAMETER_FLOAT(k_order, "gain dx/dycommand", 1.5);
+TERMINAL_PARAMETER_FLOAT(k_order_rot, "gain rotation command", 0.02);
+TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order at low level", 0.50);
 
+#define IMPOSSIBLE_BRUT_VAL 10000
+#define DEFAULT_ORDER 2500
+#define MAX_ORDER 3000
+
+/* colle vers les capteurs optiques */
+float wheel_optical_get(int wheel_idx) {
+  if (wheel_idx==0) return optical_get(2);
+  if (wheel_idx==1) return optical_get(0);
+  if (wheel_idx==2) return optical_get(1);
+  return 0.0;
+}
 
 #define MEASURE_SIZE 10
 static float meas_ord[3][MEASURE_SIZE];
 static float meas_vel[3][MEASURE_SIZE];
 static int meas_nb[3] = { 0, 0, 0 };
 
-// TODO SOUCI DE RAM #define QUEUE_SIZE 50
 #define QUEUE_SIZE 20
 static float pos_q[3][QUEUE_SIZE];
 static long int time_q[3][QUEUE_SIZE];
@@ -62,8 +54,12 @@ typedef enum {
   Moving
 } WheelState;
 
+
+/* Etat de l'asservissement en rotation */
 static float orient_tgt;
 static float orient_I;
+static bool asserv_rot;
+static float error_orient;
 
 class Wheel {
 public:
@@ -254,7 +250,7 @@ public:
   /* retourne la vitesse en tour/sec.
    * le signe est le sens trigo en regardant la roue de l'extérieur */
   float update_queue() {
-    // TODO A optimiser !!
+    // TODO A optimiser...
 
     if (time_q[idx][0] < 0) return 0.0;
     int min_t = time_q[idx][0];
@@ -291,10 +287,8 @@ public:
     }
     sig_xy /= N;
     sig2_x /= N;
-    if (sig2_x < 0.0) sig2_x = 0; // TODO: TMP
     sig_x = sqrt(sig2_x);
     sig2_y /= N;
-    if (sig2_y < 0.0) sig2_y = 0; // TODO: TMP
     sig_y = sqrt(sig2_y);
     if (sig_x==0 || sig_y==0) return 0.0;
     vel_soundness = sig_xy / (sig_x * sig_y);
@@ -302,20 +296,19 @@ public:
     float res = 1000000 * sig_xy / sig2_x / (max_optic - min_optic);
     if (fabs(vel_soundness) > 0.80) /* 0.80 fixé par expérience */ {
       curr_speed = res;
-      if (sdebug) terminal_io()->println(curr_speed);
     }
     return res;
   }
 
   void push_pos(int t, float pos) {
-    // implementation rapide (faire une fifo) ...
+    // implementation rapide (faire une vraie fifo) ...
     for (int i=QUEUE_SIZE-2; i>=0; i--) {
       pos_q[idx][i+1] = pos_q[idx][i];
       time_q[idx][i+1] = time_q[idx][i];
     }
     pos_q[idx][0] = pos;
     time_q[idx][0] = t;
-    if (queue_size < QUEUE_SIZE) // TODO: inutile, queue_size n'est pas utilisé
+    if (queue_size < QUEUE_SIZE)
       queue_size++;
   }
   
@@ -340,23 +333,21 @@ public:
       delta_t = curr_t - last_t; 
     last_t = curr_t;
 
-    brut_pos = my_optical_get(idx); /* note: valeur faible pour le blanc, élevée pour le noir */
-    /* TODO changer brut_pos en pos et curr_brut_pos en brut_pos */
+    brut_pos = wheel_optical_get(idx); /* note: valeur faible pour le blanc, élevée pour le noir */
     if (min_optic > brut_pos) min_optic = brut_pos;
     if (max_optic < brut_pos) max_optic = brut_pos;
     
     /* lissage de la position brute */
-    float smooth_pos;
     if (brut_pos < 0) smooth_pos = brut_pos;
-    else smooth_pos = (1-smooth) * smooth_pos + smooth * brut_pos;
+    else smooth_pos = (1-smooth_pos_factor) * smooth_pos + smooth_pos_factor * brut_pos;
 
     /* on conserve l'historique des positions */
     push_pos(curr_t, smooth_pos);
-    update_queue(); // Très couteux en temps...
+    update_queue(); // TODO: a optimiser ! Tout le temps de calcul est là...
     update_turn_counter();
 
     if (state == Starting) {
-      if (curr_t - state_init_t > start_delay*1000000) {
+      if (curr_t - state_init_t > start_wheel_delay*1000000) {
 	set_brut_speed_order(tgt_order);
 	change_state(Moving);
       }
@@ -372,16 +363,18 @@ public:
     if (state == Moving) {
       float error = speed_tgt - get_speed();
       speed_corr_ord += k_i_vel * error;
+
+      /* asservissement en rotation */
       bool asserv_rot = (dx != 0 || dy != 0);
       float p_corr_rot = 0.0;
       if (asserv_rot) {
-	orient_tgt += k_t * turn;
+	orient_tgt += k_turn * turn;
 	while (orient_tgt < -180.0) orient_tgt += 360.0;
 	while (orient_tgt > 180.0) orient_tgt -= 360.0;	  
-	float error_orient = orient_tgt - imu_gyro_yaw();
+	error_orient = orient_tgt - imu_gyro_yaw();
 	while (error_orient < -180.0) error_orient += 360.0;
 	while (error_orient > 180.0) error_orient -= 360.0;	  
-	orient_I = k_i * error_orient;
+	orient_I = k_i_rot * error_orient;
 	speed_corr_ord += orient_I;
 	p_corr_rot = k_rot * error_orient;
       }
@@ -392,24 +385,18 @@ public:
   void set_brut_speed_order(float s) {
     if (s==0) change_state(Immobile);
     brut_speed_order = s;
-    if (s==0)
-      smooth_speed_order = 0;
-    else
-      smooth_speed_order = (1.0-smooth_so)*smooth_speed_order + smooth_so*s;
+    smooth_speed_order = (1.0-smooth_so)*smooth_speed_order + smooth_so*s;
+    if (s==0) smooth_speed_order = 0;
     s = smooth_speed_order;
 
+    if (s < -MAX_ORDER) s = -MAX_ORDER;
+    if (s > MAX_ORDER) s = MAX_ORDER;
+
     /* corrections pour coller au bas niveau */
-    int corr_idx = idx;
-    if (idx == 0) {
-      // corr_idx = 2;
-    }
-    if (idx == 1) {
-      s = -s;
-    }
-    if (idx == 2) { 
-      // corr_idx = 0;
-    }
-    dc_single_command(corr_idx, (int) s);
+    if (idx == 0) {}
+    if (idx == 1) { s = -s; }
+     if (idx == 2) {}
+    dc_single_command(idx, (int) s);
   }
 
   /* speed est exprimée en tour/sec */
@@ -476,8 +463,8 @@ static float default_ord_vel[][2] = {
 };
 static int default_meas_nb = 10;
 
-static float default_min_optical[3] = { 234, 247, 221 };
-static float default_max_optical[3] = { 3521, 3776, 3229 };
+static float default_min_optical[3] = { 205, 143, 221 };
+static float default_max_optical[3] = { 4095, 4080, 4083 };
 
 static Wheel wheel[3];
 
@@ -531,7 +518,7 @@ void wheel_init() {
     for (int k=0; k<default_meas_nb; k++)
       wheel[i].push_measure(default_ord_vel[k][0], default_ord_vel[k][1]);
   }
-  wheel_mode = WheelCalibration;
+  wheel_mode = WheelReady;
   t_init = -1;
 }
 
@@ -585,14 +572,14 @@ void wheel_calib_tick() {
   if (t_init < 0) { 
     t_init = millis();
     calib_state = CalibMinMax;
-    curr_val = my_optical_get(wheel_idx);
+    curr_val = wheel_optical_get(wheel_idx);
   }
 
   if (calib_state == CalibMinMax) {
     for (int i=0; i<3; i++) wheel[i].set_brut_speed_order(2500);
     for (int i=0; i<3; i++) {
-      if (wheel[i].min_optic > my_optical_get(i)) wheel[i].min_optic = my_optical_get(i);
-      if (wheel[i].max_optic < my_optical_get(i)) wheel[i].max_optic = my_optical_get(i);
+      if (wheel[i].min_optic > wheel_optical_get(i)) wheel[i].min_optic = wheel_optical_get(i);
+      if (wheel[i].max_optic < wheel_optical_get(i)) wheel[i].max_optic = wheel_optical_get(i);
     }
     if (millis() > t_init + 2500) {
       for (int i=0; i<3; i++) wheel[i].set_brut_speed_order(0);
@@ -665,6 +652,7 @@ void wheel_calib_tick() {
 }
 
 void wheel_tick() {
+  
   for (int i=0; i<3; i++)
     wheel[i].tick();
 
@@ -673,26 +661,11 @@ void wheel_tick() {
   }
 } 
 
-/*
-TERMINAL_COMMAND(printCalib, "print wheel calibration")
-{
-  print_calib_state();
-}
-*/
-
 TERMINAL_COMMAND(pw, "print wheel states")
 {
   for (int i=0; i<3; i++)
     wheel[i].print_state();
 }
-
-/*
-TERMINAL_COMMAND(wheelCalib, "Launch the calibration of the wheels")
-{
-  wheel_init();
-}
-
-*/
 
 TERMINAL_COMMAND(wheel_calib, "calibrate the speed of a wheel w_calib <wheel idx>")
 {
@@ -721,8 +694,6 @@ TERMINAL_COMMAND(s, "stop all the wheels")
   wheel[2].set_speed(0);
 }
 
-static float fric[3];
-
 void mov(float x, float y, float dtheta) {
   
   if (old_x == 0 && old_y == 0) {
@@ -735,30 +706,38 @@ void mov(float x, float y, float dtheta) {
 
   y = y * (1 + k_magic);
 
-  // TODO: changer les indices pour partir de 0
+  float x0 = -cos(M_PI/6);
+  float y0 = -sin(M_PI/6);
+  
   float x1 = -cos(M_PI/6);
-  float y1 = -sin(M_PI/6);
+  float y1 = sin(M_PI/6);
+
+  float x2 = 1.0;
+  float y2 = 0.0;
+
+  static float fric[3];
+  fric[0] = fabs(-y*x0 + x*y0);
+  fric[1] = fabs(-y*x1 + x*y1);
+  fric[2] = fabs(-y*x2 + x*y2);
+
+  float a1 = x*x0 + y*y0;
+  float a2 = x*x1 + y*y1;
   
-  float x2 = -cos(M_PI/6);
-  float y2 = sin(M_PI/6);
-
-  float x3 = 1.0;
-  float y3 = 0.0;
-
-  fric[0] = fabs(-y*x1 + x*y1);
-  fric[1] = fabs(-y*x2 + x*y2);
-  fric[2] = fabs(-y*x3 + x*y3);
-
-  float a1 = x*x1 + y*y1;
-  float a2 = x*x2 + y*y2;
-  
-  wheel[0].set_speed( a1 * (1 + k_f * fric[0]) + k_or * dtheta);
-  wheel[2].set_speed( a2 * (1 + k_f * fric[1]) + k_or * dtheta);
-  wheel[1].set_speed( (-a1-a2) * (1 + k_f * fric[2]) + k_or * dtheta);
-
+  float rot_order = k_order_rot * dtheta;
+  wheel[0].set_speed( a1 * (1 + k_f * fric[0]) + rot_order);
+  wheel[2].set_speed( a2 * (1 + k_f * fric[1]) + rot_order);
+  wheel[1].set_speed( (-a1-a2) * (1 + k_f * fric[2]) + rot_order);
 }
 
-TERMINAL_COMMAND(mv, "move toward a speed vector x y")
+void update_move_order() {
+  /* correction pour orienter la commande */
+  float v1 = -k_order * dy/100;
+  float v2 = -k_order * dx/100;
+  /* update */
+  mov(v1,v2, turn);
+}
+
+TERMINAL_COMMAND(mv, "move toward a speed vector / with a rotation speed x y (rho)")
 {
   if (argc == 2) {
     mov(atof(argv[0]), atof(argv[1]), 0.0);
@@ -766,23 +745,6 @@ TERMINAL_COMMAND(mv, "move toward a speed vector x y")
 
   if (argc == 3) {
     mov(atof(argv[0]), atof(argv[1]), atof(argv[2]));
-  }
-}
-
-
-void update_move_order() {
-
-  float v1 = -k_o * dy/100;
-  float v2 = -k_o * dx/100;
-
-  if (bin_order) {
-    if (fabs(v1) > fabs(v2))
-      mov(v1, 0.0, turn);
-    else
-      mov(0.0, v2, turn);
-  }
-  else {
-    mov(v1,v2, turn);
   }
 }
 
