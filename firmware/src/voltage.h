@@ -3,7 +3,7 @@
 
 #define VOLTAGE_R1      10
 #define VOLTAGE_R2      10
-#define VOLTAGE_LIMIT   7.1
+#define VOLTAGE_LIMIT   7.2
 #define VOLTAGE_SHUT    5.3
 
 bool voltage_error();

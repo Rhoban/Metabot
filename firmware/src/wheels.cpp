@@ -34,7 +34,7 @@ TERMINAL_PARAMETER_FLOAT(k_magic, "ratio x/y ... magic ...", 1.0);
 TERMINAL_PARAMETER_FLOAT(k_t, "gain rotation order", 0.005);
 TERMINAL_PARAMETER_FLOAT(k_o, "gain dx/dycommand", 1.5);
 TERMINAL_PARAMETER_FLOAT(k_or, "gain rotation command", 0.02);
-TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order", 0.05);
+TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order", 0.50);
 
 
 #define MEASURE_SIZE 10
@@ -531,7 +531,7 @@ void wheel_init() {
     for (int k=0; k<default_meas_nb; k++)
       wheel[i].push_measure(default_ord_vel[k][0], default_ord_vel[k][1]);
   }
-  wheel_mode = WheelReady;
+  wheel_mode = WheelCalibration;
   t_init = -1;
 }
 
@@ -701,35 +701,6 @@ TERMINAL_COMMAND(wheel_calib, "calibrate the speed of a wheel w_calib <wheel idx
   }
 }
 
-
-/*
-
-TERMINAL_COMMAND(stop_calib, "stop calibration procedure")
-{
-    stop_calib_wheel();
-}
-
-TERMINAL_COMMAND(wllo, "low level wheel order - ws <wheel idx> <brut_order>")
-{
-  if (argc == 2) {
-    wheel[atoi(argv[0])].set_brut_speed_order(atof(argv[1]));
-  }
-}
-
-
-TERMINAL_COMMAND(wo, "wheel order - ws <wheel idx> <brut_order>")
-{
-  if (argc == 2) {
-    wheel[atoi(argv[0])].push_new_order(atof(argv[1]));
-  }
-  if (argc == 3) {
-    wheel[0].push_new_order(atof(argv[0]));
-    wheel[1].push_new_order(atof(argv[1]));
-    wheel[2].push_new_order(atof(argv[2]));
-  }
-}
-*/
-
 TERMINAL_COMMAND(ws, "wheel speed - ws <wheel idx> <speed rev/sec>")
 {
   if (argc == 2) {
@@ -742,8 +713,6 @@ TERMINAL_COMMAND(ws, "wheel speed - ws <wheel idx> <speed rev/sec>")
     wheel[2].set_speed(atof(argv[2]));
   }
 }
-
-
 
 TERMINAL_COMMAND(s, "stop all the wheels")
 {
@@ -783,16 +752,10 @@ void mov(float x, float y, float dtheta) {
   float a1 = x*x1 + y*y1;
   float a2 = x*x2 + y*y2;
   
-  if (x != 0 || y != 0) {
-    wheel[0].set_speed( a1 * (1 + k_f * fric[0]));
-    wheel[2].set_speed( a2 * (1 + k_f * fric[1]));
-    wheel[1].set_speed( (-a1-a2) * (1 + k_f * fric[2]));
-  }
-  else {
-    wheel[0].set_speed(k_or * dtheta);
-    wheel[2].set_speed(k_or * dtheta);
-    wheel[1].set_speed(k_or * dtheta);
-  }
+  wheel[0].set_speed( a1 * (1 + k_f * fric[0]) + k_or * dtheta);
+  wheel[2].set_speed( a2 * (1 + k_f * fric[1]) + k_or * dtheta);
+  wheel[1].set_speed( (-a1-a2) * (1 + k_f * fric[2]) + k_or * dtheta);
+
 }
 
 TERMINAL_COMMAND(mv, "move toward a speed vector x y")

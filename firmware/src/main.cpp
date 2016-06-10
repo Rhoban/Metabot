@@ -84,15 +84,15 @@ void setup()
     imu_init();
 
     // Configuring board LED as output
-    // TODO TEMP pinMode(BOARD_LED_PIN, OUTPUT);
-    // TODO TEMP digitalWrite(BOARD_LED_PIN, LOW);
+    pinMode(BOARD_LED_PIN, OUTPUT);
+    digitalWrite(BOARD_LED_PIN, LOW);
     
     // Enabling opticals
     opticals_init();
 
     // Initializing the buzzer, and playing the start-up melody
     buzzer_init();
-    buzzer_play(MELODY_BOOT);
+    buzzer_play(MELODY_CUSTOM);
     RC.begin(921600);
 
     // Initizaliting DC
@@ -110,6 +110,7 @@ void setup()
 void tick()
 {
     leds_tick();
+
     if (!move || !started || voltage_error()) {
         dc_command(0, 0, 0);
         if (voltage_error()) {
@@ -130,13 +131,7 @@ void tick()
     }
 
     // Incrementing and normalizing t
-    t += motion_get_f()*0.01;
-    if (t > 1.0) {
-        t -= 1.0;
-        // led_set_mode(LEDS_FRONT);
-    }
-    if (t < 0.0) t += 1.0;
-    // motion_tick(t);
+    led_set_mode(LEDS_FRONT);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")
@@ -162,11 +157,10 @@ void loop()
     // XXX: Can be do less frequently
     voltage_tick();
     
-    wheel_tick();
-
 #if defined(RHOCK)
     rhock_tick();
 #endif
+
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
@@ -179,6 +173,9 @@ void loop()
     // Calling user motion tick
     if (dcFlag) {
         dcFlag = false;
-        // TODO TEMPS tick();
+        tick();
     }
+
+    if (!voltage_error())
+      wheel_tick();
 }
