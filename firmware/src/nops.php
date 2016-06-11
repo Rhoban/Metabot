@@ -1,7 +1,7 @@
 <?php
 
 $nops = array(400, 450, 800, 850);
-$magic_constant = 30;
+$magic_constant = 26;
 
 foreach ($nops as $nop) {
     echo "#define NOPS_$nop \\\n";
