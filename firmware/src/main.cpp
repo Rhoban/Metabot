@@ -111,26 +111,22 @@ void tick()
 {
     leds_tick();
 
-    if (!move || !started || voltage_error()) {
+    if (voltage_error()) {
         dc_command(0, 0, 0);
-        if (voltage_error()) {
-            t += 0.01;
-            if (t > 0.5) {
-                t = 0;
-            }
-            if (t > 0.25) {
-                led_set_mode(LEDS_OFF);
-            } else {
-                led_set_all(0);
-                led_set_mode(LEDS_CUSTOM);
-            }
-        } else {
-            led_set_mode(LEDS_OFF);
-        }
+	t += 0.01;
+	if (t > 0.5) {
+	  t = 0;
+	}
+	if (t > 0.25) {
+	  led_set_mode(LEDS_OFF);
+	} else {
+	  led_set_all(0);
+	  led_set_mode(LEDS_CUSTOM);
+	}
         return;
     }
 
-    // Incrementing and normalizing t
+    t += 0.02;
     led_set_mode(LEDS_FRONT);
 }
 
