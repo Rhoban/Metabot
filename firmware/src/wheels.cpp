@@ -13,7 +13,7 @@ TERMINAL_PARAMETER_FLOAT(k_rot, "gain for rotation servoing", 100.0);
 TERMINAL_PARAMETER_FLOAT(k_i_rot, "integral gain for rotation servoing", 0.1);
 TERMINAL_PARAMETER_FLOAT(k_f, "gain to balance friction", 0.0); /* + */
 TERMINAL_PARAMETER_FLOAT(k_magic, "ratio x/y ... magic ...", 1.0);
-TERMINAL_PARAMETER_FLOAT(k_turn, "gain rotation order", 0.005);
+TERMINAL_PARAMETER_FLOAT(k_turn, "gain rotation order", 0.002);
 TERMINAL_PARAMETER_FLOAT(k_order, "gain dx/dycommand", 1.5);
 TERMINAL_PARAMETER_FLOAT(k_order_rot, "gain rotation command", 0.02);
 TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order at low level", 0.50);
@@ -395,7 +395,7 @@ public:
     /* corrections pour coller au bas niveau */
     if (idx == 0) {}
     if (idx == 1) { s = -s; }
-     if (idx == 2) {}
+    if (idx == 2) { s = -s; }
     dc_single_command(idx, (int) s);
   }
 
@@ -724,9 +724,9 @@ void mov(float x, float y, float dtheta) {
   float a2 = x*x1 + y*y1;
   
   float rot_order = k_order_rot * dtheta;
-  wheel[0].set_speed( a1 * (1 + k_f * fric[0]) + rot_order);
-  wheel[2].set_speed( a2 * (1 + k_f * fric[1]) + rot_order);
-  wheel[1].set_speed( (-a1-a2) * (1 + k_f * fric[2]) + rot_order);
+  wheel[2].set_speed( a1 * (1 + k_f * fric[0]) + rot_order);
+  wheel[1].set_speed( a2 * (1 + k_f * fric[1]) + rot_order);
+  wheel[0].set_speed( (-a1-a2) * (1 + k_f * fric[2]) + rot_order);
 }
 
 void update_move_order() {
