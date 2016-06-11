@@ -166,8 +166,6 @@ void led_stream_state()
 
 void leds_tick()
 {
-    lt += 0.02;
-
     if (mode == LEDS_FRONT) {
         led1_r = led2_r = led3_r = 255;
         led1_g = led2_g = led3_g = 255;
