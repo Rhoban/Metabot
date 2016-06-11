@@ -12,6 +12,7 @@
 void leds_init();
 void led_set_mode(int mode);
 void led_set(int index, int value, bool custom=false);
+void led_color_set(int index, int r, int g, int b);
 void led_set_all(int value, bool custom=false);
 void led_stream_state();
 char leds_are_custom();

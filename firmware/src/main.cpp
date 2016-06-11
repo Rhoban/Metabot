@@ -102,6 +102,7 @@ void setup()
     started = 1;
     // Voltage
     voltage_init();
+    led_set_mode(LEDS_FRONT);
 }
 
 /**
@@ -127,7 +128,6 @@ void tick()
     }
 
     t += 0.02;
-    led_set_mode(LEDS_FRONT);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")

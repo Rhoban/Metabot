@@ -4,6 +4,8 @@
 #include "math.h"
 #include "statistic.h"
 #include "imu.h"
+#include "buzzer.h"
+#include "leds.h"
 
 TERMINAL_PARAMETER_FLOAT(smooth_pos_factor, "wheel position smoothing", 1.0);
 TERMINAL_PARAMETER_FLOAT(start_wheel_delay, "starting delay for make wheel turn (sec)", 0.01);
@@ -20,6 +22,7 @@ TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order at low level", 0.50);
 
 #define IMPOSSIBLE_BRUT_VAL 10000
 #define DEFAULT_ORDER 2500
+#define MIN_MOVE_ORDER 1500
 #define MAX_ORDER 3000
 
 /* colle vers les capteurs optiques */
@@ -28,6 +31,13 @@ float wheel_optical_get(int wheel_idx) {
   if (wheel_idx==1) return optical_get(0);
   if (wheel_idx==2) return optical_get(1);
   return 0.0;
+}
+
+int led_of_wheel(int i) {
+  if (i==0) return 1;
+  if (i==1) return 3;
+  if (i==2) return 2;
+  return 1;
 }
 
 #define MEASURE_SIZE 10
@@ -107,6 +117,11 @@ public:
   float turn_time;
   float last_turn_time;
 
+  bool forcing;
+  long int forcing_init;
+  int forcing_turn_nb;
+  int forcing_resetting;
+
   Wheel() {
     max_optic = 0;
     min_optic = IMPOSSIBLE_BRUT_VAL;
@@ -126,6 +141,11 @@ public:
     speed_tgt = 0;
     meas_increasing = true;
     smooth_speed_order = 0.0;
+
+    forcing = false;
+    forcing_turn_nb = 0;
+    forcing_init = -1;
+    forcing_resetting = -1;
   }
 
   void init(int _idx) {
@@ -141,6 +161,50 @@ public:
   int direction() {
     if (tgt_order == 0) return 0;
     return sign(tgt_order);
+  }
+
+  bool check_forcing() {
+    if (!forcing) {
+      if (is_immobile() && fabs(brut_speed_order) > MIN_MOVE_ORDER) {
+	forcing_turn_nb++;
+	forcing_resetting = 0;
+      }
+      else {
+	forcing_resetting++;
+	if (forcing_resetting > 5) {
+	  forcing_turn_nb=0;
+	  forcing_init=-1;
+	  forcing_resetting = 0;
+	}
+      }
+
+      if (forcing_turn_nb == 200) {
+	forcing_init = micros();
+	buzzer_play(MELODY_CUSTOM);
+	led_set_mode(LEDS_CUSTOM);
+	led_color_set(led_of_wheel(idx), 100, 100, 0);
+	terminal_io()->println("CAUTION: forcing");
+	forcing = true;
+      }
+    }
+    
+    if (forcing && (micros() - forcing_init) > 3*1000000) {
+      led_set_mode(LEDS_CUSTOM);
+      led_color_set(led_of_wheel(idx), 255, 255, 255);
+      forcing_turn_nb=0;
+      forcing_init=-1;
+      forcing = false;
+    }
+    
+    if (forcing) {
+      set_speed(0);
+    }
+
+    return forcing;
+  }
+
+  bool is_forcing() {
+    return forcing;
   }
 
   bool meas_increasing;
@@ -324,10 +388,11 @@ public:
   }
 
   bool is_immobile() {
-    return sig_y < 10.0;
+    return sig_y < 60.0;
   }
 
   void tick() {    
+
     curr_t = micros();
     if (curr_t > 0 && last_t > 0)
       delta_t = curr_t - last_t; 
@@ -345,6 +410,8 @@ public:
     push_pos(curr_t, smooth_pos);
     update_queue(); // TODO: a optimiser ! Tout le temps de calcul est là...
     update_turn_counter();
+
+    if (check_forcing()) return; 
 
     if (state == Starting) {
       if (curr_t - state_init_t > start_wheel_delay*1000000) {

@@ -57,6 +57,7 @@ void led_update()
 
 TERMINAL_COMMAND(ld, "Test")
 {
+  mode = LEDS_CUSTOM;
     int led = atoi(argv[0]);
     if (led == 1) {
         led1_r = atoi(argv[1]);
@@ -157,6 +158,27 @@ void led_set_all(int value, bool custom)
     led1_g = led2_g = led3_g = (value&LED_G) ? 255 : 0;
     led1_b = led2_b = led3_b = (value&LED_B) ? 255 : 0;
     led_update();
+}
+
+void led_color_set(int index, int r, int g, int b) {
+  switch (index) {
+  case 1: 
+    led1_r = r;
+    led1_g = g;
+    led1_b = b;
+    break;
+  case 2: 
+    led2_r = r;
+    led2_g = g;
+    led2_b = b;
+    break;
+  case 3: 
+    led3_r = r;
+    led3_g = g;
+    led3_b = b;
+    break;
+  }
+  led_update();
 }
 
 void led_stream_state()
