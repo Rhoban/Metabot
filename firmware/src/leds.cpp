@@ -192,11 +192,10 @@ void leds_tick()
         led1_r = led2_r = led3_r = 255;
         led1_g = led2_g = led3_g = 255;
         led1_b = led2_b = led3_b = 255;
-        led_update();
     } else if (mode == LEDS_OFF) {
         led1_r = led3_r = led2_r = 255;
         led1_g = led3_g = 255/4;
-        led_update();
     }
     lastMode = mode;
+    led_update();
 }
