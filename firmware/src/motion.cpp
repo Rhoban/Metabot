@@ -67,12 +67,12 @@ TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
 TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
-TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
-TERMINAL_PARAMETER_FLOAT(dy, "Dy", 0.0);
+TERMINAL_PARAMETER_FLOAT(dxM, "Dx", 0.0);
+TERMINAL_PARAMETER_FLOAT(dyM, "Dy", 0.0);
 TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Turning, in ° per step
-TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
+TERMINAL_PARAMETER_FLOAT(turnM, "Turn", 0.0);
 
 // Front delta h
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
@@ -227,12 +227,12 @@ void calib_tick()
         }
 
         if (alpha > 50) {
-            dx = 0;
-            dy = 0;
+            dxM = 0;
+            dyM = 0;
             calib = false;
         } else {
-            dx = 50*cos(a);
-            dy = 50*sin(a);
+            dxM = 50*cos(a);
+            dyM = 50*sin(a);
             speed += imu_yaw_speed();
             speedN++;
         }
@@ -251,8 +251,10 @@ void motion_tick(float t)
 
     calib_tick();
 
+    /* on decommute motion
     smooth_dx = dx*0.5 + smooth_dx*0.5;
     smooth_dy = dy*0.5 + smooth_dy*0.5;
+    */
 
     /*
     target_yaw += turn*kD;
@@ -267,7 +269,7 @@ void motion_tick(float t)
     if (turnT > 60) turnT = 60;
     if (turnT < -60) turnT = -60;
     */
-    float turnT = turn*kP;
+    float turnT = turnM*kP;
 
     smooth_turn = turnT*0.5 + smooth_turn*0.5;
 
@@ -309,17 +311,17 @@ void motion_set_r(float r_)
 
 void motion_set_x_speed(float x_speed)
 {
-    dx = x_speed/(2.0*freq);
+    dxM = x_speed/(2.0*freq);
 }
 
 void motion_set_y_speed(float y_speed)
 {
-    dy = y_speed/(2.0*freq);
+    dyM = y_speed/(2.0*freq);
 }
 
 void motion_set_turn_speed(float turn_speed)
 {
-    turn = turn_speed/(2.0*freq);
+    turnM = turn_speed/(2.0*freq);
 }
 
 void motion_extra_x(int index, float x)
@@ -339,17 +341,17 @@ void motion_extra_z(int index, float z)
 
 float motion_get_dx()
 {
-    return dx;
+    return dxM;
 }
 
 float motion_get_dy()
 {
-    return dy;
+    return dyM;
 }
 
 float motion_get_turn()
 {
-    return turn;
+    return turnM;
 }
 
 #ifdef RHOCK
@@ -380,17 +382,17 @@ void simulator_tick()
 
 float simulator_get_dx()
 {
-    return dx;
+    return dxM;
 }
 
 float simulator_get_dy()
 {
-    return dy;
+    return dyM;
 }
 
 float simulator_get_turn()
 {
-    return turn;
+    return turnM;
 }
 
 float simulator_get_f()

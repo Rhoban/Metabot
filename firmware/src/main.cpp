@@ -17,6 +17,7 @@
 #include "dc.h"
 #include "mux.h"
 #include "opticals.h"
+#include "wheels.h"
 #include "voltage.h"
 #include "pulse.h"
 
@@ -92,12 +93,13 @@ void setup()
     // Initializing the buzzer, and playing the start-up melody
     buzzer_init();
     buzzer_play(MELODY_BOOT);
-
     RC.begin(921600);
 
     // Initizaliting DC
     dc_init();
 
+    wheel_init();
+    started = 1;
     // Voltage
     voltage_init();
 }
@@ -108,6 +110,7 @@ void setup()
 void tick()
 {
     leds_tick();
+
     if (!move || !started || voltage_error()) {
         dc_command(0, 0, 0);
         if (voltage_error()) {
@@ -128,14 +131,7 @@ void tick()
     }
 
     // Incrementing and normalizing t
-    t += motion_get_f()*0.01;
-    if (t > 1.0) {
-        t -= 1.0;
-        led_set_mode(LEDS_FRONT);
-    }
-    if (t < 0.0) t += 1.0;
-
-   motion_tick(t);
+    led_set_mode(LEDS_FRONT);
 }
 
 TERMINAL_COMMAND(mot, "Motor test")
@@ -144,28 +140,6 @@ TERMINAL_COMMAND(mot, "Motor test")
     pwmWrite(15, atoi(argv[0]));
     delay(1000);
     pwmWrite(15, 0);
-
-    /*
-#define MOTA 9
-#define MOTB 27
-    pwmWrite(MOTA, 0);
-    pwmWrite(MOTB, 0);
-    pinMode(MOTA, PWM);
-    pinMode(MOTB, PWM);
-    int o = atoi(argv[0]);
-    if (o < 0) {
-        pwmWrite(MOTA, -o);
-    } else {
-        pwmWrite(MOTB, o);
-    }
-    while (!SerialUSB.available()) {
-        terminal_io()->println(timer.getCount());
-        delay(100);
-    }
-    delay(1000);
-    pwmWrite(MOTA, 0);
-    pwmWrite(MOTB, 0);
-    */
 }
 
 void loop()
@@ -178,7 +152,7 @@ void loop()
 
     // Updating the terminal
     terminal_tick();
-
+    opticals_tick();
     // Updating voltage
     // XXX: Can be do less frequently
     voltage_tick();
@@ -186,6 +160,7 @@ void loop()
 #if defined(RHOCK)
     rhock_tick();
 #endif
+
     if (SerialUSB.available() && !isUSB) {
         isUSB = true;
         terminal_init(&SerialUSB);
@@ -200,4 +175,7 @@ void loop()
         dcFlag = false;
         tick();
     }
+
+    if (!voltage_error())
+      wheel_tick();
 }
