@@ -25,6 +25,9 @@ TERMINAL_PARAMETER_FLOAT(smooth_so, "smoothing speed order at low level", 0.50);
 #define MIN_MOVE_ORDER 1500
 #define MAX_ORDER 3000
 
+float stamina;
+
+
 /* colle vers les capteurs optiques */
 float wheel_optical_get(int wheel_idx) {
   if (wheel_idx==0) return optical_get(2);
@@ -182,7 +185,7 @@ public:
 	forcing_init = micros();
 	buzzer_play(MELODY_CUSTOM);
 	led_set_mode(LEDS_CUSTOM);
-	led_color_set(led_of_wheel(idx), 100, 100, 0);
+	led_color_set(led_of_wheel(idx), 255, 0, 0);
 	terminal_io()->println("CAUTION: forcing");
 	forcing = true;
       }
@@ -463,6 +466,10 @@ public:
     if (idx == 0) {}
     if (idx == 1) { s = -s; }
     if (idx == 2) { s = -s; }
+
+    if (s>1400) { s = 1400 + stamina*(s-1400); }
+    if (s<-1400) { s = -1400 + stamina*(s+1400); }
+
     dc_single_command(idx, (int) s);
   }
 
@@ -587,6 +594,7 @@ void wheel_init() {
   }
   wheel_mode = WheelReady;
   t_init = -1;
+  stamina = 1.0;
 }
 
 void calib_wheel(int idx) {
@@ -718,8 +726,50 @@ void wheel_calib_tick() {
 
 }
 
+long int last_stam_t = -1;
+double stam_dt = 0;
+
+void update_stamina() {
+  if (last_stam_t < 0) {
+    last_stam_t = micros();
+    return;
+  }
+  else {
+    long int curr_t = micros();
+    stam_dt = ((double) (curr_t - last_stam_t)) / 1000000;
+    last_stam_t = curr_t;
+  }
+
+  float power = 0;
+  for (int i=0; i<3; i++)
+    if (fabs(wheel[i].speed_tgt) > 0.5) power = 1;
+  float dstam = power > 0 ? -0.02 : 0.06; 
+  stamina += dstam * stam_dt;
+  if (stamina < 0.2) stamina = 0.2;
+  if (stamina > 1.0) stamina = 1.0;
+}
+
+uint32 wheel_glb_t;
+double stam_x = 0;
+
 void wheel_tick() {
-  
+  update_stamina();
+
+  led_set_mode(LEDS_CUSTOM);
+  float freq = 1.0 + (1.0/(pow(stamina,2)) - 1);
+  stam_x += 2*M_PI*freq*stam_dt;
+  int v = (int) (255 * (1 + cos(stam_x))/2);
+  bool some_forcing = false;
+  for (int i=0; i<3; i++)
+    if (wheel[i].forcing) some_forcing = true;
+  if (some_forcing) {
+    for (int i=0; i<3; i++)
+      if (!wheel[i].forcing) led_color_set(led_of_wheel(i), v,v,v);
+  }
+  else {
+    led_all_color_set(v,v,v);
+  }
+
   for (int i=0; i<3; i++)
     wheel[i].tick();
 

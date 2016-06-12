@@ -160,6 +160,13 @@ void led_set_all(int value, bool custom)
     led_update();
 }
 
+void led_all_color_set(int r, int g, int b) {
+    led1_r = led2_r = led3_r = r;
+    led1_g = led2_g = led3_g = g;
+    led1_b = led2_b = led3_b = b;
+    led_update();
+}
+
 void led_color_set(int index, int r, int g, int b) {
   switch (index) {
   case 1: 
