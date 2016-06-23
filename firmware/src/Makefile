@@ -1,7 +1,7 @@
 # Try "make help" first
 #
 MODEL="metabot2"
-VERSION="1.0"
+VERSION="1.0H"
 
 .DEFAULT_GOAL := sketch
 
