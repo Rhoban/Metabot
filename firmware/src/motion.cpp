@@ -101,6 +101,7 @@ TERMINAL_COMMAND(reset, "Reset robot's motion parameters"){
     crab = INIT_CRAB;
     turn = INIT_TURN;
     frontH = INIT_FRONTH;
+    terminal_io()->println("OK");
 }
 #endif
 
