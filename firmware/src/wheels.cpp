@@ -744,7 +744,7 @@ void update_stamina() {
   for (int i=0; i<3; i++)
     if (fabs(wheel[i].speed_tgt) > 0.5) power = 1;
   float dstam = power > 0 ? -0.02 : 0.06; 
-  stamina += dstam * stam_dt;
+  // stamina += dstam * stam_dt;
   if (stamina < 0.2) stamina = 0.2;
   if (stamina > 1.0) stamina = 1.0;
 }
