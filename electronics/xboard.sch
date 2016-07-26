@@ -1075,6 +1075,12 @@ reflow soldering</description>
 <pad name="P$2" x="3.3" y="0" drill="1" shape="square"/>
 <circle x="0" y="0" radius="6" width="0.127" layer="21"/>
 </package>
+<package name="BUZZER10">
+<circle x="0" y="0" radius="1.25" width="0.127" layer="21"/>
+<pad name="P$1" x="-5" y="0" drill="1" shape="square"/>
+<pad name="P$2" x="5" y="0" drill="1" shape="square"/>
+<circle x="0" y="0" radius="8.5" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="CONNEC_2X20">
@@ -1678,6 +1684,15 @@ reflow soldering</description>
 </technologies>
 </device>
 <device name="66" package="BUZZER66">
+<connects>
+<connect gate="G$1" pin="P$1" pad="P$1"/>
+<connect gate="G$1" pin="P$2" pad="P$2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="10MM" package="BUZZER10">
 <connects>
 <connect gate="G$1" pin="P$1" pad="P$1"/>
 <connect gate="G$1" pin="P$2" pad="P$2"/>
@@ -5826,7 +5841,7 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 <part name="DC4" library="rhoban" deviceset="CPOL_EU" device="PANASONIC_D8" value="220uF"/>
 <part name="U$12" library="rhoban" deviceset="NPN" device="_BC817,215"/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="470"/>
-<part name="BUZZER" library="rhoban" deviceset="BUZZER" device="66"/>
+<part name="BUZZER" library="rhoban" deviceset="BUZZER" device="10MM"/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
 <part name="P+16" library="supply1" deviceset="VCC" device=""/>
 <part name="CA" library="rhoban" deviceset="C_EU" device="-100NF"/>

@@ -2753,11 +2753,11 @@ reflow soldering</description>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 <rectangle x1="-0.5001" y1="-0.3" x2="0.5001" y2="0.3" layer="35"/>
 </package>
-<package name="BUZZER66">
+<package name="BUZZER10">
 <circle x="0" y="0" radius="1.25" width="0.127" layer="21"/>
-<pad name="P$1" x="-3.3" y="0" drill="1" shape="square"/>
-<pad name="P$2" x="3.3" y="0" drill="1" shape="square"/>
-<circle x="0" y="0" radius="6" width="0.127" layer="21"/>
+<pad name="P$1" x="-5" y="0" drill="1" shape="square"/>
+<pad name="P$2" x="5" y="0" drill="1" shape="square"/>
+<circle x="0" y="0" radius="8.5" width="0.127" layer="21"/>
 </package>
 <package name="C0805">
 <description>&lt;b&gt;CAPACITOR&lt;/b&gt;&lt;p&gt;</description>
@@ -4146,7 +4146,7 @@ design rules under a new name.</description>
 <element name="DC4" library="rhoban" package="PANASONIC_D8" value="220uF" x="4.342078125" y="23.708159375"/>
 <element name="U$12" library="rhoban" package="SOT-23" value="NPN_BC817,215" x="6.4227875" y="-24.982771875" rot="R180"/>
 <element name="R8" library="rcl" package="R0805" value="470" x="7.3511" y="-20.324259375" rot="R90"/>
-<element name="BUZZER" library="rhoban" package="BUZZER66" value="BUZZER66" x="-4.581790625" y="-31.34356875"/>
+<element name="BUZZER" library="rhoban" package="BUZZER10" value="BUZZER10MM" x="-4.581790625" y="-31.34356875"/>
 <element name="CA" library="rhoban" package="C0805" value="C_EU-100NF" x="-23.6728" y="-7.112" rot="R270">
 <attribute name="FARNELL_LINK" value="http://fr.farnell.com/kemet/c0805c104j5ractu/condensateur-100nf-50v-x7r-0805/dp/1414663RL" x="-23.6728" y="-7.112" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="DATASHEET" value="condo100nF.pdf" x="-23.6728" y="-7.112" size="1.778" layer="27" rot="R270" display="off"/>
@@ -4328,9 +4328,9 @@ design rules under a new name.</description>
 <wire x1="-0.2" y1="-5.2" x2="1.8" y2="-3.2" width="0.254" layer="1"/>
 <wire x1="-0.2" y1="-30.2" x2="-0.2" y2="-19.6" width="0.254" layer="1"/>
 <wire x1="-0.2" y1="-19.6" x2="-0.2" y2="-5.2" width="0.254" layer="1"/>
-<wire x1="-1.2" y1="-31.2" x2="-0.2" y2="-30.2" width="0.254" layer="1"/>
+<wire x1="-0.1975375" y1="-30.227915625" x2="-0.2" y2="-30.2" width="0.254" layer="1"/>
 <wire x1="1.8" y1="-3.2" x2="1.913528125" y2="-3.1018125" width="0.254" layer="1"/>
-<wire x1="-1.2" y1="-31.2" x2="-1.281790625" y2="-31.34356875" width="0.254" layer="1"/>
+<wire x1="-0.1975375" y1="-30.227915625" x2="0.418209375" y2="-31.34356875" width="0.254" layer="1"/>
 <wire x1="15" y1="9.4" x2="18.2" y2="12.6" width="0.254" layer="1"/>
 <wire x1="15" y1="1.6" x2="15" y2="9.4" width="0.254" layer="1"/>
 <wire x1="16.2" y1="0.4" x2="15" y2="1.6" width="0.254" layer="1"/>
@@ -4790,9 +4790,9 @@ design rules under a new name.</description>
 <contactref element="U$12" pad="3"/>
 <wire x1="0" y1="-32.6" x2="6.4" y2="-26.2" width="0.254" layer="1"/>
 <wire x1="-7.8" y1="-32.6" x2="0" y2="-32.6" width="0.254" layer="1"/>
-<wire x1="-7.8" y1="-31.4" x2="-7.8" y2="-32.6" width="0.254" layer="1"/>
+<wire x1="-7.765228125" y1="-32.59051875" x2="-7.8" y2="-32.6" width="0.254" layer="1"/>
 <wire x1="6.4" y1="-26.2" x2="6.4227875" y2="-26.082771875" width="0.254" layer="1"/>
-<wire x1="-7.8" y1="-31.4" x2="-7.881790625" y2="-31.34356875" width="0.254" layer="1"/>
+<wire x1="-7.765228125" y1="-32.59051875" x2="-9.581790625" y2="-31.34356875" width="0.254" layer="1"/>
 </signal>
 </signals>
 </board>
