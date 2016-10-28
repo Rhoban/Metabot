@@ -6,6 +6,15 @@
  * This is the dimension of the legs, in mm
  */
 
+ /*
+ Uniformisation:
+ L0		61
+ L1		46
+ L2		60
+ L3_1	90
+ L3_2	42
+ */
+ 
 #if 1
 // Laser parts
 #define L0      61
