@@ -10,7 +10,7 @@ BodyThickness = 3;
 
 // Sizes of the parts of the leg
 // Ratio of leg parts
-LegSize = 100;
+LegSize = 104.5;
 LegSizeA = (0.60)*LegSize;
 LegSizeB = (0.20)*LegSize;
 LegSizeC = (0.20)*LegSize;
@@ -36,7 +36,7 @@ UScrewsSpacing = 10;
 UScrewsDiameter= 3.3;
 
 // Side dimensions
-SideSize = 35;
+SideSize = 36;
 SideHolesToBorder = 5;
 
 // Defining the resolution
