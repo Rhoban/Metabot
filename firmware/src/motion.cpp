@@ -20,7 +20,7 @@
 #include <rhock/stream.h>
 #endif
 #include "config.h"
-#include "function.h"
+#include "cubic.h"
 #include "motion.h"
 #include "kinematic.h"
 #include "mapping.h"
@@ -92,13 +92,14 @@ TERMINAL_COMMAND(toggleCrab, "Toggle crab mode")
 #endif
 
 // Gait selector
-#define GAIT_WALK       0
-#define GAIT_TROT       1
-TERMINAL_PARAMETER_INT(gait, "Gait (0:walk, 1:trot)", GAIT_TROT);
+TERMINAL_PARAMETER_FLOAT(gait, "Gait", 1);
+
+// Support
+TERMINAL_PARAMETER_FLOAT(support, "Duty cycle", 0.5);
 
 // Functions
-Function rise;
-Function step;
+Cubic rise;
+Cubic step;
 
 /**
  * Initializing functions
@@ -108,53 +109,20 @@ void setup_functions()
     rise.clear();
     step.clear();
 
-    if (gait == GAIT_WALK) {
-        // Rising the legs
-        rise.addPoint(0.0, 0.0);
-        rise.addPoint(0.1, 1.0);
-        rise.addPoint(0.3, 1.0);
-        rise.addPoint(0.35, 0.0);
-        rise.addPoint(1.0, 0.0);
+    step.addPoint(0, 0.5, -1/support);
+    step.addPoint(support, -0.5, -1/support);
+    step.addPoint(support+(1-support)/2, 0, 1);
+    step.addPoint(1, 0.5, -1/support);
 
-        // Taking the leg forward
-        step.addPoint(0.0, -0.5);
-        step.addPoint(0.12, -0.5);
-        step.addPoint(0.3, 0.5);
-        step.addPoint(0.35, 0.5);
-        step.addPoint(1.0, -0.5);
-    }
+    rise.addPoint(0, 0, 0);
+    rise.addPoint(support, 0, 0);
+    rise.addPoint(support+(1-support)/2, 1, 0);
+    rise.addPoint(1, 0, 0);
+}
 
-    if (gait == GAIT_TROT) {
-        // Rising the legs
-        rise.addPoint(0.0, 1.0);
-        rise.addPoint(0.3, 1.0);
-        rise.addPoint(0.4, 0.0);
-        rise.addPoint(0.9, 0.0);
-        rise.addPoint(1.0, 1.0);
-
-        // Taking the leg forward
-        step.addPoint(0.0, -0.5);
-        step.addPoint(0.1, -0.5);
-        step.addPoint(0.3, 0.5);
-        step.addPoint(0.5, 0.5);
-        step.addPoint(0.85, -0.5);
-        step.addPoint(1.0, -0.5);
-
-        /*
-         // Rising the legs
-         rise.addPoint(0.0, 0.0);
-         rise.addPoint(0.1, 1.0);
-         rise.addPoint(0.4, 1.0);
-         rise.addPoint(0.5, 0.0);
-         rise.addPoint(1.0, 0.0);
- 
-         // Taking the leg forward
-         step.addPoint(0.0, -0.5);
-         step.addPoint(0.1, -0.5);
-         step.addPoint(0.5, 0.5);
-         step.addPoint(1.0, -0.5);
-         */
-    }
+TERMINAL_COMMAND(sf, "Setup functions")
+{
+    setup_functions();
 }
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
@@ -214,13 +182,10 @@ void motion_tick(float t)
         // This defines the phase of the gait
         float legPhase;
 
-        if (gait == GAIT_WALK) {
-            float phases[] = {0.0, 0.5, 0.75, 0.25};
-            legPhase = t + phases[i];
-        }
-        if (gait == GAIT_TROT) {
-            legPhase = t + group*0.5;
-        }
+        // Defining gait
+        float phasesA[] = {0.0, 0.5, 0.99999, 0.5};
+        float phasesB[] = {0.0, 0.5, 0.75, 0.25};
+        legPhase = t + phasesA[i]*gait + phasesB[i]*(1-gait);
 
         float x, y, z, a, b, c;
 
