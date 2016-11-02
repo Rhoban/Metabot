@@ -1,4 +1,4 @@
-projekt -Z 0.1 -e 2.5:1 leg.stl > parts/leg.dxf
+projekt -z -Z 0.1 -e 2.5:1 leg.stl > parts/leg.dxf
 projekt -y -Z 0.1 -e 2.5:1 u.stl > parts/u.dxf
 projekt -z -Z 0.1 -e 2.5:1 side.stl > parts/side.dxf
 projekt -z -Z 0.1 -e 2.5:1 tip.stl > parts/tip.dxf
