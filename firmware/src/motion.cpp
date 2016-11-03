@@ -95,7 +95,7 @@ TERMINAL_COMMAND(toggleCrab, "Toggle crab mode")
 TERMINAL_PARAMETER_FLOAT(gait, "Gait", 1);
 
 // Support
-TERMINAL_PARAMETER_FLOAT(support, "Duty cycle", 0.5);
+float support = 0.5;
 
 // Functions
 Cubic rise;
@@ -120,9 +120,14 @@ void setup_functions()
     rise.addPoint(1, 0, 0);
 }
 
-TERMINAL_COMMAND(sf, "Setup functions")
+TERMINAL_COMMAND(support, "Setup functions")
 {
-    setup_functions();
+    if (argc == 1) {
+        support = atof(argv[0]);
+        setup_functions();
+    } else {
+        terminal_io()->println("Usage: support [duty]");
+    }
 }
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
@@ -183,10 +188,11 @@ void motion_tick(float t)
         float legPhase;
 
         // Defining gait
-        float phasesA[] = {0.0, 0.5, 0.99999, 0.5};
+        float phasesA[] = {0.0, 0.5, 1-1e-6, 0.5};
         float phasesB[] = {0.0, 0.5, 0.75, 0.25};
         legPhase = t + phasesA[i]*gait + phasesB[i]*(1-gait);
 
+        // Leg target
         float x, y, z, a, b, c;
 
         // Computing the order in the referencial of the body
@@ -198,19 +204,46 @@ void motion_tick(float t)
         // The leg position in the body frame
         float X = (cos(M_PI/4)*radius) * ((i==0||i==1) ? 1 : -1);
         float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
+        float X_ = X;
+        float Y_ = Y;
+
+        // Applying crab
+        crabRad = DEG2RAD(crab) * (group ? 1 : -1);
+        X = cos(crabRad)*X_ - sin(crabRad)*Y_;
+        Y = sin(crabRad)*X_ + cos(crabRad)*Y_;
+        
+        // Extras
+        X += ex[i];
+        Y += ey[i];
         
         // Add dX and dY to the moving vector
-        X += stepping*dx + ex[i];
-        Y += stepping*dy + ey[i];
+        if (fabs(turn) > 0.5) {
+            float turnRad = -DEG2RAD(turn);
+            float theta = -stepping*turnRad;
+            float l = sqrt(dx*dx+dy*dy)/turnRad;
+            float r = atan2(dy, dx);
+            float cr = cos(-r);
+            float sr = sin(-r);
 
-        // Rotate around the center of the robot
-        crabRad = DEG2RAD(crab) * (group ? 1 : -1);
-        float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
-        float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
+            X_ = X; Y_ = Y;
+            X = X_*cr - Y_*sr;
+            Y = X_*sr + Y_*cr;
+
+            X_ = X; Y_ = Y;
+            X = X_*cos(theta) - (Y_+l)*sin(theta);
+            Y = X_*sin(theta) + (Y_+l)*cos(theta) - l;
+            
+            X_ = X; Y_ = Y;
+            X = X_*cr - Y_*(-sr);
+            Y = X_*(-sr) + Y_*cr;
+        } else {
+            X += stepping*dx;
+            Y += stepping*dy;
+        }
 
         // Move to the leg frame
         float vx, vy;
-        legFrame(xOrder, yOrder, &vx, &vy, i, L0);
+        legFrame(X, Y, &vx, &vy, i, L0);
 
         // The robot is moving if there is dynamics parameters
         moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
