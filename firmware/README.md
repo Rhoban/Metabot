@@ -20,7 +20,7 @@ To put the firmware on the robot, simply cd into the `firmware/` repository and
 run the installation script:
 
 ```
-sudo python robotis-loader.py /dev/ttyACM0 metabot.bin
+sudo python robotis-loader.py /dev/ttyACM0 metabot2.bin
 ```
 
 This should reset the board and then output some progress bar, your firmware is now
@@ -34,7 +34,7 @@ simply OpenCM IDE for that.
 Then, run:
 
 ```
-sudo python robotis-loader.py COM4 metabot.bin
+sudo python robotis-loader.py COM4 metabot2.bin
 ```
 
 Replace COM4 with the right serial port (you can see it in OpenCM ide or in the devices
