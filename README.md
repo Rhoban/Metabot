@@ -1,10 +1,8 @@
-# Open-source DIY parametric robot
+# Metabot: an open-source quadruped robot
 
-![Metabot](docs/imgs/metabot.jpg)
+![Metabot](docs/imgs/metabots.png)
 
-## [Demo video »](http://metabot.cc/demonstration)
-
-## [Make your own (Documentation) »](http://metabot.cc/make-a-robot)
+Metabot is an open-source DIY quadruped robotics platform.
 
 ## License
 
