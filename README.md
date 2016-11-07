@@ -1,4 +1,4 @@
-# Metabot: an open-source quadruped robot
+# The Metabot open-source quadruped robot
 
 ![Metabot](docs/imgs/metabots.png)
 
