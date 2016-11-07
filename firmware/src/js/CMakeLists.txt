@@ -20,6 +20,7 @@ set (SOURCES
     ${BASE}/mapping.cpp
     ${BASE}/rhock-functions.cpp
     ${BASE}/rhock-stream.cpp
+    ${BASE}/cubic.cpp
     ${RH_BASE}/function.cpp
     )
 
