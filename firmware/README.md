@@ -1,7 +1,5 @@
 # Firmware
 
-[« back to the documentation](index.md)
-
 The firmware is the code that is loaded on the robot and that generates the
 walking gait and talks to the motors. It is currently only adapted for the
 original 12-dof Metabot (4 legs, 3 motors per leg).
