@@ -90,6 +90,4 @@ You can use `make install` to send directly the firmware on the robot:
 make install
 ```
 
-This will work exactly like the above `install.sh` script.
-
 
