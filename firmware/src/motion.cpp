@@ -120,6 +120,7 @@ void setup_functions()
     rise.addPoint(1, 0, 0);
 }
 
+#ifdef HAS_TERMINAL
 TERMINAL_COMMAND(support, "Setup functions")
 {
     if (argc == 1) {
@@ -129,6 +130,7 @@ TERMINAL_COMMAND(support, "Setup functions")
         terminal_io()->println("Usage: support [duty]");
     }
 }
+#endif
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
