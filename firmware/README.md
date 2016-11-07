@@ -71,4 +71,4 @@ of all servos.
 
 ## Building, developing & hacking the firmware
 
-See the [firmware source](src/README.md)
+See the [firmware source README](src#firmware-source)
