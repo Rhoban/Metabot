@@ -5,9 +5,9 @@ Metabot V2 bill of materials
 ## ROBOTIS parts
 
 
-Name          | Quantity | Description                  
---------------|----------|----------------------------------
-XL-320        |  12      |  Robot servo-motors
---------------|----------|----------------------------------
-
+Name                   | Quantity | Description                  
+-----------------------|----------|----------------------------------
+XL-320                 | 12       | Robot servo-motors
+-----------------------|----------|----------------------------------
+Short Rivets           | ~300     | Short rivets
 
