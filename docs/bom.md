@@ -42,8 +42,7 @@ Name                   | Quantity | Description
 -----------------------|----------|----------------------------------
 M4x35                  | 8        | Tie the motors to the body
 M4x40                  | 4        | Tie the leg tips
-M3x8                   | 25       | 16 Used to tie the Us together, 4 for the magnets to the body,
-                                    4 for the board and one for the magnet-less head fixation
+M3x8                   | 25       | 16 Used to tie the Us together, 4 for the magnets to the body, 4 for the board and one for the magnet-less head fixation
 M3x8 (countersunk)     | 3        | Used to tie the magnets to the spacers
 M3x15 male spacer      | 3        | Spacers for the head
 M3x5 male spacer       | 4        | Spacers for the board
