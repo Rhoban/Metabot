@@ -35,9 +35,6 @@ IMAX B3 AC charger     | 1        | A cheap and simple to use LiPo charger
 
 ## Mechanics
 
-For mechanical parts, you have choice between 3D and laser. You can either print the
-parts yourself or cut it and bend it.
-
 Name                   | Quantity | Description                  
 -----------------------|----------|----------------------------------
 M4x35                  | 8        | Tie the motors to the body
@@ -53,6 +50,9 @@ Countersunk magnet (3mm) | 6        | To plug and unplug the head
 Googly eyes            | 2        | You can paste it on the front on the robot to get it nicer
 
 ## Parts
+
+For mechanical parts, you have choice between 3D and laser. You can either print the
+parts yourself or cut it and bend it.
 
 ### The 3D option
 
