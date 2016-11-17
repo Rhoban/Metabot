@@ -43,7 +43,7 @@ M3x8                   | 25       | 16 Used to tie the Us together, 4 for the ma
 M3x8 (countersunk)     | 3        | Used to tie the magnets to the spacers
 M3x15 male spacer      | 3        | Spacers for the head
 M3x5 male spacer       | 4        | Spacers for the board
-M3 nylstop caps        | 25       | We recommend nylstop caps
+M3 nylstop caps        | 30       | We recommend nylstop caps
 M4 nylstop caps        | 12       | We recommend nylstop caps
 M3 blind cap nut       | 4        | Blind caps are prettiest for the top of the head
 Countersunk magnet (3mm) | 6        | To plug and unplug the head
