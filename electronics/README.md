@@ -9,13 +9,6 @@ To assemble the board, you'll need the following components:
 
 Name       | Farnell       | Quantity      | Description
 -----------|---------------|---------------|--------------------------------------
-R0805 22 ohms | - | 2 | 
-R0805 470 ohms | - | 2 | 
-R0805 1 Kohms | - | 1 |
-R0805 4 Kohms | - | 3 |
-R0805 10 Kohms | - | 1 |
-R0805 20 Kohms | - | 1 |
-C0805 100nF | - | 1 |
 MOLEX-53253-0370 | 1756921 | 4 | Connector for the motors
 CD74HCT367M | 1739593 | 1 | Bus driver
 1x20 0.1" header | 1593469 | 2 | Connector for the maple mini
@@ -31,4 +24,11 @@ LITTELFUSE  56000001009  | 1185363 | 1     | Fuse holder
 Radial Fuse, 3.15A  37013150410 | 1716619 | 1 | Fuse
 SUD50N04-8M8P-4GE3 | 1794799 | 1     | This big MOS can blow up the fuse programmatically
 JST-BEC connector | - | 1 | Connector for the battery
+R0805 22 ohms | - | 2 | 
+R0805 470 ohms | - | 2 | 
+R0805 1 Kohms | - | 1 |
+R0805 4 Kohms | - | 3 |
+R0805 10 Kohms | - | 1 |
+R0805 20 Kohms | - | 1 |
+C0805 100nF | - | 1 |
 
