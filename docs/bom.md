@@ -56,9 +56,31 @@ Googly eyes            | 2        | You can paste it on the front on the robot t
 
 ### The 3D option
 
-Name                   | Quantity | Description                  
------------------------|----------|----------------------------------
-
+Name                   | Quantity 
+-----------------------|----------
+[U](/mechanics/3d/u.stl) | 8      
+[side](/mechanics/3d/side.stl) | 8
+[leg](/mechanics/3d/leg.stl) | 4
+[body_bottom](/mechanics/3d/body_bottom.stl) | 1
+[body_top](/mechanics/3d/body_top.stl) | 1
+[head](/mechanics/3d/head.stl) | 1
 
 ### The laser option
+
+The parts are provided as DXF, the black layer (0) is cutting and the red one (1)
+is 1mm engraving. The target material is 3mm thick PMMA (acrylic).
+
+A packet version can also be [found here](/mechanics/laser/metabot.dxf).
+
+Name                   | Quantity | Comment
+-----------------------|----------|-------------
+[U](/mechanics/laser/parts/u.dxf) | 8 | [Requires bending](/mechanics/laser/doc/u_bending.pdf)
+[side](/mechanics/laser/parts/side.dxf) | 8 | 
+[leg](/mechanics/laser/parts/leg.dxf) | 4 |
+[tip](/mechanics/laser/parts/tip.dxf) | 4 |
+[tip_up](/mechanics/laser/parts/tip_up.dxf) | 4 |
+[body_bottom](/mechanics/laser/parts/body_bottom.dxf) | 1 | [Requires bending](/mechanics/laser/doc/body_bending.pdf)
+[body_top](/mechanics/laser/parts/body_top.dxf) | 1
+[head](/mechanics/laser/parts/head.dxf) | 1 | [Required bending](/mechanics/laser/doc/head.pdf)
+
 
