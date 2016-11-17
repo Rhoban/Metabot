@@ -49,6 +49,7 @@ M3x5 male spacer       | 4        | Spacers for the board
 M3 nylstop caps        | 25       | We recommend nylstop caps
 M4 nylstop caps        | 12       | We recommend nylstop caps
 M3 blind cap nut       | 4        | Blind caps are prettiest for the top of the head
+Countersunk magnet (3mm) | 6        | To plug and unplug the head
 Googly eyes            | 2        | You can paste it on the front on the robot to get it nicer
 
 ## Parts
