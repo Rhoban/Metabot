@@ -12,4 +12,20 @@ Long Rivets            | 48       | Long rivets
 Ollo Pulley            | 12       | The pulley for the counter-axis
 Ollo Tool              | 1        | A plastic tool that can be used to handle rivets
 
+## Electronics
+
+Name                   | Quantity | Description                  
+-----------------------|----------|----------------------------------
+XBoard                 | 1        | This is a custom [board](/electronics/)
+
+## Batteries
+
+## Mechanics
+
+For mechanical parts, you have choice between 3D and laser. You can either print the
+parts yourself or cut it and bend it.
+
+### Option 3D
+
+### Option Laser
 
