@@ -1,3 +1,3 @@
-# 3D parts
+# Mechanics
 
-[Documentation »](../docs/parts.md)
+Here are the mechanics parts, [documentation can be found here](/doc/bom.md)
