@@ -81,6 +81,6 @@ Name                   | Quantity | Comment
 [tip_up](/mechanics/laser/parts/tip_up.dxf) | 4 |
 [body_bottom](/mechanics/laser/parts/body_bottom.dxf) | 1 | [Requires bending](/mechanics/laser/doc/body_bending.pdf)
 [body_top](/mechanics/laser/parts/body_top.dxf) | 1
-[head](/mechanics/laser/parts/head.dxf) | 1 | [Required bending](/mechanics/laser/doc/head.pdf)
+[head](/mechanics/laser/parts/head.dxf) | 1 | [Required bending](/mechanics/laser/doc/head_bending.pdf)
 
 
