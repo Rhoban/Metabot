@@ -21,7 +21,7 @@ Maple Mini             | 1        | A controller featuring a STM32F103CBT6, with
 Mini USB cable         | 1        | You'll need it to connect to the Maple Mini
 GY-85 IMU              | 1        | 9DOF inertial measurement units (accelerometer, gyroscope and magnetometer)
 XBee Bluetooth         | 1        | You can actually choose any bluetooth chip you want
-GP2Y0A21YK             | 1        | 10 to 80 infrared distance sensor
+GP2Y0A21YK             | 1        | 10 to 80 cm infrared distance sensor
 
 ## Batteries
 
