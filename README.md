@@ -16,6 +16,8 @@ In this repository you will find all the open-source material to make (or hack) 
 * [Firmware](firmware)
 * [Joypad firmware](dfpad)
 
+Note that you can control the robot using the Metabot app (available on the Play Store)
+
 ## License
 
 This project is under CC BY-NC license:
