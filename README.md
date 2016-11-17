@@ -3,7 +3,7 @@
 ![Metabot](docs/imgs/metabots.png)
 
 Metabot is an open-source DIY quadruped robotics platform. It can be 3D printed or
-laser cutted (in PMMA).
+laser cutted (3mm acrylic).
 
 Note that [the robot is now available as a kit](http://metabot.cc).
 In this repository you will find all the open-source material to make (or hack) your own.
