@@ -25,7 +25,9 @@ module head(height=25, thickness=2.2, print=false) {
                     octopath(X-thickness, Y+3, thickness=height-thickness);
                 }
         
-                // Spacers
+                // If you don't have spacer, you can uncomment this and use long
+                // screws
+                /*
                 repeat4()
                 translate([41,0,0])
                 difference() {
@@ -34,6 +36,7 @@ module head(height=25, thickness=2.2, print=false) {
                     translate([0,0,-1])
                     cylinder(d=4, h=height-10);
                 }
+                */
             }
             
                     
