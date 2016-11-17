@@ -8,6 +8,7 @@ laser cutted (in PMMA).
 Note that [the robot is now available as a kit](http://metabot.cc).
 In this repository you will find all the open-source material to make (or hack) your own.
 
+* [Bill of material](docs/bom.md)
 * Mechanics
     * [3D Parts](mechanics/3d)
     * [Laser parts](mechanics/laser)
