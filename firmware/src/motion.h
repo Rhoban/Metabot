@@ -1,6 +1,17 @@
 #ifndef _METABOT_MOTION_H
 #define _METABOT_MOTION_H
 
+#define INIT_FREQ       2.0
+#define INIT_BACKLEGS   false
+#define INIT_ALT        15.0
+#define INIT_R          153.0
+#define INIT_H          -55.0
+#define INIT_DX         0.0
+#define INIT_DY         0.0
+#define INIT_CRAB       0.0
+#define INIT_TURN       0.0
+#define INIT_FRONTH     0.0
+
 // Output angles
 extern float l1[4], l2[4], l3[4];
 
