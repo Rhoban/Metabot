@@ -26,6 +26,7 @@
 #endif
 
 struct rhock_context *controlling = NULL;
+struct rhock_context *controllingBuzzer = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
 
 void motion_stop()
@@ -86,6 +87,10 @@ void rhock_on_stop(struct rhock_context *context)
     if (context == controlling) {
         motion_stop();
         controlling = NULL;
+    }
+    if (context == controllingBuzzer) {
+        buzzer_stop();
+        controllingBuzzer = NULL;
     }
 }
 
@@ -306,6 +311,7 @@ RHOCK_NATIVE(robot_beep)
         RHOCK_PUSHF(duration);
 
         buzzer_beep(freq, duration);
+        controllingBuzzer = context;
         
         return RHOCK_NATIVE_WAIT;
     }
