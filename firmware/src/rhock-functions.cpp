@@ -296,15 +296,13 @@ RHOCK_NATIVE(robot_beep)
         float freq = RHOCK_POPF();
         RHOCK_PUSHF(duration);
 
-#ifndef __EMSCRIPTEN__
         buzzer_beep(freq, duration);
-#endif
         
         return RHOCK_NATIVE_WAIT;
     }
     ON_ELAPSED() {
         RHOCK_SMASH(1);
-        motion_stop();
+        buzzer_stop();
         return RHOCK_NATIVE_CONTINUE;
     }
 }

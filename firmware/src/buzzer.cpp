@@ -1,9 +1,24 @@
 #include "buzzer.h"
 #include "voltage.h"
+#ifdef HAS_TERMINAL
 #include <terminal.h>
+#endif
 
 // Config
+#ifndef __EMSCRIPTEN__
 HardwareTimer           timer(2);
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/bind.h>
+unsigned int millis()
+{
+    return EM_ASM_INT({
+            return (new Date()).getTime()%0xffffffff;
+    }, 0); 
+}
+#endif
 
 // Partitions
 struct buzzer_note {
@@ -38,15 +53,33 @@ static struct buzzer_note *melody;
 static struct buzzer_note *melody_repeat;
 static int melody_st;
 
+#ifdef __EMSCRIPTEN__
+static int playing_note = 0;
+
+int buzzer_get_frequency()
+{
+    return playing_note;
+}
+
+EMSCRIPTEN_BINDINGS(buzzer) {
+    emscripten::function("buzzer_get_frequency", &buzzer_get_frequency);
+}
+#endif
+
 void buzzer_init()
 {
+#ifndef __EMSCRIPTEN__
     melody = NULL;
     pinMode(BUZZER_PIN, PWM);
     pwmWrite(BUZZER_PIN, 0);
+#endif
 }
 
 void buzzer_play_note(int note)
 {
+#ifdef __EMSCRIPTEN__
+    playing_note = note;
+#else
     timer.pause();
     timer.setPrescaleFactor(72000000 / (note * 100));
     timer.setOverflow(100);
@@ -60,6 +93,7 @@ void buzzer_play_note(int note)
         pinMode(BUZZER_PIN, PWM);
         pwmWrite(BUZZER_PIN, 50);
     }
+#endif
 }
 
 static void buzzer_enter(struct buzzer_note *note)
@@ -80,9 +114,11 @@ static void buzzer_enter(struct buzzer_note *note)
 void buzzer_play(int melody_num, bool repeat)
 {
     // Avoid playing another melody when there is a battery alert
+#ifndef __EMSCRIPTEN__
     if (voltage_error() && melody_num != MELODY_ALERT) {
         return;
     }
+#endif
 
     struct buzzer_note *to_play = NULL;
 
@@ -95,7 +131,7 @@ void buzzer_play(int melody_num, bool repeat)
     } else {
         melody = NULL;
     }
-    
+
     if (to_play) {
         melody_repeat = repeat ? to_play : NULL;
         buzzer_enter(to_play);
@@ -109,15 +145,6 @@ void buzzer_tick()
             buzzer_enter(melody+1);
         }
     }
-}
-
-TERMINAL_COMMAND(play, "Play a melody")
-{
-    int melnum = atoi(argv[0]);
-    terminal_io()->print("Playing melody ");
-    terminal_io()->print(melnum);
-    terminal_io()->println();
-    buzzer_play(melnum);
 }
 
 void buzzer_stop()
@@ -134,7 +161,18 @@ void buzzer_beep(int freq, int duration)
     buzzer_play(2);
 }
 
+#ifdef HAS_TERMINAL
+TERMINAL_COMMAND(play, "Play a melody")
+{
+    int melnum = atoi(argv[0]);
+    terminal_io()->print("Playing melody ");
+    terminal_io()->print(melnum);
+    terminal_io()->println();
+    buzzer_play(melnum);
+}
+
 TERMINAL_COMMAND(beep, "Plays a beep")
 {
     buzzer_beep(atoi(argv[0]), 1000);
 }
+#endif

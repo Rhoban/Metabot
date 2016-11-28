@@ -16,6 +16,7 @@ set (SOURCES
     ${BASE}/kinematic.cpp
     ${BASE}/motion.cpp
     ${BASE}/leds.cpp
+    ${BASE}/buzzer.cpp
     ${BASE}/motors.cpp
     ${BASE}/mapping.cpp
     ${BASE}/rhock-functions.cpp
