@@ -84,6 +84,7 @@ void rhock_on_stop(struct rhock_context *context)
 {
     if (context == controlling) {
         motion_stop();
+        buzzer_stop();
         controlling = NULL;
     }
 }
