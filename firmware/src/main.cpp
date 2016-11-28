@@ -124,6 +124,8 @@ void setup()
  */
 void tick()
 {
+    static bool wasMoving = false;
+
     if (!move || !started) {
         t = 0.0;
         return;
@@ -136,6 +138,11 @@ void tick()
         colorize();
     }
     if (t < 0.0) t += 1.0;
+
+    if (!wasMoving && motion_is_moving()) {
+        t = 0.0;
+    }
+    wasMoving = motion_is_moving();
 
     motion_tick(t);
 

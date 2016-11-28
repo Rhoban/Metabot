@@ -139,11 +139,9 @@ float extra_h = 0;
 float extra_r = 0;
 
 // Is the robot moving?
-bool moving = false;
-
 bool motion_is_moving()
 {
-    return moving;
+    return (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
 }
 
 void motion_init()
@@ -248,7 +246,7 @@ void motion_tick(float t)
         legFrame(X, Y, &vx, &vy, i, L0);
 
         // The robot is moving if there is dynamics parameters
-        moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
+        bool moving = motion_is_moving();
 
         // This is the x,y,z order in the referencial of the leg
         x = vx;
@@ -365,6 +363,9 @@ void simulator_tick()
     if (motors_enabled()) {
         sim_t += motion_get_f()*0.02;
         if (sim_t > 1) sim_t -= 1;
+        if (!motion_is_moving()) {
+            t = 0;
+        }
         motion_tick(sim_t);
     }
 }

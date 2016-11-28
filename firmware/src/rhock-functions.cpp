@@ -17,6 +17,14 @@
 #include "imu.h"
 #include "rhock-stream.h"
 
+#ifdef __EMSCRIPTEN__
+#define ODOMETRY_TRANSLATION 1.0
+#define ODOMETRY_ROTATION 1.0
+#else
+#define ODOMETRY_TRANSLATION 1.2
+#define ODOMETRY_ROTATION 0.9
+#endif
+
 struct rhock_context *controlling = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
 
@@ -35,9 +43,9 @@ void motion_stop()
 void motion_resume()
 {
     // Resume the motion
-    motion_set_x_speed(save_x_speed);
-    motion_set_y_speed(save_y_speed);
-    motion_set_turn_speed(save_turn_speed);
+    motion_set_x_speed(save_x_speed*ODOMETRY_TRANSLATION);
+    motion_set_y_speed(save_y_speed*ODOMETRY_TRANSLATION);
+    motion_set_turn_speed(save_turn_speed*ODOMETRY_ROTATION);
 }
 
 /**
@@ -316,7 +324,9 @@ RHOCK_NATIVE(robot_yaw)
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
     //     }, 
-    RHOCK_PUSHF(0.0);
+    RHOCK_PUSHF(EM_ASM_DOUBLE({
+        return simulator_get_yaw();
+    }, 0)); 
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
