@@ -22,7 +22,7 @@
 #define ODOMETRY_ROTATION 1.0
 #else
 #define ODOMETRY_TRANSLATION 1.2
-#define ODOMETRY_ROTATION 0.9
+#define ODOMETRY_ROTATION 1.0
 #endif
 
 struct rhock_context *controlling = NULL;

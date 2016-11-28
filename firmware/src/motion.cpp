@@ -364,7 +364,7 @@ void simulator_tick()
         sim_t += motion_get_f()*0.02;
         if (sim_t > 1) sim_t -= 1;
         if (!motion_is_moving()) {
-            t = 0;
+            sim_t = 0;
         }
         motion_tick(sim_t);
     }
