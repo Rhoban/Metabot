@@ -341,13 +341,30 @@ float motion_get_turn()
     return turn;
 }
 
+TERMINAL_COMMAND(dbg, "Debug")
+{
+    terminal_io()->println(motors_get_position(0));
+    motors_read();
+}
+
 #ifdef RHOCK
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
     // Angles
-    for (int i=0; i<12; i++) {
-        rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+#ifdef __EMSCRIPTEN__
+    bool dontRead = true;
+#else
+    bool dontRead = false;
+#endif
+    if (!dontRead && motors_enabled()) {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+        }
+    } else {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)motors_get_position(i)*10));
+        }
     }
     // Leds
     led_stream_state();

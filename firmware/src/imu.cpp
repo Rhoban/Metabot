@@ -8,7 +8,6 @@
 static bool initialized = false;
 
 #define I2C_TIMEOUT 2
-TERMINAL_PARAMETER_INT(kkk, "kkk", 0);
 
 int32 i2c_master_xfer_reinit(i2c_dev *dev,
         i2c_msg *msgs,
@@ -18,7 +17,6 @@ int32 i2c_master_xfer_reinit(i2c_dev *dev,
     int32 r = i2c_master_xfer(dev, msgs, num, timeout);
     if (r != 0 || dev->state != I2C_STATE_IDLE) {
         initialized = false;
-        kkk++;
     }
     return r;
 }

@@ -9,6 +9,7 @@
 #include <commands.h>
 #include <rc.h>
 #include <rhock.h>
+#include "motors.h"
 #include "voltage.h"
 #include "buzzer.h"
 #include "distance.h"
@@ -110,7 +111,7 @@ void setup()
 
     // Initializing the buzzer, and playing the start-up melody
     buzzer_init();
-    buzzer_play(MELODY_BOOT);
+//    buzzer_play(MELODY_BOOT);
 
     // Enable 50hz ticking
     servos_init();
@@ -127,6 +128,7 @@ void tick()
     static bool wasMoving = false;
 
     if (!move || !started) {
+        motors_read();
         t = 0.0;
         return;
     }
