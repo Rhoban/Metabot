@@ -63,11 +63,58 @@ mode and enter "COMx", where x is the number of the device.
 
 You can find the number of the device in the devices manager.
 
-### Terminal commands
+## Commands
 
-You can type "help" to see all the available commands. You can use for instance `dxl_scan`
-to scan for servos, or `dxl_monitor` to monitor the position, temperature and voltage
-of all servos.
+### Basics
+
+#### `start`: Enable the motors
+
+This will enable the motors. The LEDs will turn green and the torque will rise
+slowly until the robot reaches it default position.
+
+#### `stop`: Stop the motors
+
+Turns the LEDs red and shuts the torque down.
+
+#### `beep [freq] [duration]`: Emit a beep
+
+This will emit a beep using the internal buzzer, using `freq` Hz and `duration`
+ms.
+
+### Controller
+
+Here are commands that can be used to control the motion of the robot
+
+#### `dx`, `dy`, `turn`: Controls the robot
+
+These are parameters that control the robot speed. Actually, `dx` and `dy`
+control the size of the each step (in mm) and `turn` the angle of each step
+(in °).
+
+#### `freq`: Steps per second
+
+This is the number of step the robot does on each second.
+
+#### `h`: Robot height
+
+This is the (z, in mm) height of the robot while it walks.
+
+#### `r`: Radius
+
+This is the radius of the legs (in mm), i.e the distance of the legs to the
+center of the body while walking.
+
+#### `alt`: Legs altitude
+
+This parameters controls the height the legs are lifted up (in mm) while
+walking.
+
+#### `crab`: Crab position
+
+This is an angle (in °) that can be positive or negative and allows to get a
+crab-like position while walking.
+
+
 
 ## Building, developing & hacking the firmware
 
