@@ -7,7 +7,6 @@
 #define DISTANCE_PIN     5
 
 Function volt_to_cm;
-static int distance;
 
 void distance_init()
 {

@@ -50,6 +50,7 @@ TERMINAL_COMMAND(rc, "Go to RC mode")
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
 
+// This destroyes the fuse
 TERMINAL_COMMAND(suicide, "Lit the fuse")
 {
     digitalWrite(LIT, HIGH);
@@ -62,6 +63,9 @@ void setFlag()
     flag = true;
 }
 
+/**
+ * Checks wether there is enough voltage to start the motors
+ */
 bool can_start()
 {
     if (voltage_current() < 6) {
@@ -126,7 +130,7 @@ void setup()
     // Enable 50hz ticking
     servos_init();
     servos_attach_interrupt(setFlag);
-    
+
     RC.begin(921600);
 }
 
@@ -167,7 +171,7 @@ void tick()
         wasMoving = motion_is_moving();
 
         motion_tick(t);
-    }   
+    }
 
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);

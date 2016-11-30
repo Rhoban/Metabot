@@ -12,6 +12,18 @@
 #define L3_2    42
 
 /**
+ * Here we can tweak the robot odometry parameters, to adjust the speeds with
+ * actually measured ones
+ */
+#ifdef __EMSCRIPTEN__
+#define ODOMETRY_TRANSLATION 1.0
+#define ODOMETRY_ROTATION 1.0
+#else
+#define ODOMETRY_TRANSLATION 1.2
+#define ODOMETRY_ROTATION 1.0
+#endif
+
+/**
  * Servos are supposed to be like this:
  *
  *   2nd leg   3
@@ -26,11 +38,11 @@
  */
 static int servos_order[] = {
     // First leg
-    1, 2, 3,            
+    1, 2, 3,
     // Second leg
-    4, 5, 6,            
+    4, 5, 6,
     // Third leg
-    7, 8, 9,          
+    7, 8, 9,
     // Fourth leg
     10, 11, 12
 };
@@ -41,17 +53,17 @@ static int servos_order[] = {
  *
  * Change the 1 to -1 if the servos are backwards
  */
-static int signs[] = {
-    1,          // Signs of the body motors
-    1,          // Sign of the middle-leg motors
-    1           // Sign of the end-legs motors
-};
+#define SIGN_A  1
+#define SIGN_B  1
+#define SIGN_C  1
 
 #ifdef HAS_DXL
 /**
- * This is the servos configuration, you can change the zero 
+ * This is the servos configuration, you can change the zero
  * or the min/max limits here
  */
+static void config_init() __attribute__ ((unused));
+
 static void config_init()
 {
     // First leg

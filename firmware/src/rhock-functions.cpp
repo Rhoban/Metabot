@@ -17,14 +17,6 @@
 #include "imu.h"
 #include "rhock-stream.h"
 
-#ifdef __EMSCRIPTEN__
-#define ODOMETRY_TRANSLATION 1.0
-#define ODOMETRY_ROTATION 1.0
-#else
-#define ODOMETRY_TRANSLATION 1.2
-#define ODOMETRY_ROTATION 1.0
-#endif
-
 struct rhock_context *controlling = NULL;
 struct rhock_context *controllingBuzzer = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
@@ -44,9 +36,9 @@ void motion_stop()
 void motion_resume()
 {
     // Resume the motion
-    motion_set_x_speed(save_x_speed*ODOMETRY_TRANSLATION);
-    motion_set_y_speed(save_y_speed*ODOMETRY_TRANSLATION);
-    motion_set_turn_speed(save_turn_speed*ODOMETRY_ROTATION);
+    motion_set_x_speed(save_x_speed);
+    motion_set_y_speed(save_y_speed);
+    motion_set_turn_speed(save_turn_speed);
 }
 
 /**
@@ -235,7 +227,7 @@ RHOCK_NATIVE(robot_turn)
         }
         float time = fabs(deg/turn_speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(0, 0, turn_speed, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -256,7 +248,7 @@ RHOCK_NATIVE(robot_move_x)
         }
         float time = fabs(dist/speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(speed, 0, 0, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -277,7 +269,7 @@ RHOCK_NATIVE(robot_move_y)
         }
         float time = fabs(dist/speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(0, speed, 0, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -296,7 +288,7 @@ RHOCK_NATIVE(robot_dist)
     // XXX: Simulate it, with EM ASM:
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
-    //     }, 
+    //     },
     RHOCK_PUSHF(100.0);
 #endif
 
@@ -312,7 +304,7 @@ RHOCK_NATIVE(robot_beep)
 
         buzzer_beep(freq, duration);
         controllingBuzzer = context;
-        
+
         return RHOCK_NATIVE_WAIT;
     }
     ON_ELAPSED() {
@@ -330,10 +322,10 @@ RHOCK_NATIVE(robot_yaw)
     // XXX: Simulate it, with EM ASM:
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
-    //     }, 
+    //     },
     RHOCK_PUSHF(EM_ASM_DOUBLE({
         return simulator_get_yaw();
-    }, 0)); 
+    }, 0));
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
@@ -348,6 +340,6 @@ RHOCK_NATIVE(robot_get_control)
     } else {
         RHOCK_PUSHF(0);
     }
-    
+
     return RHOCK_NATIVE_CONTINUE;
 }

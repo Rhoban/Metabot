@@ -16,14 +16,14 @@ unsigned int millis()
 {
     return EM_ASM_INT({
             return (new Date()).getTime()%0xffffffff;
-    }, 0); 
+    }, 0);
 }
 #endif
 
 // Partitions
 struct buzzer_note {
-    int freq;
-    int duration;
+    unsigned int freq;
+    unsigned int duration;
 };
 
 static struct buzzer_note melody_boot[] = {
@@ -119,7 +119,7 @@ static void buzzer_enter(struct buzzer_note *note)
     }
 }
 
-void buzzer_play(int melody_num, bool repeat)
+void buzzer_play(unsigned int melody_num, bool repeat)
 {
     // Avoid playing another melody when there is a battery alert
 #ifndef __EMSCRIPTEN__
@@ -164,7 +164,7 @@ void buzzer_stop()
     melody_repeat = NULL;
 }
 
-void buzzer_beep(int freq, int duration)
+void buzzer_beep(unsigned int freq, unsigned int duration)
 {
     melody_custom[0].freq = freq;
     melody_custom[0].duration = duration;

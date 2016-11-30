@@ -12,7 +12,7 @@ static bool initialized = false;
 int32 i2c_master_xfer_reinit(i2c_dev *dev,
         i2c_msg *msgs,
         uint16 num,
-        uint32 timeout) 
+        uint32 timeout)
 {
     int32 r = i2c_master_xfer(dev, msgs, num, timeout);
     if (r != 0 || dev->state != I2C_STATE_IDLE) {
@@ -114,7 +114,6 @@ float weight_average(float a1, float w1, float a2, float w2)
 
 void imu_init()
 {
-    bool error = false;
     yaw = 0.0;
     last_update = millis();
 
@@ -340,7 +339,7 @@ void imu_tick()
             terminal_io()->print(" ");
 
             terminal_io()->print(yaw);
-            terminal_io()->print(" ");    
+            terminal_io()->print(" ");
 
             terminal_io()->println();
         }

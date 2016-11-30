@@ -31,6 +31,7 @@
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
+
 // Extra x, y and z for each leg
 static float ex[4], ey[4], ez[4];
 
@@ -212,11 +213,11 @@ void motion_tick(float t)
         crabRad = DEG2RAD(crab) * (group ? 1 : -1);
         X = cos(crabRad)*X_ - sin(crabRad)*Y_;
         Y = sin(crabRad)*X_ + cos(crabRad)*Y_;
-        
+
         // Extras
         X += ex[i];
         Y += ey[i];
-        
+
         // Add dX and dY to the moving vector
         if (fabs(turn) > 0.5) {
             float turnRad = -DEG2RAD(turn);
@@ -233,7 +234,7 @@ void motion_tick(float t)
             X_ = X; Y_ = Y;
             X = X_*cos(theta) - (Y_+l)*sin(theta);
             Y = X_*sin(theta) + (Y_+l)*cos(theta) - l;
-            
+
             X_ = X; Y_ = Y;
             X = X_*cr - Y_*(-sr);
             Y = X_*(-sr) + Y_*cr;
@@ -257,9 +258,9 @@ void motion_tick(float t)
 
         // Computing inverse kinematics
         if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -signs[0]*a;
-            l2[i] = -signs[1]*b;
-            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
+            l1[i] = -SIGN_A*a;
+            l2[i] = -SIGN_B*b;
+            l3[i] = -SIGN_C*(c - 180*smoothBackLegs);
         }
     }
 }
@@ -299,17 +300,17 @@ void motion_set_r(float r_)
 
 void motion_set_x_speed(float x_speed)
 {
-    dx = x_speed/(2.0*freq);
+    dx = ODOMETRY_TRANSLATION*x_speed/(2.0*freq);
 }
 
 void motion_set_y_speed(float y_speed)
 {
-    dy = y_speed/(2.0*freq);
+    dy = ODOMETRY_TRANSLATION*y_speed/(2.0*freq);
 }
 
 void motion_set_turn_speed(float turn_speed)
 {
-    turn = turn_speed/(2.0*freq);
+    turn = ODOMETRY_ROTATION*turn_speed/(2.0*freq);
 }
 
 void motion_extra_x(int index, float x)
