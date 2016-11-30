@@ -168,7 +168,7 @@ void buzzer_beep(unsigned int freq, unsigned int duration)
 {
     melody_custom[0].freq = freq;
     melody_custom[0].duration = duration;
-    buzzer_play(2);
+    buzzer_play(MELODY_CUSTOM);
 }
 
 #ifdef HAS_TERMINAL
