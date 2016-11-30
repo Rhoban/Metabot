@@ -139,12 +139,23 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-    if (!wasMoving && motion_is_moving()) {
-        t = 0.0;
-    }
-    wasMoving = motion_is_moving();
+    if (voltage_error()) {
+        // If there is a voltage error, blinks the LEDs orange and
+        // stop any motor activity
+        dxl_disable_all();
+        if (t < 0.5) {
+            led_set_all(LED_R|LED_G);
+        } else {
+            led_set_all(0);
+        }
+    } else {
+        if (!wasMoving && motion_is_moving()) {
+            t = 0.0;
+        }
+        wasMoving = motion_is_moving();
 
-    motion_tick(t);
+        motion_tick(t);
+    }   
 
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);
