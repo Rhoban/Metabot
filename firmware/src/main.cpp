@@ -62,6 +62,16 @@ void setFlag()
     flag = true;
 }
 
+bool can_start()
+{
+    if (voltage_current() < 6) {
+        buzzer_play(MELODY_WARNING);
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Initializing
  */

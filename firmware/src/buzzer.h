@@ -4,7 +4,8 @@
 #define BUZZER_PIN      11
 #define MELODY_BOOT     0
 #define MELODY_ALERT    1
-#define MELODY_CUSTOM   2
+#define MELODY_WARNING  2
+#define MELODY_CUSTOM   3
 
 void buzzer_init();
 void buzzer_play(int melody, bool repeat=false);
