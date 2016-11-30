@@ -5,6 +5,9 @@
 #define CUBIC_DEFAULT_POINTS 16
 #endif
 
+/**
+ * Cubic splines
+ */
 class Cubic
 {
     public:
@@ -58,7 +61,7 @@ class Cubic
          * Array size
          */
         int size;
-        
+
         struct Polynom
         {
             float a, b, c, d;
