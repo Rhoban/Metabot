@@ -69,7 +69,7 @@ void setFlag()
  */
 bool can_start()
 {
-    if (voltage_current() < 6) {
+    if (voltage_current() < 6 || voltage_error()) {
         buzzer_play(MELODY_WARNING);
         return false;
     }
@@ -142,6 +142,24 @@ void tick()
 {
     static bool wasMoving = false;
 
+    if (voltage_error()) {
+        // If there is a voltage error, blinks the LEDs orange and
+        // stop any motor activity
+        dxl_disable_all();
+#ifdef RHOCK
+        rhock_killall();
+#endif
+        if (t < 0.5) {
+            led_set_all(LED_R|LED_G);
+        } else {
+            led_set_all(0);
+        }
+        t += 0.02;
+        if (t > 1.0) t -= 1.0;
+        return;
+    }
+
+    // The robot is disabled
     if (!move || !started) {
         motors_read();
         t = 0.0;
@@ -156,23 +174,12 @@ void tick()
     }
     if (t < 0.0) t += 1.0;
 
-    if (voltage_error()) {
-        // If there is a voltage error, blinks the LEDs orange and
-        // stop any motor activity
-        dxl_disable_all();
-        if (t < 0.5) {
-            led_set_all(LED_R|LED_G);
-        } else {
-            led_set_all(0);
-        }
-    } else {
-        if (!wasMoving && motion_is_moving()) {
-            t = 0.0;
-        }
-        wasMoving = motion_is_moving();
-
-        motion_tick(t);
+    if (!wasMoving && motion_is_moving()) {
+        t = 0.0;
     }
+    wasMoving = motion_is_moving();
+
+    motion_tick(t);
 
     // Sending order to servos
     dxl_set_position(mapping[0], l1[0]);

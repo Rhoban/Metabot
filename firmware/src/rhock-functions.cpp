@@ -319,10 +319,6 @@ RHOCK_NATIVE(robot_yaw)
 #ifndef __EMSCRIPTEN__
     RHOCK_PUSHF(imu_yaw());
 #else
-    // XXX: Simulate it, with EM ASM:
-    //     return EM_ASM_INT({
-    //        return simulator_get_distance();
-    //     },
     RHOCK_PUSHF(EM_ASM_DOUBLE({
         return simulator_get_yaw();
     }, 0));
