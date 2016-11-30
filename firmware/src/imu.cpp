@@ -281,7 +281,7 @@ void acc_update()
     acc_z = VALUE_SIGN(acc_z_r, 16);
 
     float new_roll  = atan2(acc_x, acc_z);
-    float new_pitch = atan2(acc_y, sqrt(acc_x*acc_x + acc_z*acc_z));
+    float new_pitch = -atan2(acc_y, sqrt(acc_x*acc_x + acc_z*acc_z));
 
     pitch = RAD2DEG(weight_average(new_pitch, 0.05, DEG2RAD(pitch), 0.95));
     roll = RAD2DEG(weight_average(new_roll, 0.05, DEG2RAD(roll), 0.95));
