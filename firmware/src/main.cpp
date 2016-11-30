@@ -49,12 +49,13 @@ TERMINAL_COMMAND(rc, "Go to RC mode")
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
-
-// This destroyes the fuse
+// This destroys the fuse (used in dev)
+/*
 TERMINAL_COMMAND(suicide, "Lit the fuse")
 {
     digitalWrite(LIT, HIGH);
 }
+*/
 
 // Setting the flag, called @50hz
 bool flag = false;

@@ -32,6 +32,9 @@
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
 
+// Extra angles
+float a1[4], a2[4], a3[4];
+
 // Extra x, y and z for each leg
 static float ex[4], ey[4], ez[4];
 
@@ -72,10 +75,12 @@ TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 // Direction vector
 TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
 TERMINAL_PARAMETER_FLOAT(dy, "Dy", 0.0);
-TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Turning, in ° per step
 TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
+
+// Crab
+TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Front delta h
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
@@ -156,6 +161,9 @@ void motion_init()
         ex[i] = 0;
         ey[i] = 0;
         ez[i] = 0;
+        a1[i] = 0;
+        a2[i] = 0;
+        a3[i] = 0;
     }
 
     extra_h = 0;
@@ -258,9 +266,9 @@ void motion_tick(float t)
 
         // Computing inverse kinematics
         if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -SIGN_A*a;
-            l2[i] = -SIGN_B*b;
-            l3[i] = -SIGN_C*(c - 180*smoothBackLegs);
+            l1[i] = -SIGN_A*a + a1[i];
+            l2[i] = -SIGN_B*b + a2[i];
+            l3[i] = -SIGN_C*(c - 180*smoothBackLegs) + a3[i];
         }
     }
 }
@@ -326,6 +334,13 @@ void motion_extra_y(int index, float y)
 void motion_extra_z(int index, float z)
 {
     ez[index] = z;
+}
+
+void motion_extra_angle(int index, int motor, float angle)
+{
+  if (motor == 0) a1[index] = angle;
+  if (motor == 1) a2[index] = angle;
+  if (motor == 2) a3[index] = angle;
 }
 
 float motion_get_dx()
