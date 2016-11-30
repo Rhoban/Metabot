@@ -6,6 +6,8 @@ extern float gyro_x, gyro_y, gyro_z;
 extern float acc_x, acc_y, acc_z;
 
 float imu_yaw();
+float imu_pitch();
+float imu_roll();
 void imu_init();
 void imu_tick();
 void imu_calib_start();

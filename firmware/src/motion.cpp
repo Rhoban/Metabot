@@ -14,6 +14,8 @@
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
+#else
+#include "imu.h"
 #endif
 #ifdef RHOCK
 #include <rhock/event.h>
@@ -177,7 +179,6 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
-    float turnRad = DEG2RAD(turn);
     float crabRad;
 
     for (int i=0; i<4; i++) {
@@ -341,12 +342,6 @@ float motion_get_turn()
     return turn;
 }
 
-TERMINAL_COMMAND(dbg, "Debug")
-{
-    terminal_io()->println(motors_get_position(0));
-    motors_read();
-}
-
 #ifdef RHOCK
 void rhock_on_monitor()
 {
@@ -357,7 +352,7 @@ void rhock_on_monitor()
 #else
     bool dontRead = false;
 #endif
-    if (!dontRead && motors_enabled()) {
+    if (dontRead || motors_enabled()) {
         for (int i=0; i<12; i++) {
             rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
         }
@@ -366,6 +361,15 @@ void rhock_on_monitor()
             rhock_stream_append_short((uint16_t)((int16_t)motors_get_position(i)*10));
         }
     }
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)imu_yaw()*10));
+    rhock_stream_append_short((uint16_t)((int16_t)imu_pitch()*10));
+    rhock_stream_append_short((uint16_t)((int16_t)imu_roll()*10));
+#endif
     // Leds
     led_stream_state();
     rhock_stream_end();
@@ -373,7 +377,6 @@ void rhock_on_monitor()
 #endif
 
 #ifdef __EMSCRIPTEN__
-using namespace emscripten;
 
 void simulator_tick()
 {
@@ -412,6 +415,7 @@ bool simulator_get_enabled()
     return motors_enabled();
 }
 
+using namespace emscripten;
 EMSCRIPTEN_BINDINGS(motion) {
     function("motion_get_dx", &motion_get_dx);
     function("motion_get_dy", &motion_get_dy);

@@ -21,12 +21,15 @@ int32 i2c_master_xfer_reinit(i2c_dev *dev,
     return r;
 }
 
+static bool calibrated;
 static int last_update;
 float magn_x, magn_y, magn_z;
 float gyro_x, gyro_y, gyro_z;
 float acc_x, acc_y, acc_z;
 
 TERMINAL_PARAMETER_FLOAT(yaw, "Robot yaw", 0.0);
+TERMINAL_PARAMETER_FLOAT(pitch, "Robot pitch", 0.0);
+TERMINAL_PARAMETER_FLOAT(roll, "Robot roll", 0.0);
 TERMINAL_PARAMETER_FLOAT(gyro_yaw, "Robot gyro yaw", 0.0);
 
 TERMINAL_PARAMETER_BOOL(imudbg, "Debug the IMU", false);
@@ -216,11 +219,12 @@ void magn_update()
         magn_z = (magn_z_r-MAGN_Z_CENTER)/(float)MAGN_Z_AMP;
     }
 
-    if (calibrating) {
-    } else {
-        float new_yaw = atan2(magn_z, magn_x);
+    if (calibrated) {
+        float new_yaw = -atan2(magn_z, magn_x);
         float cur_yaw = DEG2RAD(yaw);
         yaw = RAD2DEG(weight_average(new_yaw, 0.01, cur_yaw, 0.99));
+    } else {
+        yaw = gyro_yaw;
     }
 }
 
@@ -250,7 +254,7 @@ void gyro_update()
     yaw -= gyro_z * 0.02;
     yaw = normalize(yaw);
 
-    gyro_yaw -= gyro_z * 0.02;
+    gyro_yaw += gyro_z * 0.02;
     gyro_yaw = normalize(gyro_yaw);
 }
 
@@ -276,6 +280,12 @@ void acc_update()
     acc_y = VALUE_SIGN(acc_y_r, 16);
     int acc_z_r = ((buffer[5]&0xff)<<8)|(buffer[4]&0xff);
     acc_z = VALUE_SIGN(acc_z_r, 16);
+
+    float new_roll  = atan2(acc_x, acc_z);
+    float new_pitch = atan2(acc_y, sqrt(acc_x*acc_x + acc_z*acc_z));
+
+    pitch = RAD2DEG(weight_average(new_pitch, 0.05, DEG2RAD(pitch), 0.95));
+    roll = RAD2DEG(weight_average(new_roll, 0.05, DEG2RAD(roll), 0.95));
 }
 
 void imu_tick()
@@ -377,6 +387,7 @@ void imu_calib_start()
 
 void imu_calib_stop()
 {
+    calibrated = true;
     calibrating = false;
 }
 
@@ -390,6 +401,16 @@ void imu_calib_rotate()
 float imu_yaw()
 {
     return yaw;
+}
+
+float imu_pitch()
+{
+    return pitch;
+}
+
+float imu_roll()
+{
+    return roll;
 }
 
 TERMINAL_COMMAND(calibrot, "Calibrating rotation")
