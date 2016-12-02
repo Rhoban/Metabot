@@ -55,9 +55,9 @@ TERMINAL_COMMAND(btconf, "Bluetooth config")
         terminal_io()->println(pin);
 
         for (int k=0; k<3; k++) {
-            RC.begin(38400);
+            RC.begin(9600);
             for (int n=0; n<3; n++) bt_conf(name, pin);
-            RC.begin(57600);
+            RC.begin(38400);
             for (int n=0; n<3; n++) bt_conf(name, pin);
             RC.begin(921600);
             for (int n=0; n<3; n++) bt_conf(name, pin);
