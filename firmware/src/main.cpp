@@ -41,7 +41,7 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 
 TERMINAL_COMMAND(rc, "Go to RC mode")
 {
-    RC.begin(921600);
+    RC.begin(BT_BAUD);
     terminal_init(&RC);
     isUSB = false;
 }
@@ -83,7 +83,7 @@ bool can_start()
 void setup()
 {
     // Initializing terminal on the RC port
-    RC.begin(921600);
+    RC.begin(BT_BAUD);
     terminal_init(&RC);
 
     // Lit pin is output low
@@ -132,7 +132,7 @@ void setup()
     servos_init();
     servos_attach_interrupt(setFlag);
 
-    RC.begin(921600);
+    RC.begin(BT_BAUD);
 }
 
 /**
@@ -216,7 +216,7 @@ void loop()
         isUSB = true;
         terminal_init(&SerialUSB);
     }
-    if (!SerialUSB.getDTR() && isUSB) {
+    if (RC.available() && isUSB) {
         isUSB = false;
         terminal_init(&RC);
     }
