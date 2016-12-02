@@ -3,13 +3,22 @@
 #endif
 
 // #define LASER_PROTOTYPE
+// #define LASER_3D
 
-#ifdef LASER_PROTOTYPE
+#if defined(LASER_PROTOTYPE)
 #define L0      62.5
 #define L1      46
 #define L2      56
 #define L3_1    90
-#define L3_2    42
+#define L3_2    44
+
+#elif defined(3D_PROTOTYPE)
+#define L0      61.5
+#define L1      46
+#define L2      59
+#define L3_1    85
+#define L3_2    44
+
 #else
 /**
  * This is the dimension of the joints, in mm
