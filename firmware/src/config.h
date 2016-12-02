@@ -2,6 +2,15 @@
 #include <dxl.h>
 #endif
 
+// #define LASER_PROTOTYPE
+
+#ifdef LASER_PROTOTYPE
+#define L0      62.5
+#define L1      46
+#define L2      56
+#define L3_1    90
+#define L3_2    42
+#else
 /**
  * This is the dimension of the joints, in mm
  */
@@ -10,6 +19,7 @@
 #define L2      60
 #define L3_1    85
 #define L3_2    42
+#endif
 
 /**
  * Here we can tweak the robot odometry parameters, to adjust the speeds with
