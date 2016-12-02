@@ -2,17 +2,17 @@
 #include <dxl.h>
 #endif
 
-// #define LASER_PROTOTYPE
-// #define LASER_3D
+// #define PROTOTYPE_LASER
+// #define PROTOTYPE_3D
 
-#if defined(LASER_PROTOTYPE)
+#if defined(PROTOTYPE_LASER)
 #define L0      62.5
 #define L1      46
 #define L2      56
 #define L3_1    90
 #define L3_2    44
 
-#elif defined(3D_PROTOTYPE)
+#elif defined(PROTOTYPE_3D)
 #define L0      61.5
 #define L1      46
 #define L2      59
