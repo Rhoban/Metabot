@@ -31,6 +31,7 @@ void distance_init()
     // From the datasheet of GP2Y0A41SK0F
     // http://www.sharp-world.com/products/device/lineup/data/pdf/datasheet/gp2y0a41sk_e.pdf
     // Yop, I measured pixels....
+    /*
     float PX2V = 3.0/402.0;
     volt_to_cm.addPoint(0.0, 50);
     volt_to_cm.addPoint(PX2V*42.5, 40);
@@ -50,6 +51,7 @@ void distance_init()
     volt_to_cm.addPoint(PX2V*315, 5);
     volt_to_cm.addPoint(PX2V*370, 4);
     volt_to_cm.addPoint(PX2V*408, 3);
+    */
 }
 
 float distance_get()
