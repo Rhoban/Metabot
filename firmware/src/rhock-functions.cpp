@@ -18,6 +18,7 @@
 #include "rhock-stream.h"
 
 struct rhock_context *controlling = NULL;
+struct rhock_context *controllingBuzzer = NULL;
 float save_x_speed, save_y_speed, save_turn_speed;
 
 void motion_stop()
@@ -51,6 +52,7 @@ void rhock_on_all_stopped()
     controlling = NULL;
     motion_stop();
     motion_reset();
+    buzzer_stop();
 }
 
 /**
@@ -77,6 +79,10 @@ void rhock_on_stop(struct rhock_context *context)
     if (context == controlling) {
         motion_stop();
         controlling = NULL;
+    }
+    if (context == controllingBuzzer) {
+        buzzer_stop();
+        controllingBuzzer = NULL;
     }
 }
 
@@ -221,7 +227,7 @@ RHOCK_NATIVE(robot_turn)
         }
         float time = fabs(deg/turn_speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(0, 0, turn_speed, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -242,7 +248,7 @@ RHOCK_NATIVE(robot_move_x)
         }
         float time = fabs(dist/speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(speed, 0, 0, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -263,7 +269,7 @@ RHOCK_NATIVE(robot_move_y)
         }
         float time = fabs(dist/speed);
         RHOCK_PUSHF(time*1000);
-        
+
         motion_control(0, speed, 0, context);
         return RHOCK_NATIVE_WAIT;
     }
@@ -282,7 +288,7 @@ RHOCK_NATIVE(robot_dist)
     // XXX: Simulate it, with EM ASM:
     //     return EM_ASM_INT({
     //        return simulator_get_distance();
-    //     }, 
+    //     },
     RHOCK_PUSHF(100.0);
 #endif
 
@@ -296,15 +302,14 @@ RHOCK_NATIVE(robot_beep)
         float freq = RHOCK_POPF();
         RHOCK_PUSHF(duration);
 
-#ifndef __EMSCRIPTEN__
         buzzer_beep(freq, duration);
-#endif
-        
+        controllingBuzzer = context;
+
         return RHOCK_NATIVE_WAIT;
     }
     ON_ELAPSED() {
         RHOCK_SMASH(1);
-        motion_stop();
+        buzzer_stop();
         return RHOCK_NATIVE_CONTINUE;
     }
 }
@@ -314,11 +319,9 @@ RHOCK_NATIVE(robot_yaw)
 #ifndef __EMSCRIPTEN__
     RHOCK_PUSHF(imu_yaw());
 #else
-    // XXX: Simulate it, with EM ASM:
-    //     return EM_ASM_INT({
-    //        return simulator_get_distance();
-    //     }, 
-    RHOCK_PUSHF(0.0);
+    RHOCK_PUSHF(EM_ASM_DOUBLE({
+        return simulator_get_yaw();
+    }, 0));
 #endif
 
     return RHOCK_NATIVE_CONTINUE;
@@ -333,6 +336,6 @@ RHOCK_NATIVE(robot_get_control)
     } else {
         RHOCK_PUSHF(0);
     }
-    
+
     return RHOCK_NATIVE_CONTINUE;
 }

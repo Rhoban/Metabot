@@ -9,6 +9,7 @@
 #include <commands.h>
 #include <rc.h>
 #include <rhock.h>
+#include "motors.h"
 #include "voltage.h"
 #include "buzzer.h"
 #include "distance.h"
@@ -40,7 +41,7 @@ TERMINAL_COMMAND(started, "Is the robot started?")
 
 TERMINAL_COMMAND(rc, "Go to RC mode")
 {
-    RC.begin(921600);
+    RC.begin(BT_BAUD);
     terminal_init(&RC);
     isUSB = false;
 }
@@ -48,11 +49,13 @@ TERMINAL_COMMAND(rc, "Go to RC mode")
 // Enabling/disabling move
 TERMINAL_PARAMETER_BOOL(move, "Enable/Disable move", true);
 
-
+// This destroys the fuse (used in dev)
+/*
 TERMINAL_COMMAND(suicide, "Lit the fuse")
 {
     digitalWrite(LIT, HIGH);
 }
+*/
 
 // Setting the flag, called @50hz
 bool flag = false;
@@ -62,12 +65,25 @@ void setFlag()
 }
 
 /**
+ * Checks wether there is enough voltage to start the motors
+ */
+bool can_start()
+{
+    if (voltage_current() < 6 || voltage_error()) {
+        buzzer_play(MELODY_WARNING);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Initializing
  */
 void setup()
 {
     // Initializing terminal on the RC port
-    RC.begin(921600);
+    RC.begin(BT_BAUD);
     terminal_init(&RC);
 
     // Lit pin is output low
@@ -115,8 +131,8 @@ void setup()
     // Enable 50hz ticking
     servos_init();
     servos_attach_interrupt(setFlag);
-    
-    RC.begin(921600);
+
+    RC.begin(BT_BAUD);
 }
 
 /**
@@ -124,7 +140,28 @@ void setup()
  */
 void tick()
 {
+    static bool wasMoving = false;
+
+    if (voltage_error()) {
+        // If there is a voltage error, blinks the LEDs orange and
+        // stop any motor activity
+        dxl_disable_all();
+#ifdef RHOCK
+        rhock_killall();
+#endif
+        if (t < 0.5) {
+            led_set_all(LED_R|LED_G);
+        } else {
+            led_set_all(0);
+        }
+        t += 0.02;
+        if (t > 1.0) t -= 1.0;
+        return;
+    }
+
+    // The robot is disabled
     if (!move || !started) {
+        motors_read();
         t = 0.0;
         return;
     }
@@ -136,6 +173,11 @@ void tick()
         colorize();
     }
     if (t < 0.0) t += 1.0;
+
+    if (!wasMoving && motion_is_moving()) {
+        t = 0.0;
+    }
+    wasMoving = motion_is_moving();
 
     motion_tick(t);
 
@@ -174,7 +216,7 @@ void loop()
         isUSB = true;
         terminal_init(&SerialUSB);
     }
-    if (!SerialUSB.getDTR() && isUSB) {
+    if (RC.available() && isUSB) {
         isUSB = false;
         terminal_init(&RC);
     }

@@ -7,7 +7,6 @@
 #define DISTANCE_PIN     5
 
 Function volt_to_cm;
-static int distance;
 
 void distance_init()
 {
@@ -28,6 +27,31 @@ void distance_init()
     volt_to_cm.addPoint(2.9, 7);
     volt_to_cm.addPoint(3.15, 6.0);
     volt_to_cm.addPoint(3.3, 6.0);
+
+    // From the datasheet of GP2Y0A41SK0F
+    // http://www.sharp-world.com/products/device/lineup/data/pdf/datasheet/gp2y0a41sk_e.pdf
+    // Yop, I measured pixels....
+    /*
+    float PX2V = 3.0/402.0;
+    volt_to_cm.addPoint(0.0, 50);
+    volt_to_cm.addPoint(PX2V*42.5, 40);
+    volt_to_cm.addPoint(PX2V*50, 35);
+    volt_to_cm.addPoint(PX2V*60, 30);
+    volt_to_cm.addPoint(PX2V*72.5, 25);
+    volt_to_cm.addPoint(PX2V*90, 20);
+    volt_to_cm.addPoint(PX2V*100, 18);
+    volt_to_cm.addPoint(PX2V*110, 16);
+    volt_to_cm.addPoint(PX2V*125, 14);
+    volt_to_cm.addPoint(PX2V*142.5, 12);
+    volt_to_cm.addPoint(PX2V*172.5, 10);
+    volt_to_cm.addPoint(PX2V*188, 9);
+    volt_to_cm.addPoint(PX2V*210, 8);
+    volt_to_cm.addPoint(PX2V*238, 7);
+    volt_to_cm.addPoint(PX2V*275, 6);
+    volt_to_cm.addPoint(PX2V*315, 5);
+    volt_to_cm.addPoint(PX2V*370, 4);
+    volt_to_cm.addPoint(PX2V*408, 3);
+    */
 }
 
 float distance_get()

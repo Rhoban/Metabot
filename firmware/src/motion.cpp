@@ -14,6 +14,8 @@
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
+#else
+#include "imu.h"
 #endif
 #ifdef RHOCK
 #include <rhock/event.h>
@@ -29,6 +31,10 @@
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
+
+// Extra angles
+float a1[4], a2[4], a3[4];
+
 // Extra x, y and z for each leg
 static float ex[4], ey[4], ez[4];
 
@@ -69,10 +75,12 @@ TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 // Direction vector
 TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
 TERMINAL_PARAMETER_FLOAT(dy, "Dy", 0.0);
-TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Turning, in ° per step
 TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
+
+// Crab
+TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Front delta h
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
@@ -139,11 +147,9 @@ float extra_h = 0;
 float extra_r = 0;
 
 // Is the robot moving?
-bool moving = false;
-
 bool motion_is_moving()
 {
-    return moving;
+    return (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
 }
 
 void motion_init()
@@ -155,6 +161,9 @@ void motion_init()
         ex[i] = 0;
         ey[i] = 0;
         ez[i] = 0;
+        a1[i] = 0;
+        a2[i] = 0;
+        a3[i] = 0;
     }
 
     extra_h = 0;
@@ -179,7 +188,6 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
-    float turnRad = DEG2RAD(turn);
     float crabRad;
 
     for (int i=0; i<4; i++) {
@@ -213,11 +221,11 @@ void motion_tick(float t)
         crabRad = DEG2RAD(crab) * (group ? 1 : -1);
         X = cos(crabRad)*X_ - sin(crabRad)*Y_;
         Y = sin(crabRad)*X_ + cos(crabRad)*Y_;
-        
+
         // Extras
         X += ex[i];
         Y += ey[i];
-        
+
         // Add dX and dY to the moving vector
         if (fabs(turn) > 0.5) {
             float turnRad = -DEG2RAD(turn);
@@ -234,7 +242,7 @@ void motion_tick(float t)
             X_ = X; Y_ = Y;
             X = X_*cos(theta) - (Y_+l)*sin(theta);
             Y = X_*sin(theta) + (Y_+l)*cos(theta) - l;
-            
+
             X_ = X; Y_ = Y;
             X = X_*cr - Y_*(-sr);
             Y = X_*(-sr) + Y_*cr;
@@ -248,7 +256,7 @@ void motion_tick(float t)
         legFrame(X, Y, &vx, &vy, i, L0);
 
         // The robot is moving if there is dynamics parameters
-        moving = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
+        bool moving = motion_is_moving();
 
         // This is the x,y,z order in the referencial of the leg
         x = vx;
@@ -258,9 +266,9 @@ void motion_tick(float t)
 
         // Computing inverse kinematics
         if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -signs[0]*a;
-            l2[i] = -signs[1]*b;
-            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
+            l1[i] = -SIGN_A*a + a1[i];
+            l2[i] = -SIGN_B*b + a2[i];
+            l3[i] = -SIGN_C*(c - 180*smoothBackLegs) + a3[i];
         }
     }
 }
@@ -300,17 +308,17 @@ void motion_set_r(float r_)
 
 void motion_set_x_speed(float x_speed)
 {
-    dx = x_speed/(2.0*freq);
+    dx = ODOMETRY_TRANSLATION*x_speed/(2.0*freq);
 }
 
 void motion_set_y_speed(float y_speed)
 {
-    dy = y_speed/(2.0*freq);
+    dy = ODOMETRY_TRANSLATION*y_speed/(2.0*freq);
 }
 
 void motion_set_turn_speed(float turn_speed)
 {
-    turn = turn_speed/(2.0*freq);
+    turn = ODOMETRY_ROTATION*turn_speed/(2.0*freq);
 }
 
 void motion_extra_x(int index, float x)
@@ -326,6 +334,13 @@ void motion_extra_y(int index, float y)
 void motion_extra_z(int index, float z)
 {
     ez[index] = z;
+}
+
+void motion_extra_angle(int index, int motor, float angle)
+{
+  if (motor == 0) a1[index] = angle;
+  if (motor == 1) a2[index] = angle;
+  if (motor == 2) a3[index] = angle;
 }
 
 float motion_get_dx()
@@ -348,9 +363,29 @@ void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
     // Angles
-    for (int i=0; i<12; i++) {
-        rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+#ifdef __EMSCRIPTEN__
+    bool dontRead = true;
+#else
+    bool dontRead = false;
+#endif
+    if (dontRead || motors_enabled()) {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+        }
+    } else {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)motors_get_position(i)*10));
+        }
     }
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)imu_yaw()*10));
+    rhock_stream_append_short((uint16_t)((int16_t)imu_pitch()*10));
+    rhock_stream_append_short((uint16_t)((int16_t)imu_roll()*10));
+#endif
     // Leds
     led_stream_state();
     rhock_stream_end();
@@ -358,13 +393,15 @@ void rhock_on_monitor()
 #endif
 
 #ifdef __EMSCRIPTEN__
-using namespace emscripten;
 
 void simulator_tick()
 {
     if (motors_enabled()) {
         sim_t += motion_get_f()*0.02;
         if (sim_t > 1) sim_t -= 1;
+        if (!motion_is_moving()) {
+            sim_t = 0;
+        }
         motion_tick(sim_t);
     }
 }
@@ -394,6 +431,7 @@ bool simulator_get_enabled()
     return motors_enabled();
 }
 
+using namespace emscripten;
 EMSCRIPTEN_BINDINGS(motion) {
     function("motion_get_dx", &motion_get_dx);
     function("motion_get_dy", &motion_get_dy);
