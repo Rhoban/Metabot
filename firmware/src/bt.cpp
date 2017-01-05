@@ -39,7 +39,7 @@ static void bt_conf(char *name, char *pin)
     goToConf();
     RC.write("AT\r\r");
     delay(150);
-    RC.write("AT+UART=BT_BAUD,0,0\r\r");
+    RC.write("AT+UART=921600,0,0\r\r");
     delay(150);
     RC.write("AT+NAME=");
     RC.write(name);
