@@ -38,7 +38,7 @@ IMAX B3 AC charger     | 1        | A cheap and simple to use LiPo charger
 Name                   | Quantity | Description                  
 -----------------------|----------|----------------------------------
 M4x40                  | 12        | Tie the leg tips and the body
-M3x8                   | 23       | 16 Used to tie the Us together, 4 for the magnets to the head, 1 for the IMU and 2 for the GP-2
+M3x8                   | 7        | 4 for the magnets to the head, 1 for the IMU and 2 for the GP-2
 M3x5 (countersunk)     | 4        | Used to tie the magnets to the spacers
 M3 nylstop caps        | 16       | We recommend nylstop caps
 M4 nylstop caps        | 12       | We recommend nylstop caps
@@ -46,7 +46,7 @@ M3 blind cap nut       | 4        | Blind caps are prettiest for the top of the 
 Nylon M3 cap           | 17       | 8 for the electronics, 1 for the IMU, 2 for the GP-2, 4 for the body spacers, 2 to replace magnets (to avoid magnetic interference)
 M3x12 male spacer      | 1        | For the IMU
 M3x15 male spacer      | 4        | For the electronics
-M3x10                  | 4        | For the electronics 
+M3x10                  | 20        | 16 for the Us, 4 for the electronics 
 Countersunk magnet (10x3mm, 3mm hole) | 6        | To plug and unplug the head
 Googly eyes            | 2        | You can paste it on the front on the robot to get it nicer
 
