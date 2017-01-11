@@ -114,8 +114,6 @@ walking.
 This is an angle (in °) that can be positive or negative and allows to get a
 crab-like position while walking.
 
-
-
 ## Building, developing & hacking the firmware
 
 See the [firmware source README](src#firmware-source)
