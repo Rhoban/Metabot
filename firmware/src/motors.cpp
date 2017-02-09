@@ -3,6 +3,7 @@
 #include <dxl.h>
 #endif
 #include "leds.h"
+#include "motion.h"
 #include "mapping.h"
 #include "motors.h"
 
@@ -67,5 +68,13 @@ void motors_read()
 
 float motors_get_position(int i)
 {
-    return motors_positions[i];
+#ifndef __EMSCRIPTEN__
+    if (motors_enabled()) {
+        return motion_get_motor(i);
+    } else {
+        return motors_positions[i];
+    }
+#else
+    return motion_get_motor(i);
+#endif
 }

@@ -356,6 +356,52 @@ RHOCK_NATIVE(robot_yaw)
     return RHOCK_NATIVE_CONTINUE;
 }
 
+RHOCK_NATIVE(robot_pitch)
+{
+#ifndef __EMSCRIPTEN__
+    RHOCK_PUSHF(imu_pitch());
+#else
+    RHOCK_PUSHF(0);
+#endif
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_roll)
+{
+#ifndef __EMSCRIPTEN__
+    RHOCK_PUSHF(imu_roll());
+#else
+    RHOCK_PUSHF(0);
+#endif
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_motor_start)
+{
+    motors_enable();
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_motor_stop)
+{
+    motors_disable();
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_motor_position)
+{
+    int i = RHOCK_POPF();
+    i = (i-1);
+    if (i < 0) i = 0;
+    if (i > 11) i = 11;
+
+    RHOCK_PUSHF(motors_get_position(i));
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
 RHOCK_NATIVE(robot_get_control)
 {
     int32_t control = RHOCK_VALUE_TO_INT(RHOCK_POPI());

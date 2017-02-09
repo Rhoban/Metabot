@@ -34,7 +34,15 @@ RHOCK_NATIVE_DECLARE(robot_move_y, 62);
 RHOCK_NATIVE_DECLARE(robot_beep, 55);
 
 // IMU
-RHOCK_NATIVE_DECLARE(robot_yaw, 57);
+RHOCK_NATIVE_DECLARE(robot_yaw, 33);
+RHOCK_NATIVE_DECLARE(robot_pitch, 34);
+RHOCK_NATIVE_DECLARE(robot_roll, 35);
+
+// Motors control
+RHOCK_NATIVE_DECLARE(robot_motor_start, 37);
+RHOCK_NATIVE_DECLARE(robot_motor_stop, 38);
+RHOCK_NATIVE_DECLARE(robot_motor_position, 39);
 
 // Controls
 RHOCK_NATIVE_DECLARE(robot_get_control, 58);
+
