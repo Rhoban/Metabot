@@ -9,7 +9,7 @@
 #elif defined(BT_HM12)
 #define BT_BAUD 230400
 #else
-#error "You must choose a BT chip
+#error "You must choose a BT chip"
 #endif
 
 /**

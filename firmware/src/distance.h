@@ -11,4 +11,9 @@ void distance_init();
  */
 float distance_get();
 
+/**
+ * Updates the value
+ */
+void distance_tick();
+
 #endif

@@ -206,6 +206,8 @@ void loop()
     imu_tick();
     // Sampling the voltage
     voltage_tick();
+    // Sampling the distance
+    distance_tick();
 
     // Updating the terminal
     terminal_tick();

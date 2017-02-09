@@ -84,7 +84,7 @@ void motion_extra_z(int index, float z);
 
 /**
  * Adds extra angle
- * @param index Index of the leg (0-3)
+ * @param index Index of the leg (0-3, +: all)
  * @param motor Index of the motor (0-2)
  * @param angle Extra angle
  */

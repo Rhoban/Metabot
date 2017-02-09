@@ -323,24 +323,46 @@ void motion_set_turn_speed(float turn_speed)
 
 void motion_extra_x(int index, float x)
 {
-    ex[index] = x;
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ex[k] = x;
+        }
+    } else {
+        ex[index] = x;
+    }
 }
 
 void motion_extra_y(int index, float y)
 {
-    ey[index] = y;
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ey[k] = y;
+        }
+    } else {
+        ey[index] = y;
+    }
 }
 
 void motion_extra_z(int index, float z)
 {
-    ez[index] = z;
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ez[k] = z;
+        }
+    } else {
+        ez[index] = z;
+    }
 }
 
 void motion_extra_angle(int index, int motor, float angle)
 {
-  if (motor == 0) a1[index] = angle;
-  if (motor == 1) a2[index] = angle;
-  if (motor == 2) a3[index] = angle;
+    for (int k=0; k<4; k++) {
+        if (k == index || index >= 4) {
+            if (motor == 0) a1[k] = angle;
+            if (motor == 1) a2[k] = angle;
+            if (motor == 2) a3[k] = angle;
+        }
+    }
 }
 
 float motion_get_dx()

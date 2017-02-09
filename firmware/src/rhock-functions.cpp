@@ -200,12 +200,41 @@ RHOCK_NATIVE(robot_r)
     return RHOCK_NATIVE_CONTINUE;
 }
 
+RHOCK_NATIVE(robot_ex)
+{
+    int leg = RHOCK_POPF();
+    float extra = RHOCK_POPF();
+    leg = leg-1;
+    motion_extra_x(leg, extra);
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+RHOCK_NATIVE(robot_ey)
+{
+    int leg = RHOCK_POPF();
+    float extra = RHOCK_POPF();
+    leg = leg-1;
+    motion_extra_y(leg, extra);
+
+    return RHOCK_NATIVE_CONTINUE;
+}
 RHOCK_NATIVE(robot_ez)
 {
     int leg = RHOCK_POPF();
     float extra = RHOCK_POPF();
-    leg = ((leg-1)&3);
+    leg = leg-1;
     motion_extra_z(leg, extra);
+
+    return RHOCK_NATIVE_CONTINUE;
+}
+
+RHOCK_NATIVE(robot_ea)
+{
+    int leg = RHOCK_POPF();
+    int index = RHOCK_POPF();
+    float extra = RHOCK_POPF();
+    leg = leg-1;
+    motion_extra_angle(leg, index, extra);
 
     return RHOCK_NATIVE_CONTINUE;
 }

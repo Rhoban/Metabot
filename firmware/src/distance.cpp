@@ -7,6 +7,14 @@
 #define DISTANCE_PIN     5
 
 Function volt_to_cm;
+static float value;
+static int lastMeasure;
+
+float distance_measure()
+{
+    float voltage = analogRead(DISTANCE_PIN)*3.3/4096;
+    return volt_to_cm.get(voltage);
+}
 
 void distance_init()
 {
@@ -52,18 +60,28 @@ void distance_init()
     volt_to_cm.addPoint(PX2V*370, 4);
     volt_to_cm.addPoint(PX2V*408, 3);
     */
+
+    value = distance_measure();
 }
 
 float distance_get()
 {
-    float voltage = analogRead(DISTANCE_PIN)*3.3/4096;
-    return volt_to_cm.get(voltage);
+    return value;
+}
+
+void distance_tick()
+{
+    if (millis()-lastMeasure > 10) {
+        lastMeasure = millis();
+        value = 0.9*value + 0.1*distance_measure();
+    }
 }
 
 TERMINAL_COMMAND(dist, "Monitor distances")
 {
     while (!SerialUSB.available()) {
         terminal_io()->println(distance_get());
+        distance_tick();
         delay(10);
     }
 }
