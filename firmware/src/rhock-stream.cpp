@@ -5,8 +5,10 @@
 #include "leds.h"
 #include "mapping.h"
 #include "motion.h"
+#include "buzzer.h"
 #include "motors.h"
 #include "imu.h"
+#include "leds.h"
 
 #define RHOCK_STREAM_METABOT    50
 
@@ -39,6 +41,28 @@ char rhock_on_packet(uint8_t type)
                             uint16_t value = rhock_stream_read_short();
                             rhock_controls[control] = (short)value;
                         }
+                    }
+                    return 1;
+                    break;
+                case 4: // Speed
+                    if (rhock_stream_available() == 6) {
+                        motion_set_x_speed(rhock_stream_read_short()/10.0);
+                        motion_set_y_speed(rhock_stream_read_short()/10.0);
+                        motion_set_turn_speed(rhock_stream_read_short()/10.0);
+                    }
+                    return 1;
+                    break;
+                case 5: // Beep
+                    if (rhock_stream_available() == 4) {
+                        uint16_t freq = rhock_stream_read_short();
+                        uint16_t duration = rhock_stream_read_short();
+                        buzzer_beep(freq, duration);
+                    }
+                    return 1;
+                    break;
+                case 6: // Leds
+                    if (rhock_stream_available() == 1) {
+                        led_set_all(rhock_stream_read());
                     }
                     return 1;
                     break;

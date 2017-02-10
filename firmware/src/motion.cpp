@@ -16,6 +16,8 @@
 #include <emscripten/bind.h>
 #else
 #include "imu.h"
+#include "voltage.h"
+#include "distance.h"
 #endif
 #ifdef RHOCK
 #include <rhock/event.h>
@@ -392,11 +394,11 @@ void rhock_on_monitor()
 #endif
     if (dontRead || motors_enabled()) {
         for (int i=0; i<12; i++) {
-            rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+            rhock_stream_append_short((uint16_t)((int16_t)(motion_get_motor(i)*10)));
         }
     } else {
         for (int i=0; i<12; i++) {
-            rhock_stream_append_short((uint16_t)((int16_t)motors_get_position(i)*10));
+            rhock_stream_append_short((uint16_t)((int16_t)(motors_get_position(i)*10)));
         }
     }
 #ifdef __EMSCRIPTEN__
@@ -404,12 +406,28 @@ void rhock_on_monitor()
     rhock_stream_append_short(0);
     rhock_stream_append_short(0);
 #else
-    rhock_stream_append_short((uint16_t)((int16_t)imu_yaw()*10));
-    rhock_stream_append_short((uint16_t)((int16_t)imu_pitch()*10));
-    rhock_stream_append_short((uint16_t)((int16_t)imu_roll()*10));
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_yaw()*10)));
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_pitch()*10)));
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_roll()*10)));
 #endif
+
     // Leds
     led_stream_state();
+
+    // Distance sensor
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short((uint16_t)((int16_t)(100*10)));
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)(distance_get()*10)));
+#endif
+    
+    // Voltage
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short((uint16_t)((int16_t)(8*10)));
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)(voltage_current()*10)));
+#endif
+
     rhock_stream_end();
 }
 #endif

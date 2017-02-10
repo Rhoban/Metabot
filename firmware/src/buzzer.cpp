@@ -183,6 +183,12 @@ TERMINAL_COMMAND(play, "Play a melody")
 
 TERMINAL_COMMAND(beep, "Plays a beep")
 {
-    buzzer_beep(atoi(argv[0]), 1000);
+    if (argc == 2) {
+        buzzer_beep(atoi(argv[0]), atoi(argv[1]));
+    } else if (argc == 1) {
+        buzzer_beep(atoi(argv[0]), 1000);
+    } else {
+        terminal_io()->println("Usage: beep freq [duration]");
+    }
 }
 #endif
