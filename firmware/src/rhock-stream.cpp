@@ -46,9 +46,9 @@ char rhock_on_packet(uint8_t type)
                     break;
                 case 4: // Speed
                     if (rhock_stream_available() == 6) {
-                        motion_set_x_speed(rhock_stream_read_short()/10.0);
-                        motion_set_y_speed(rhock_stream_read_short()/10.0);
-                        motion_set_turn_speed(rhock_stream_read_short()/10.0);
+                        motion_set_x_speed(((int16_t)rhock_stream_read_short())/10.0);
+                        motion_set_y_speed(((int16_t)rhock_stream_read_short())/10.0);
+                        motion_set_turn_speed(((int16_t)rhock_stream_read_short())/10.0);
                     }
                     return 1;
                     break;
@@ -62,8 +62,17 @@ char rhock_on_packet(uint8_t type)
                     break;
                 case 6: // Leds
                     if (rhock_stream_available() == 1) {
-                        led_set_all(rhock_stream_read());
+                        led_set_all(rhock_stream_read(), true);
                     }
+                    return 1;
+                    break;
+                case 7: // Reset
+                    buzzer_stop();
+                    leds_decustom();
+                    motion_set_x_speed(0.0);
+                    motion_set_y_speed(0.0);
+                    motion_set_turn_speed(0.0);
+                    motion_reset();
                     return 1;
                     break;
             }
