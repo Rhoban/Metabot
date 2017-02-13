@@ -138,7 +138,7 @@ void buzzer_play(unsigned int melody_num, bool repeat)
 {
     // Avoid playing another melody when there is a battery alert
 #ifndef __EMSCRIPTEN__
-    if (voltage_error() && melody_num != MELODY_ALERT) {
+    if (voltage_error() && melody_num != MELODY_ALERT && melody_num != MELODY_ALERT_FAST) {
         return;
     }
 #endif

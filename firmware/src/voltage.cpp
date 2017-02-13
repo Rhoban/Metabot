@@ -54,9 +54,9 @@ void voltage_tick()
             } else {
                 int duration = (millis() - voltage_error_start);
 
-                if (duration > 30000) {
+                if (duration > 45000) {
                     digitalWrite(LIT, HIGH);
-                } else if (duration > 15000) {
+                } else if (duration > 30000) {
                     if (!voltage_is_error_fast) {
                         voltage_is_error_fast = true;
                         buzzer_play(MELODY_ALERT_FAST, true);
