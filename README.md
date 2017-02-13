@@ -2,8 +2,6 @@
 
 ![Metabot](docs/imgs/metabots.png)
 
-([To get information about the previous version, see branch V1](tree/v1))
-
 Metabot is an open-source DIY quadruped robotics platform. It can be 3D printed or
 laser cutted (3mm acrylic).
 
@@ -18,7 +16,9 @@ In this repository you will find all the open-source material to make (or hack) 
 * [Firmware](firmware)
 * [Joypad firmware](dfpad)
 
-Note that you can control the robot using the Metabot app (available on the Play Store)
+You can control the robot using the Metabot app (available on the Play Store)
+
+[To get information about the previous robot version, see branch V1](https://github.com/Rhoban/Metabot/tree/v1)
 
 ## License
 
