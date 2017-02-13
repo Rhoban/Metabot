@@ -1,6 +1,6 @@
 # Metabot electronics
 
-![Electronics](/docs/img/elec.png)
+![Electronics](/docs/imgs/elec.png)
 
 Here are eagle schematics of the XBoard, the electronics inside the Metabot
 robot.
