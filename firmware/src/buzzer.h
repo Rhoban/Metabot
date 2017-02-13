@@ -9,8 +9,10 @@
 #define MELODY_ALERT    1
 // When there is a warning
 #define MELODY_WARNING  2
+// When we start the ID of the motors
+#define MELODY_BEGIN    3
 // A custom melody used by beep
-#define MELODY_CUSTOM   3
+#define MELODY_CUSTOM   4
 
 /**
  * Initializes the buzzer
@@ -33,6 +35,16 @@ void buzzer_stop();
  * Ticking the buzzer
  */
 void buzzer_tick();
+
+/**
+ * Is the buzzer plaing?
+ */
+bool buzzer_is_playing();
+
+/**
+ * Wait the end of the play
+ */
+void buzzer_wait_play();
 
 /**
  * Plays a beep

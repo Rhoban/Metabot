@@ -82,6 +82,9 @@ bool can_start()
  */
 void setup()
 {
+    // Input button
+    pinMode(BOARD_BUTTON_PIN, INPUT);
+
     // Initializing terminal on the RC port
     RC.begin(BT_BAUD);
     terminal_init(&RC);
@@ -198,8 +201,72 @@ void tick()
     dxl_set_position(mapping[11], l3[3]);
 }
 
+static int btnLast = 0;
+static bool btn = false;
+static int id = 13;
+
+void buttonPress()
+{
+    btnLast = millis();
+}
+
+void idNext()
+{
+    for (int k=0; k<id; k++) {
+        buzzer_beep(400, 50);
+        buzzer_wait_play();
+        delay(100);
+    }
+}
+
+void buttonRelease()
+{
+    if (millis()-btnLast > 2000) {
+        id = 1;
+        buzzer_play(MELODY_BEGIN);
+        buzzer_wait_play();
+        delay(500);
+        idNext();
+    } else {
+        int success = 0;
+        // XXX: Flash the ID
+        if (id <= 12) {
+            for (int k=0; k<6; k++) {
+                dxl_configure(DXL_BROADCAST, id);
+                dxl_write_byte(id, DXL_LED, LED_G);
+                delay(50);
+                if (dxl_ping(id)) {
+                    success++;
+                }
+            }
+        }
+
+        if (success > 0) {
+            id++;
+
+            if (id <= 12) {
+                idNext();
+            }
+            if (id == 13) {
+                buzzer_play(MELODY_BEGIN);
+                buzzer_wait_play();
+            }
+        } else {
+            buzzer_play(MELODY_WARNING);
+            buzzer_wait_play();
+        }
+    }
+}
+
 void loop()
 {
+    bool btnNew = digitalRead(BOARD_BUTTON_PIN);
+    if (btnNew != btn) {
+        if (btnNew) buttonPress();
+        else buttonRelease();
+        btn = btnNew;
+    }
+
     // Buzzer update
     buzzer_tick();
     // IMU ticking
