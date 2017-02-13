@@ -22,8 +22,6 @@
 
 bool isUSB = false;
 
-#define LIT     22
-
 // Time
 TERMINAL_PARAMETER_FLOAT(t, "Time", 0.0);
 

@@ -7,6 +7,8 @@
 #define VOLTAGE_LIMIT   6.9
 #define VOLTAGE_SHUT    5.3
 
+#define LIT     22
+
 /**
  * Is there any voltage error?
  */

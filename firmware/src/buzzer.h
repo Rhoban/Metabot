@@ -4,15 +4,16 @@
 #define BUZZER_PIN      11
 
 // When the robot starts
-#define MELODY_BOOT     0
+#define MELODY_BOOT       0
 // When the battery is low
-#define MELODY_ALERT    1
+#define MELODY_ALERT      1
+#define MELODY_ALERT_FAST 2
 // When there is a warning
-#define MELODY_WARNING  2
+#define MELODY_WARNING    3
 // When we start the ID of the motors
-#define MELODY_BEGIN    3
+#define MELODY_BEGIN      4
 // A custom melody used by beep
-#define MELODY_CUSTOM   4
+#define MELODY_CUSTOM     5
 
 /**
  * Initializes the buzzer

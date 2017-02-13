@@ -43,6 +43,14 @@ static struct buzzer_note melody_alert[] = {
     {0, 0}
 };
 
+static struct buzzer_note melody_alert_fast[] = {
+    {2000, 100},
+    {200, 100},
+    {2000, 100},
+    {200, 100},
+    {0, 0}
+};
+
 static struct buzzer_note melody_warning[] = {
     {800, 200},
     {400, 200},
@@ -141,6 +149,8 @@ void buzzer_play(unsigned int melody_num, bool repeat)
         to_play = &melody_boot[0];
     } else if (melody_num == MELODY_ALERT) {
         to_play = &melody_alert[0];
+    } else if (melody_num == MELODY_ALERT_FAST) {
+        to_play = &melody_alert_fast[0];
     } else if (melody_num == MELODY_WARNING) {
         to_play = &melody_warning[0];
     } else if (melody_num == MELODY_BEGIN) {

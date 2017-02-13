@@ -3,6 +3,8 @@
 #include "buzzer.h"
 
 bool voltage_is_error;
+bool voltage_is_error_fast;
+int voltage_error_start = 0;
 int voltage_now;
 int voltage_limit_l;
 int voltage_limit_h;
@@ -49,10 +51,23 @@ void voltage_tick()
             if (voltage_now > voltage_limit_h || voltage_now < voltage_limit_s) {
                 voltage_is_error = false;
                 buzzer_stop();
+            } else {
+                int duration = (millis() - voltage_error_start);
+
+                if (duration > 30000) {
+                    digitalWrite(LIT, HIGH);
+                } else if (duration > 15000) {
+                    if (!voltage_is_error_fast) {
+                        voltage_is_error_fast = true;
+                        buzzer_play(MELODY_ALERT_FAST, true);
+                    }
+                }
             }
         } else {
             if (voltage_now < voltage_limit_l && voltage_now > voltage_limit_s) {
                 voltage_is_error = true;
+                voltage_is_error_fast = false;
+                voltage_error_start = millis();
                 buzzer_play(MELODY_ALERT, true);
             }
         }
