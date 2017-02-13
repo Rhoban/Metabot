@@ -5,8 +5,8 @@ option (JS "JavaScript mode" ON)
 
 # Directories
 set (BASE "${CMAKE_SOURCE_DIR}/..")
-set (RH_BASE "${BASE}/RobotsWar/LibRhoban/")
-set (RHOCK_BASE "${BASE}/RobotsWar/Rhock/src")
+set (RH_BASE "${BASE}/Maple/LibRhoban/")
+set (RHOCK_BASE "${BASE}/Maple/Rhock/src")
 
 # Includes
 include_directories (${RHOCK_BASE} ${RH_BASE})
@@ -16,10 +16,12 @@ set (SOURCES
     ${BASE}/kinematic.cpp
     ${BASE}/motion.cpp
     ${BASE}/leds.cpp
+    ${BASE}/buzzer.cpp
     ${BASE}/motors.cpp
     ${BASE}/mapping.cpp
     ${BASE}/rhock-functions.cpp
     ${BASE}/rhock-stream.cpp
+    ${BASE}/cubic.cpp
     ${RH_BASE}/function.cpp
     )
 

@@ -12,9 +12,6 @@ static uint8_t currentMapping = 0;
 // This is the servo mappings
 uint8_t mapping[12];
 
-/**
- * Colorizes the two front legs
- */
 void colorize()
 {
     if (!leds_are_custom()) {
@@ -27,10 +24,6 @@ void colorize()
     }
 }
 
-/**
- * Changes the mapping of the leg, the input is the direction
- * (between 0 and 3)
- */
 void remap(int direction)
 {
     currentMapping = direction;

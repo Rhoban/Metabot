@@ -14,13 +14,17 @@
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
+#else
+#include "imu.h"
+#include "voltage.h"
+#include "distance.h"
 #endif
 #ifdef RHOCK
 #include <rhock/event.h>
 #include <rhock/stream.h>
 #endif
 #include "config.h"
-#include "function.h"
+#include "cubic.h"
 #include "motion.h"
 #include "kinematic.h"
 #include "mapping.h"
@@ -29,6 +33,10 @@
 
 // Angles for the legs motor
 float l1[4], l2[4], l3[4];
+
+// Extra angles
+float a1[4], a2[4], a3[4];
+
 // Extra x, y and z for each leg
 static float ex[4], ey[4], ez[4];
 
@@ -63,16 +71,18 @@ TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
 
 // Static position
-TERMINAL_PARAMETER_FLOAT(r, "Robot size", 125.0);
+TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
 TERMINAL_PARAMETER_FLOAT(h, "Robot height", -55.0);
 
 // Direction vector
 TERMINAL_PARAMETER_FLOAT(dx, "Dx", 0.0);
 TERMINAL_PARAMETER_FLOAT(dy, "Dy", 0.0);
-TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Turning, in ° per step
 TERMINAL_PARAMETER_FLOAT(turn, "Turn", 0.0);
+
+// Crab
+TERMINAL_PARAMETER_FLOAT(crab, "Crab", 0.0);
 
 // Front delta h
 TERMINAL_PARAMETER_FLOAT(frontH, "Front delta H", 0.0);
@@ -92,13 +102,14 @@ TERMINAL_COMMAND(toggleCrab, "Toggle crab mode")
 #endif
 
 // Gait selector
-#define GAIT_WALK       0
-#define GAIT_TROT       1
-TERMINAL_PARAMETER_INT(gait, "Gait (0:walk, 1:trot)", GAIT_TROT);
+TERMINAL_PARAMETER_FLOAT(gait, "Gait", 1);
+
+// Support
+float support = 0.5;
 
 // Functions
-Function rise;
-Function step;
+Cubic rise;
+Cubic step;
 
 /**
  * Initializing functions
@@ -108,60 +119,40 @@ void setup_functions()
     rise.clear();
     step.clear();
 
-    if (gait == GAIT_WALK) {
-        // Rising the legs
-        rise.addPoint(0.0, 0.0);
-        rise.addPoint(0.1, 1.0);
-        rise.addPoint(0.3, 1.0);
-        rise.addPoint(0.35, 0.0);
-        rise.addPoint(1.0, 0.0);
+    step.addPoint(0, 0.5, -1/support);
+    step.addPoint(support, -0.5, -1/support);
+    step.addPoint(support+(1-support)/2, 0, 1);
+    step.addPoint(1, 0.5, -1/support);
 
-        // Taking the leg forward
-        step.addPoint(0.0, -0.5);
-        step.addPoint(0.12, -0.5);
-        step.addPoint(0.3, 0.5);
-        step.addPoint(0.35, 0.5);
-        step.addPoint(1.0, -0.5);
-    }
+    rise.addPoint(0, 0, 0);
+    rise.addPoint(support, 0, 0);
+    rise.addPoint(support+(1-support)/2, 1, 0);
+    rise.addPoint(1, 0, 0);
+}
 
-    if (gait == GAIT_TROT) {
-        // Rising the legs
-        rise.addPoint(0.0, 1.0);
-        rise.addPoint(0.3, 1.0);
-        rise.addPoint(0.4, 0.0);
-        rise.addPoint(0.9, 0.0);
-        rise.addPoint(1.0, 1.0);
-
-        // Taking the leg forward
-        step.addPoint(0.0, -0.5);
-        step.addPoint(0.1, -0.5);
-        step.addPoint(0.3, 0.5);
-        step.addPoint(0.5, 0.5);
-        step.addPoint(0.85, -0.5);
-        step.addPoint(1.0, -0.5);
-
-        /*
-         // Rising the legs
-         rise.addPoint(0.0, 0.0);
-         rise.addPoint(0.1, 1.0);
-         rise.addPoint(0.4, 1.0);
-         rise.addPoint(0.5, 0.0);
-         rise.addPoint(1.0, 0.0);
- 
-         // Taking the leg forward
-         step.addPoint(0.0, -0.5);
-         step.addPoint(0.1, -0.5);
-         step.addPoint(0.5, 0.5);
-         step.addPoint(1.0, -0.5);
-         */
+#ifdef HAS_TERMINAL
+TERMINAL_COMMAND(support, "Setup functions")
+{
+    if (argc == 1) {
+        support = atof(argv[0]);
+        setup_functions();
+    } else {
+        terminal_io()->println("Usage: support [duty]");
     }
 }
+#endif
 
 TERMINAL_PARAMETER_FLOAT(smoothBackLegs, "Smooth 180", 0.0);
 
 // Extra values
 float extra_h = 0;
 float extra_r = 0;
+
+// Is the robot moving?
+bool motion_is_moving()
+{
+    return (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5);
+}
 
 void motion_init()
 {
@@ -172,6 +163,9 @@ void motion_init()
         ex[i] = 0;
         ey[i] = 0;
         ez[i] = 0;
+        a1[i] = 0;
+        a2[i] = 0;
+        a3[i] = 0;
     }
 
     extra_h = 0;
@@ -179,14 +173,11 @@ void motion_init()
     freq = 2.0;
 }
 
-float last_t = 0;
-
 void motion_tick(float t)
 {
     if (!motors_enabled()) {
         return;
     }
-    last_t = t;
 
     // Setting up functions
     setup_functions();
@@ -199,7 +190,6 @@ void motion_tick(float t)
         smoothBackLegs -= 0.02;
     }
 
-    float turnRad = DEG2RAD(turn);
     float crabRad;
 
     for (int i=0; i<4; i++) {
@@ -209,76 +199,93 @@ void motion_tick(float t)
         // This defines the phase of the gait
         float legPhase;
 
-        if (gait == GAIT_WALK) {
-            float phases[] = {0.0, 0.5, 0.75, 0.25};
-            legPhase = t + phases[i];
-        }
-        if (gait == GAIT_TROT) {
-            legPhase = t + group*0.5;
-        }
+        // Defining gait
+        float phasesA[] = {0.0, 0.5, 1-1e-6, 0.5};
+        float phasesB[] = {0.0, 0.5, 0.75, 0.25};
+        legPhase = t + phasesA[i]*gait + phasesB[i]*(1-gait);
 
+        // Leg target
         float x, y, z, a, b, c;
 
         // Computing the order in the referencial of the body
         float stepping = step.getMod(legPhase);
-        // Set X and Y to the moving vector
-        float X = stepping*dx;
-        float Y = stepping*dy;
 
         // Add the radius to the leg, in the right direction
-        float nr = (r+extra_r);
-        switch (i) {
-            case 0:
-                X += cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-            case 1:
-                X += cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 2:
-                X -= cos(M_PI/4)*nr;
-                Y -= cos(M_PI/4)*nr;
-                break;
-            case 3:
-                X -= cos(M_PI/4)*nr;
-                Y += cos(M_PI/4)*nr;
-                break;
-        }
+        float radius = (r+extra_r);
 
-        // Rotate around the center of the robot
-        if (group) {
-            crabRad = DEG2RAD(crab);
+        // The leg position in the body frame
+        float X = (cos(M_PI/4)*radius) * ((i==0||i==1) ? 1 : -1);
+        float Y = (cos(M_PI/4)*radius) * ((i==0||i==3) ? 1 : -1);
+        float X_ = X;
+        float Y_ = Y;
+
+        // Applying crab
+        crabRad = DEG2RAD(crab) * (group ? 1 : -1);
+        X = cos(crabRad)*X_ - sin(crabRad)*Y_;
+        Y = sin(crabRad)*X_ + cos(crabRad)*Y_;
+
+        // Extras
+        X += ex[i];
+        Y += ey[i];
+
+        // Add dX and dY to the moving vector
+        if (fabs(turn) > 0.5) {
+            float turnRad = -DEG2RAD(turn);
+            float theta = -stepping*turnRad;
+            float l = sqrt(dx*dx+dy*dy)/turnRad;
+            float r = atan2(dy, dx);
+            float cr = cos(-r);
+            float sr = sin(-r);
+
+            X_ = X; Y_ = Y;
+            X = X_*cr - Y_*sr;
+            Y = X_*sr + Y_*cr;
+
+            X_ = X; Y_ = Y;
+            X = X_*cos(theta) - (Y_+l)*sin(theta);
+            Y = X_*sin(theta) + (Y_+l)*cos(theta) - l;
+
+            X_ = X; Y_ = Y;
+            X = X_*cr - Y_*(-sr);
+            Y = X_*(-sr) + Y_*cr;
         } else {
-            crabRad = -DEG2RAD(crab);
+            X += stepping*dx;
+            Y += stepping*dy;
         }
-        float xOrder = cos(stepping*turnRad+crabRad)*X - sin(stepping*turnRad+crabRad)*Y;
-        float yOrder = sin(stepping*turnRad+crabRad)*X + cos(stepping*turnRad+crabRad)*Y;
 
         // Move to the leg frame
         float vx, vy;
-        legFrame(xOrder, yOrder, &vx, &vy, i, L0);
+        legFrame(X, Y, &vx, &vy, i, L0);
 
-        float enableRise = (fabs(dx)>0.5 || fabs(dy)>0.5 || fabs(turn)>5) ? 1 : 0;
+        // The robot is moving if there is dynamics parameters
+        bool moving = motion_is_moving();
 
         // This is the x,y,z order in the referencial of the leg
-        x = ex[i] + vx;
-        y = ey[i] + vy;
-        z = ez[i] + h - extra_h + rise.getMod(legPhase)*alt*enableRise;
+        x = vx;
+        y = vy;
+        z = ez[i] + h - extra_h + (moving ? (rise.getMod(legPhase)*alt) : 0);
         if (i < 2) z += frontH;
 
         // Computing inverse kinematics
         if (computeIK(x, y, z, &a, &b, &c, L1, L2, backLegs ? L3_2 : L3_1)) {
-            l1[i] = -signs[0]*a;
-            l2[i] = -signs[1]*b;
-            l3[i] = -signs[2]*(c - 180*smoothBackLegs);
+            l1[i] = -SIGN_A*a + a1[i];
+            l2[i] = -SIGN_B*b + a2[i];
+            l3[i] = -SIGN_C*(c - 180*smoothBackLegs) + a3[i];
         }
     }
 }
 
+#ifdef __EMSCRIPTEN__
+float sim_t = 0.0;
+#endif
+
 void motion_reset()
 {
     motion_init();
+
+#ifdef __EMSCRIPTEN__
+    sim_t = 0.0;
+#endif
 }
 
 void motion_set_f(float f_)
@@ -303,22 +310,61 @@ void motion_set_r(float r_)
 
 void motion_set_x_speed(float x_speed)
 {
-    dx = x_speed/(2.0*freq);
+    dx = ODOMETRY_TRANSLATION*x_speed/(2.0*freq);
 }
 
 void motion_set_y_speed(float y_speed)
 {
-    dy = y_speed/(2.0*freq);
+    dy = ODOMETRY_TRANSLATION*y_speed/(2.0*freq);
 }
 
 void motion_set_turn_speed(float turn_speed)
 {
-    turn = turn_speed/(2.0*freq);
+    turn = ODOMETRY_ROTATION*turn_speed/(2.0*freq);
+}
+
+void motion_extra_x(int index, float x)
+{
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ex[k] = x;
+        }
+    } else {
+        ex[index] = x;
+    }
+}
+
+void motion_extra_y(int index, float y)
+{
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ey[k] = y;
+        }
+    } else {
+        ey[index] = y;
+    }
 }
 
 void motion_extra_z(int index, float z)
 {
-    ez[index] = z;
+    if (index >= 4) {
+        for (int k=0; k<4; k++) {
+            ez[k] = z;
+        }
+    } else {
+        ez[index] = z;
+    }
+}
+
+void motion_extra_angle(int index, int motor, float angle)
+{
+    for (int k=0; k<4; k++) {
+        if (k == index || index >= 4) {
+            if (motor == 0) a1[k] = angle;
+            if (motor == 1) a2[k] = angle;
+            if (motor == 2) a3[k] = angle;
+        }
+    }
 }
 
 float motion_get_dx()
@@ -340,33 +386,104 @@ float motion_get_turn()
 void rhock_on_monitor()
 {
     rhock_stream_begin(RHOCK_STREAM_USER);
-    // Motion parameters
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(last_t));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dx));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(dy));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(turn));
-    rhock_stream_append_int(RHOCK_NUMBER_TO_VALUE(freq));
     // Angles
-    for (int i=0; i<12; i++) {
-        rhock_stream_append_short((uint16_t)((int16_t)motion_get_motor(i)*10));
+#ifdef __EMSCRIPTEN__
+    bool dontRead = true;
+#else
+    bool dontRead = false;
+#endif
+    if (dontRead || motors_enabled()) {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)(motion_get_motor(i)*10)));
+        }
+    } else {
+        for (int i=0; i<12; i++) {
+            rhock_stream_append_short((uint16_t)((int16_t)(motors_get_position(i)*10)));
+        }
     }
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+    rhock_stream_append_short(0);
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_yaw()*10)));
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_pitch()*10)));
+    rhock_stream_append_short((uint16_t)((int16_t)(imu_roll()*10)));
+#endif
+
     // Leds
     led_stream_state();
-    // Is enabled?
-    rhock_stream_append(motors_enabled());
+
+    // Distance sensor
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short((uint16_t)((int16_t)(100*10)));
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)(distance_get()*10)));
+#endif
+    
+    // Voltage
+#ifdef __EMSCRIPTEN__
+    rhock_stream_append_short((uint16_t)((int16_t)(8*10)));
+#else
+    rhock_stream_append_short((uint16_t)((int16_t)(voltage_current()*10)));
+#endif
+
     rhock_stream_end();
 }
 #endif
 
 #ifdef __EMSCRIPTEN__
-using namespace emscripten;
 
+void simulator_tick()
+{
+    if (motors_enabled()) {
+        sim_t += motion_get_f()*0.02;
+        if (sim_t > 1) sim_t -= 1;
+        if (!motion_is_moving()) {
+            sim_t = 0;
+        }
+        motion_tick(sim_t);
+    }
+}
+
+float simulator_get_dx()
+{
+    return dx;
+}
+
+float simulator_get_dy()
+{
+    return dy;
+}
+
+float simulator_get_turn()
+{
+    return turn;
+}
+
+float simulator_get_f()
+{
+    return motion_get_f();
+}
+
+bool simulator_get_enabled()
+{
+    return motors_enabled();
+}
+
+using namespace emscripten;
 EMSCRIPTEN_BINDINGS(motion) {
     function("motion_get_dx", &motion_get_dx);
     function("motion_get_dy", &motion_get_dy);
     function("motion_get_turn", &motion_get_turn);
     function("motion_init", &motion_init);
-    function("motion_tick", &motion_tick);
     function("motion_get_motor", &motion_get_motor);
+
+    function("simulator_tick", &simulator_tick);
+    function("simulator_get_f", &simulator_get_f);
+    function("simulator_get_dx", &simulator_get_dx);
+    function("simulator_get_dy", &simulator_get_dy);
+    function("simulator_get_turn", &simulator_get_turn);
+    function("simulator_get_enabled", &simulator_get_enabled);
 }
 #endif
