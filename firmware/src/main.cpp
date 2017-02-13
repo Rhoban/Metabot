@@ -210,7 +210,7 @@ void buttonPress()
     btnLast = millis();
 }
 
-void idNext()
+void idAudio()
 {
     for (int k=0; k<id; k++) {
         buzzer_beep(400, 50);
@@ -225,12 +225,10 @@ void buttonRelease()
         id = 1;
         buzzer_play(MELODY_BEGIN);
         buzzer_wait_play();
-        delay(500);
-        idNext();
     } else {
-        int success = 0;
         // XXX: Flash the ID
         if (id <= 12) {
+            int success = 0;
             for (int k=0; k<6; k++) {
                 dxl_configure(DXL_BROADCAST, id);
                 dxl_write_byte(id, DXL_LED, LED_G);
@@ -239,21 +237,21 @@ void buttonRelease()
                     success++;
                 }
             }
-        }
 
-        if (success > 0) {
-            id++;
+            if (success > 0) {
+                idAudio();
+                id++;
 
-            if (id <= 12) {
-                idNext();
-            }
-            if (id == 13) {
-                buzzer_play(MELODY_BEGIN);
+                if (id > 12) {
+                    // It's over
+                    delay(500);
+                    buzzer_play(MELODY_BEGIN);
+                    buzzer_wait_play();
+                }
+            } else {
+                buzzer_play(MELODY_WARNING);
                 buzzer_wait_play();
             }
-        } else {
-            buzzer_play(MELODY_WARNING);
-            buzzer_wait_play();
         }
     }
 }
