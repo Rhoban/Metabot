@@ -22,7 +22,7 @@
  * the leg.
  *
  * l1, l2 and l3 are the length between the first motor
- * arm and the second motor arm, between the second and thr
+ * arm and the second motor arm, between the second and the
  * third motor arm, and between the third motor arm and the
  * end of the leg.
  *
