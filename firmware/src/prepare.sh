@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -d "RhobanMaple" ]; then
+if [ -d "Maple" ]; then
     cd Maple &&
     git pull &&
     cd Rhock &&
