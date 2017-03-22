@@ -20,7 +20,7 @@ void bt_init()
 #ifdef BT_HM12
     RC.write("AT+RESET"); delay(10);
 #endif
-    
+
     RC.begin(BT_BAUD);
 }
 
@@ -66,6 +66,20 @@ static void bt_conf(char *name, char *pin)
 #endif
 }
 
+void bt_set_config(char *name, char *pin)
+{
+    for (int k=0; k<3; k++) {
+        RC.begin(9600);
+        for (int n=0; n<3; n++) bt_conf(name, pin);
+#ifdef BT_HC05
+        RC.begin(38400);
+        for (int n=0; n<3; n++) bt_conf(name, pin);
+#endif
+        RC.begin(BT_BAUD);
+        for (int n=0; n<3; n++) bt_conf(name, pin);
+    }
+}
+
 TERMINAL_COMMAND(btconf, "Bluetooth config")
 {
     if (argc != 2) {
@@ -78,16 +92,7 @@ TERMINAL_COMMAND(btconf, "Bluetooth config")
         terminal_io()->println("And pin:");
         terminal_io()->println(pin);
 
-        for (int k=0; k<3; k++) {
-            RC.begin(9600);
-            for (int n=0; n<3; n++) bt_conf(name, pin);
-#ifdef BT_HC05
-            RC.begin(38400);
-            for (int n=0; n<3; n++) bt_conf(name, pin);
-#endif
-            RC.begin(BT_BAUD);
-            for (int n=0; n<3; n++) bt_conf(name, pin);
-        }
+        bt_set_config(name, pin);
     }
 }
 

@@ -17,4 +17,9 @@
  */
 void bt_init();
 
+/**
+ * Configures the bluetooth (name=device name, pin=pair pin)
+ */
+void bt_set_config(char *name, char *pin);
+
 #endif

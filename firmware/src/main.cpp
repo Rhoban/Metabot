@@ -213,13 +213,19 @@ void idAudio()
     for (int k=0; k<id; k++) {
         buzzer_beep(400, 50);
         buzzer_wait_play();
-        delay(100);
+        delay(150);
     }
 }
 
 void buttonRelease()
 {
-    if (millis()-btnLast > 2000) {
+    if (millis()-btnLast > 6000) {
+        buzzer_play(MELODY_BEGIN);
+        buzzer_wait_play();
+        bt_set_config("Metabot", "1234");
+        buzzer_play(MELODY_BEGIN);
+        buzzer_wait_play();
+    } else if (millis()-btnLast > 2000) {
         id = 1;
         buzzer_play(MELODY_BEGIN);
         buzzer_wait_play();
@@ -227,12 +233,29 @@ void buttonRelease()
         // XXX: Flash the ID
         if (id <= 12) {
             int success = 0;
-            for (int k=0; k<6; k++) {
-                dxl_configure(DXL_BROADCAST, id);
-                dxl_write_byte(id, DXL_LED, LED_G);
-                delay(50);
-                if (dxl_ping(id)) {
-                    success++;
+
+            int discover = 0;
+            for (int k=1; k<=12; k++) {
+                bool ok =false;
+                for (int t=0; t<3; t++) {
+                    if (dxl_ping(k)) {
+                        ok = true;
+                    }
+                    delay(3);
+                }
+                if (ok) {
+                    discover++;
+                }
+            }
+
+            if (discover == 1) {
+                for (int k=0; k<3; k++) {
+                    dxl_configure(DXL_BROADCAST, id);
+                    dxl_write_byte(id, DXL_LED, LED_G);
+                    delay(30);
+                    if (dxl_ping(id)) {
+                        success++;
+                    }
                 }
             }
 
