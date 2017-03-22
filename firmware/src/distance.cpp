@@ -79,9 +79,11 @@ void distance_tick()
 
 TERMINAL_COMMAND(dist, "Monitor distances")
 {
-    while (!SerialUSB.available()) {
+    bool continuous = (argc > 0);
+
+    do {
         terminal_io()->println(distance_get());
         distance_tick();
         delay(10);
-    }
+    } while (continuous && !SerialUSB.available());
 }
