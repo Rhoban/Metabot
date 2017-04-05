@@ -217,26 +217,33 @@ void idAudio()
     }
 }
 
+/**
+ * The button is used to do some configurations, for more information
+ * please refer to the official documentation
+ */
 void buttonRelease()
 {
     if (millis()-btnLast > 6000) {
+        // Pressed more than 6s, configuring bluetooth
         buzzer_play(MELODY_BEGIN);
         buzzer_wait_play();
         bt_set_config("Metabot", "1234");
         buzzer_play(MELODY_BEGIN);
         buzzer_wait_play();
     } else if (millis()-btnLast > 2000) {
+        // Pressed more than 2s, entering ID sequence
         id = 1;
         buzzer_play(MELODY_BEGIN);
         buzzer_wait_play();
     } else {
-        // XXX: Flash the ID
+        // Next id sequence
         if (id <= 12) {
             int success = 0;
 
+            // Checking that there is exactly one servo on the bus
             int discover = 0;
             for (int k=1; k<=12; k++) {
-                bool ok =false;
+                bool ok = false;
                 for (int t=0; t<3; t++) {
                     if (dxl_ping(k)) {
                         ok = true;
@@ -248,17 +255,21 @@ void buttonRelease()
                 }
             }
 
+            // Configuring the servo on the bus to the target ID
+            // (using broadcast as address)
             if (discover == 1) {
                 for (int k=0; k<3; k++) {
                     dxl_configure(DXL_BROADCAST, id);
                     dxl_write_byte(id, DXL_LED, LED_G);
                     delay(30);
+                    // Checking that the servo now is correct
                     if (dxl_ping(id)) {
                         success++;
                     }
                 }
             }
 
+            // Next ID
             if (success > 0) {
                 idAudio();
                 id++;
