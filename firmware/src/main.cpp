@@ -17,6 +17,7 @@
 #include "motion.h"
 #include "leds.h"
 #include "mapping.h"
+#include "behavior.h"
 #include "imu.h"
 #include "bt.h"
 
@@ -179,6 +180,11 @@ void tick()
         t = 0.0;
     }
     wasMoving = motion_is_moving();
+
+    // Robot behavior
+    if (BEHAVIOR_ENABLE) {
+        behavior_tick(0.02);
+    }
 
     motion_tick(t);
 
