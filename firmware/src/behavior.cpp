@@ -1,10 +1,13 @@
 #include <math.h>
+#include <terminal.h>
 #include "imu.h"
 #include "distance.h"
 #include "motion.h"
 #include "buzzer.h"
 #include "behavior.h"
 #include "leds.h"
+
+TERMINAL_PARAMETER_INT(bhv, "Behavior", 0);
 
 /**
  * Here you can write down your own behaviour, the tick method (at the end of
@@ -154,9 +157,21 @@ void behavior_scan_space(float dt)
 
 void behavior_tick(float dt)
 {
-    // behavior_blink_leds(dt);
-    // behavior_sinus_height(dt);
-    // behavior_explore(dt);
-    // behavior_grab(dt);
-    // behavior_scan_space(dt);
+    static int lastBhv = 0;
+
+    if (bhv == 1) behavior_blink_leds(dt);
+    if (bhv == 2) behavior_sinus_height(dt);
+    if (bhv == 3) behavior_explore(dt);
+    if (bhv == 4) behavior_grab(dt);
+    if (bhv == 5) behavior_scan_space(dt);
+
+    if (bhv == 0 && lastBhv != 0) {
+        leds_decustom();
+        motion_set_x_speed(0);
+        motion_set_y_speed(0);
+        motion_set_turn_speed(0);
+        motion_reset();
+        buzzer_stop();
+    }
+    lastBhv = bhv;
 }
