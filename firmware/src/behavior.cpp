@@ -9,6 +9,11 @@
 
 TERMINAL_PARAMETER_INT(bhv, "Behavior", 0);
 
+void behavior_set(uint8_t b)
+{
+    bhv = b;
+}
+
 /**
  * Here you can write down your own behaviour, the tick method (at the end of
  * this file) is called with a given dt (in s) that you can use for temporal

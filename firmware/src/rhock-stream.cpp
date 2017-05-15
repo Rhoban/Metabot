@@ -9,6 +9,7 @@
 #include "motors.h"
 #include "imu.h"
 #include "leds.h"
+#include "behavior.h"
 
 #define RHOCK_STREAM_METABOT    50
 
@@ -74,6 +75,11 @@ char rhock_on_packet(uint8_t type)
                     motion_set_turn_speed(0.0);
                     motion_reset();
                     return 1;
+                    break;
+                case 8: // Behavior
+                    if (rhock_stream_available() == 1) {
+                        behavior_set(rhock_stream_read());
+                    }
                     break;
             }
         }
