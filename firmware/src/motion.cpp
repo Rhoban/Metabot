@@ -191,6 +191,8 @@ void motion_tick(float t)
     }
 
     float crabRad;
+    float phasesA[] = {0.0, 0.5, 1-1e-6, 0.5};
+    float phasesB[] = {0.0, 0.5, 0.75, 0.25};
 
     for (int i=0; i<4; i++) {
         // Defining in which group of opposite legs this leg is
@@ -200,8 +202,6 @@ void motion_tick(float t)
         float legPhase;
 
         // Defining gait
-        float phasesA[] = {0.0, 0.5, 1-1e-6, 0.5};
-        float phasesB[] = {0.0, 0.5, 0.75, 0.25};
         legPhase = t + phasesA[i]*gait + phasesB[i]*(1-gait);
 
         // Leg target
