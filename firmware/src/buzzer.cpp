@@ -178,6 +178,10 @@ void buzzer_tick()
 
 void buzzer_stop()
 {
+    if (voltage_error()) {
+        return;
+    }
+
     buzzer_play_note(0);
     melody = NULL;
     melody_repeat = NULL;
