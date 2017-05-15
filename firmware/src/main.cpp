@@ -182,9 +182,7 @@ void tick()
     wasMoving = motion_is_moving();
 
     // Robot behavior
-    if (BEHAVIOR_ENABLE) {
-        behavior_tick(0.02);
-    }
+    behavior_tick(0.02);
 
     motion_tick(t);
 
