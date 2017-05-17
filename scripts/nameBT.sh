@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simple script to give name to bluetooth devices
+# Simple script to give name to bluetooth devices in the udev 
 
 # Ensuring the default rules are copied
 cp rules/* /etc/udev/rules
