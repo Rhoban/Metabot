@@ -36,13 +36,12 @@ void voltage_init()
     voltage_is_error = false;
 }
 
+int voltage_last_ts = 0;
+
 void voltage_tick()
 {
-    static int divider = 0;
-    divider++;
-
-    if (divider > 5) {
-        divider = 0;
+    if (millis() - voltage_last_ts > 10) {
+        voltage_last_ts = millis();
         int newSample = analogRead(VOLTAGE_PIN);
         if (newSample < voltage_now) voltage_now--;
         if (newSample > voltage_now) voltage_now++;
