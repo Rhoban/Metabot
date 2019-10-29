@@ -11,6 +11,7 @@ LIB_RHOBAN_HOME = ./Maple/LibRhoban
 LIB_RHOCK_HOME = ./Maple/LibRhock
 ENABLE_RHOCK := yes
 ENABLE_COMMANDS := yes
+ENABLE_DXL := yes
 
 ##
 ## Useful paths, constants, etc.
