@@ -68,7 +68,7 @@ TERMINAL_PARAMETER_FLOAT(freq, "Time factor gain", 2.0);
 TERMINAL_PARAMETER_BOOL(backLegs, "Legs backwards", false);
 
 // Amplitude & altitude of the robot
-TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 15.0);
+TERMINAL_PARAMETER_FLOAT(alt, "Height of the steps", 22.0);
 
 // Static position
 TERMINAL_PARAMETER_FLOAT(r, "Robot size", 153.0);
@@ -119,10 +119,10 @@ void setup_functions()
     rise.clear();
     step.clear();
 
-    step.addPoint(0, 0.5, -1/support);
-    step.addPoint(support, -0.5, -1/support);
+    step.addPoint(0, 0.5, 0);
+    step.addPoint(support, -0.5, 0);
     step.addPoint(support+(1-support)/2, 0, 1);
-    step.addPoint(1, 0.5, -1/support);
+    step.addPoint(1, 0.5, 0);
 
     rise.addPoint(0, 0, 0);
     rise.addPoint(support, 0, 0);
